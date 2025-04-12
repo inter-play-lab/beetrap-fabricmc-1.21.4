@@ -6,13 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import java.util.function.Consumer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.entity.player.PlayerPosition;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
@@ -188,6 +187,7 @@ public class BeetrapGameServer {
 
     private void tickPollination() {
         if(this.isPollinationInProcess) {
+
             if(this.beeNest.getPos().distanceTo(this.beeNestDestination) >= EPSILON) {
                 this.beeNest.setVelocity(this.beeNestVelocity.x, this.beeNestVelocity.y, this.beeNestVelocity.z);
                 EntityVelocityUpdateS2CPacket evus2cp = new EntityVelocityUpdateS2CPacket(this.beeNest);
@@ -198,7 +198,12 @@ public class BeetrapGameServer {
                 EntityVelocityUpdateS2CPacket evus2cp = new EntityVelocityUpdateS2CPacket(this.beeNest);
                 this.sendPacketToAllPlayers(evus2cp);
                 this.isPollinationInProcess = false;
+
             }
+
+            EntityPositionSyncS2CPacket epss2cp = EntityPositionSyncS2CPacket.create(this.beeNest);
+            this.sendPacketToAllPlayers(epss2cp);
+            this.world.getPlayers().forEach(playerEntity -> playerEntity.sendMessage(Text.of(BeetrapGameServer.this.beeNest.getPos().toString())));
         }
     }
 
