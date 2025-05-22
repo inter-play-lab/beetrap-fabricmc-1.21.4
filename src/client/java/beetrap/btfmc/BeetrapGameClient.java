@@ -2,6 +2,8 @@ package beetrap.btfmc;
 
 import beetrap.btfmc.networking.PlayerPollinateC2SPayload;
 import beetrap.btfmc.networking.PlayerTargetNewEntityC2SPayload;
+import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload;
+import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -91,18 +93,38 @@ public class BeetrapGameClient {
     public ActionResult onPlayerUseItem(PlayerEntity player, World world, Hand hand) {
         ActionResult ar = new Pass();
 
-        PlayerPollinateC2SPayload ppc2sp;
+        switch(player.getInventory().selectedSlot) {
+            case 0 -> {
+                ClientPlayNetworking.send(new PlayerTimeTravelRequestC2SPayload(-1, Operations.ADD));
+            }
 
-        if(this.targetedEntity != null) {
-            ppc2sp = new PlayerPollinateC2SPayload(true, this.targetedEntity.getId());
-        } else {
-            ppc2sp = new PlayerPollinateC2SPayload(false, 0);
-        }
+            case 4 -> {
+                PlayerPollinateC2SPayload ppc2sp;
 
-        if(player.getInventory().selectedSlot == 4) {
-            ClientPlayNetworking.send(ppc2sp);
+                if(this.targetedEntity != null) {
+                    ppc2sp = new PlayerPollinateC2SPayload(true, this.targetedEntity.getId());
+                } else {
+                    ppc2sp = new PlayerPollinateC2SPayload(false, 0);
+                }
+
+                ClientPlayNetworking.send(ppc2sp);
+            }
+
+            case 8 -> {
+                ClientPlayNetworking.send(new PlayerTimeTravelRequestC2SPayload(1, Operations.ADD));
+            }
         }
 
         return ar;
+    }
+
+    public void onEntityPositionUpdate(int entityId, double x, double y, double z) {
+        Entity e = this.client.world.getEntityById(entityId);
+
+        if(e == null) {
+            return;
+        }
+
+        e.setPosition(x, y, z);
     }
 }

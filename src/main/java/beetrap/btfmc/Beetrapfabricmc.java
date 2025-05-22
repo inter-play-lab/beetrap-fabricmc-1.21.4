@@ -1,7 +1,9 @@
 package beetrap.btfmc;
 
+import beetrap.btfmc.networking.EntityPositionUpdateS2CPayload;
 import beetrap.btfmc.networking.PlayerPollinateC2SPayload;
 import beetrap.btfmc.networking.PlayerTargetNewEntityC2SPayload;
+import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -12,7 +14,6 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.StartWorldTick;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.Context;
@@ -33,11 +34,11 @@ public class Beetrapfabricmc implements ModInitializer {
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	private BeetrapGameServer bgs;
+	private BeetrapGame bgs;
 
 	private boolean newBeetrapGame(MinecraftServer server) {
 		if(bgs == null) {
-			this.bgs = new BeetrapGameServer(server, new Vector3i(-10, 0, -10), new Vector3i(10, 0, 10));
+			this.bgs = new BeetrapGame(server, new Vector3i(-10, 0, -10), new Vector3i(10, 0, 10));
 
 			return true;
 		}
@@ -101,13 +102,27 @@ public class Beetrapfabricmc implements ModInitializer {
 		}
 	}
 
+	private void onPlayerRequestTimeTravel(PlayerTimeTravelRequestC2SPayload payload, Context context) {
+		if(this.bgs != null) {
+			this.bgs.onPlayerRequestTimeTravel(context.player(), payload.n(), payload.operation());
+		}
+	}
+
 	@Override
 	public void onInitialize() {
-		ServerTickEvents.END_WORLD_TICK.register(this::onWorldTick);
+		ServerTickEvents.START_WORLD_TICK.register(this::onWorldTick);
+
 		CommandRegistrationCallback.EVENT.register(this::registerGameCommand);
+
 		PayloadTypeRegistry.playC2S().register(PlayerTargetNewEntityC2SPayload.ID, PlayerTargetNewEntityC2SPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(PlayerTargetNewEntityC2SPayload.ID, this::onPlayerTargetEntity);
+
 		PayloadTypeRegistry.playC2S().register(PlayerPollinateC2SPayload.ID, PlayerPollinateC2SPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(PlayerPollinateC2SPayload.ID, this::onPlayerPollinate);
+
+		PayloadTypeRegistry.playS2C().register(EntityPositionUpdateS2CPayload.ID, EntityPositionUpdateS2CPayload.CODEC);
+
+		PayloadTypeRegistry.playC2S().register(PlayerTimeTravelRequestC2SPayload.ID, PlayerTimeTravelRequestC2SPayload.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(PlayerTimeTravelRequestC2SPayload.ID, this::onPlayerRequestTimeTravel);
 	}
 }
