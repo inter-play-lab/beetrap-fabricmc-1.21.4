@@ -1,7 +1,6 @@
 package beetrap.btfmc.networking;
 
 import beetrap.btfmc.Beetrapfabricmc;
-import java.nio.channels.AsynchronousCloseException;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;

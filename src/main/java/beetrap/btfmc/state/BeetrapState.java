@@ -1,14 +1,13 @@
-package beetrap.btfmc;
+package beetrap.btfmc.state;
 
 import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.flower.FlowerPool;
 import beetrap.btfmc.util.AlgorithmOfFloyd;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.PriorityQueue;
-import java.util.UUID;
+import net.minecraft.util.math.Vec3d;
+import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
 public class BeetrapState implements Iterable<Flower> {
@@ -17,8 +16,7 @@ public class BeetrapState implements Iterable<Flower> {
     private int number;
     private BeetrapState child;
     private boolean[] flowers;
-    private double pollinationCircleRadius;
-    private int amountOfFlowersToWither;
+    private Vec3d beeNestMinecraftPosition;
 
     /**
      * Create a new root BeetrapState with a flower pool
@@ -29,15 +27,14 @@ public class BeetrapState implements Iterable<Flower> {
         this.parent = null;
         this.number = 0;
         this.flowers = new boolean[this.flowerPool.size()];
-        this.pollinationCircleRadius = 3;
-        this.amountOfFlowersToWither = 3;
     }
 
     private BeetrapState() {
 
     }
 
-    public BeetrapState createChild() {
+    public BeetrapState createChild(Vec3d beeNestPosition) {
+        this.beeNestMinecraftPosition = beeNestPosition;
         this.child = new BeetrapState();
         this.child.flowerPool = new FlowerPool(this.flowerPool);
         this.child.parent = this;
@@ -45,25 +42,16 @@ public class BeetrapState implements Iterable<Flower> {
         this.child.child = null;
         this.child.flowers = new boolean[this.flowers.length];
         System.arraycopy(this.flowers, 0, child.flowers, 0, this.flowers.length);
-        this.child.pollinationCircleRadius = this.pollinationCircleRadius;
-        this.child.amountOfFlowersToWither = this.amountOfFlowersToWither;
+        this.child.beeNestMinecraftPosition = beeNestPosition;
         return this.child;
+    }
+
+    public Vec3d getBeeNestMinecraftPosition() {
+        return this.beeNestMinecraftPosition;
     }
 
     public int getNumber() {
         return this.number;
-    }
-
-    public double getPollinationCircleRadius() {
-        return this.pollinationCircleRadius;
-    }
-
-    public int getAmountOfFlowersToWither() {
-        return this.amountOfFlowersToWither;
-    }
-
-    public void setPollinationCircleRadius(double pcr) {
-        this.pollinationCircleRadius = pcr;
     }
 
     public boolean isRoot() {
@@ -86,15 +74,9 @@ public class BeetrapState implements Iterable<Flower> {
         this.flowers[flowerNumber] = b;
     }
 
-    public Flower[] getNFlowersClosestTo(Flower f, int n) {
+    public Flower[] getNFlowersNotInGardenClosestToFSortedByG(Flower f, int n, Comparator<Flower> g) {
         Flower[] r = new Flower[n];
-
-        PriorityQueue<Flower> flowers = new PriorityQueue<>((o1, o2) -> {
-            double d1 = f.distanceTo(o1);
-            double d2 = f.distanceTo(o2);
-            return Double.compare(d1, d2);
-        });
-
+        PriorityQueue<Flower> flowers = new PriorityQueue<>(g);
         for(Flower flower : this.flowerPool) {
             if(flower.equals(f)) {
                 continue;
@@ -112,6 +94,45 @@ public class BeetrapState implements Iterable<Flower> {
         }
 
         return r;
+    }
+
+    public Flower[] getNFlowersNotInGardenClosestToF(Flower f, int n) {
+        return this.getNFlowersNotInGardenClosestToFSortedByG(f, n, (o1, o2) -> {
+            double d1 = f.distanceTo(o1);
+            double d2 = f.distanceTo(o2);
+            return Double.compare(d1, d2);
+        });
+    }
+
+    public Flower[] getNFlowersNotInGardenClosestToFByMappedNormalFlowerPosition(Flower f, int n) {
+        return this.getNFlowersNotInGardenClosestToFSortedByG(f, n, (o1, o2) -> {
+            RealVector fp = this.flowerPool.getMappedNormalFlowerPosition(f.getNumber());
+            RealVector o1p = this.flowerPool.getMappedNormalFlowerPosition(o1.getNumber());
+            RealVector o2p = this.flowerPool.getMappedNormalFlowerPosition(o2.getNumber());
+            double d1 = fp.getDistance(o1p);
+            double d2 = fp.getDistance(o2p);
+            return Double.compare(d1, d2);
+        });
+    }
+
+    public double computeDiversityScore() {
+        double s = 0;
+
+        for(Flower f : this) {
+            if(f.hasWithered()) {
+                continue;
+            }
+
+            for(Flower g : this) {
+                if(g.hasWithered()) {
+                    continue;
+                }
+
+                s = s + this.flowerPool.getMappedNormalFlowerPosition(f.getNumber()).getDistance(this.flowerPool.getMappedNormalFlowerPosition(g.getNumber())) * 10;
+            }
+        }
+
+        return s;
     }
 
     @NotNull
@@ -134,6 +155,14 @@ public class BeetrapState implements Iterable<Flower> {
 
     public FlowerPool getFlowerPool() {
         return this.flowerPool;
+    }
+
+    public void setBeeNestMinecraftPosition(Vec3d position) {
+        this.beeNestMinecraftPosition = position;
+    }
+
+    public boolean isLeaf() {
+        return this.child == null;
     }
 
     private class FlowerIterator implements Iterator<Flower> {

@@ -9,9 +9,9 @@ import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
 
 public class FlowerPool implements Iterable<Flower> {
-    private Flower[] flowers;
-    private RealVector[] mappedNormalizedPositions;
-    private int n;
+    private final Flower[] flowers;
+    private final RealVector[] mappedNormalizedPositions;
+    private final int n;
 
     public FlowerPool(int n) {
         this.flowers = new Flower[n];

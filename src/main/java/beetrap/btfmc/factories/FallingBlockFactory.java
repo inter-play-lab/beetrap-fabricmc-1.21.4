@@ -1,4 +1,3 @@
-// beetrap/btfmc/factories/FallingBlockFactory.java
 package beetrap.btfmc.factories;
 
 import net.minecraft.world.World;

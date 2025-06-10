@@ -1,15 +1,18 @@
-// beetrap/btfmc/BeeNestController.java
 package beetrap.btfmc;
 
 import beetrap.btfmc.factories.FallingBlockFactory;
+import beetrap.btfmc.networking.EntityPositionUpdateS2CPayload;
 import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.util.TicksUtil;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 
 public class BeeNestController {
     private static final double EPSILON = 0.05;
@@ -35,6 +38,10 @@ public class BeeNestController {
                 basePos.x, basePos.y, basePos.z,
                 Blocks.BEE_NEST.getDefaultState());
         world.spawnEntity(nest);
+
+        for(ServerPlayerEntity spe : this.world.getPlayers()) {
+            spe.sendMessage(Text.of(String.valueOf(nest.getId())));
+        }
     }
 
     public void startPollination(Vec3d target) {
@@ -62,7 +69,7 @@ public class BeeNestController {
     }
 
     private void spawnCircleParticles() {
-        double r = this.game.getState().getPollinationCircleRadius();
+        double r = this.game.getPollinationCircleRadius();
 
         for(double t = 0; t < Math.TAU; t = t + EPSILON) {
             this.world.spawnParticles(ParticleTypes.FALLING_HONEY, this.nest.getX() + r * Math.cos(t), this.nest.getY(), this.nest.getZ() + r * Math.sin(t), 1, 0, 0, 0, 0);
@@ -79,5 +86,14 @@ public class BeeNestController {
 
     public void dispose() {
         if (nest != null) nest.kill(world);
+    }
+
+    public Vec3d getBeeNestPosition() {
+        return this.nest.getPos();
+    }
+
+    public void setBeeNestPosition(Vec3d position) {
+        this.nest.teleportTo(new TeleportTarget(this.world, position, new Vec3d(0, 0, 0), 0, 0, TeleportTarget.NO_OP));
+        this.net.broadcastCustomPayload(new EntityPositionUpdateS2CPayload(this.nest.getId(), this.nest.getX(), this.nest.getY(), this.nest.getZ()));
     }
 }

@@ -1,10 +1,11 @@
 package beetrap.btfmc.flower;
 
 import beetrap.btfmc.BeetrapGame;
-import beetrap.btfmc.BeetrapState;
+import beetrap.btfmc.state.BeetrapState;
 import beetrap.btfmc.factories.FallingBlockFactory;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.function.ToDoubleFunction;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.FallingBlockEntity;
@@ -39,7 +40,7 @@ public class FlowerManager {
             return Blocks.WITHER_ROSE.getDefaultState();
         }
 
-        switch((int)(f.v / (1. / 6.))) {
+        switch((int)(f.v)) {
             case 0 -> {
                 return Blocks.POPPY.getDefaultState();
             }
@@ -99,7 +100,7 @@ public class FlowerManager {
             }
 
             if(!bs.hasFlower(f.getNumber())) {
-                continue;
+
             }
 
             this.placeFlowerEntity(f, this.getBlockState(bs, f));
@@ -170,9 +171,8 @@ public class FlowerManager {
         return fbe;
     }
 
-    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(Vec3d center, double r) {
-        PriorityQueue<FallingBlockEntity> resultPq = new PriorityQueue<>(
-                Comparator.comparingDouble(o -> center.squaredDistanceTo(o.getPos())));
+    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByG(Vec3d center, double r, Comparator<FallingBlockEntity> g) {
+        PriorityQueue<FallingBlockEntity> resultPq = new PriorityQueue<>(g);
 
         for(FallingBlockEntity fbe : this.flowers) {
             if(fbe == null) {
@@ -191,6 +191,20 @@ public class FlowerManager {
         }
 
         return resultArray;
+    }
+
+    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(Vec3d center, double r) {
+        return this.findAllFlowerEntitiesWithinRSortedByG(center, r, Comparator.comparingDouble(o -> center.squaredDistanceTo(o.getPos())));
+    }
+
+    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByMostDistanceToCenter(Vec3d center, double r) {
+        return this.findAllFlowerEntitiesWithinRSortedByG(center, r, Comparator.comparingDouble(
+                new ToDoubleFunction<FallingBlockEntity>() {
+                    @Override
+                    public double applyAsDouble(FallingBlockEntity value) {
+                        return center.squaredDistanceTo(value.getPos());
+                    }
+                }).reversed());
     }
 
     public FallingBlockEntity getFlowerEntity(Flower f) {

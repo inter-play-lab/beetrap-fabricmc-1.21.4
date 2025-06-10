@@ -30,15 +30,15 @@ public class Flower {
     public static Flower createRandomFlower(int number) {
         return new Flower(
                 number,
-                r.nextDouble(0, 1 + Math.ulp(1)), // color
-                r.nextDouble(0, 1 + Math.ulp(1)), // petal_size
-                r.nextDouble(0, 1 + Math.ulp(1)), // height
-                r.nextDouble(0, 1 + Math.ulp(1)), //leaf_size
-                r.nextInt(0, 3) / 3.0 / 10 // petal_shape
+                r.nextInt(0, 6), // color
+                r.nextDouble(2, 6 + Math.ulp(1)), // petal_size
+                r.nextDouble(2, 6 + Math.ulp(1)), // height
+                r.nextDouble(2, 6 + Math.ulp(1)), //leaf_size
+                r.nextInt(1, 7) / 3.0 / 10 // petal_shape
         );
     }
 
-    public double distanceTo(Flower f) {
+    public double squaredDistanceTo(Flower f) {
         double vv = (this.v - f.v);
         double ww = (this.w - f.w);
         double xx = (this.x - f.x);
@@ -51,7 +51,11 @@ public class Flower {
         yy = yy * yy;
         zz = zz * zz;
 
-        return Math.sqrt(vv + ww + xx + yy + zz);
+        return vv + ww + xx + yy + zz;
+    }
+
+    public double distanceTo(Flower f) {
+        return Math.sqrt(this.squaredDistanceTo(f));
     }
 
     public int getNumber() {

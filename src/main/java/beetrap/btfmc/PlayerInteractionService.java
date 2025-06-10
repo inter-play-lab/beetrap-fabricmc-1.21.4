@@ -1,38 +1,66 @@
 package beetrap.btfmc;
 
+import static beetrap.btfmc.BeetrapGame.CHANGE_RANKING_METHOD_LEVER_POSITION;
+
 import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.flower.FlowerValueScoreboardDisplayerService;
+import beetrap.btfmc.state.BeetrapState;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.LeverBlock;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 
 public class PlayerInteractionService {
+    private final ServerWorld world;
     private final FlowerManager flowers;
     private final FlowerValueScoreboardDisplayerService scoreboard;
+    private boolean changeRankingMethodLeverPowered;
 
-    public PlayerInteractionService(FlowerManager flowers,
+    public PlayerInteractionService(ServerWorld world, FlowerManager flowers,
             FlowerValueScoreboardDisplayerService scoreboard) {
+        this.world = world;
         this.flowers = flowers;
         this.scoreboard = scoreboard;
     }
 
+    public boolean rankingMethodLeverChanged() {
+        BlockState blockState = this.world.getBlockState(CHANGE_RANKING_METHOD_LEVER_POSITION);
+        Block b = blockState.getBlock();
+
+        if(!(b instanceof LeverBlock)) {
+            return false;
+        }
+
+        boolean f = blockState.get(LeverBlock.POWERED);
+        boolean r = f != this.changeRankingMethodLeverPowered;
+
+        if(r) {
+            this.changeRankingMethodLeverPowered = f;
+        }
+
+        return r;
+    }
+
+    public boolean isChangeRankingMethodLeverPowered() {
+        return this.changeRankingMethodLeverPowered;
+    }
+
     public void handleTarget(BeetrapState bs, ServerPlayerEntity player, boolean exists, int entityId) {
         this.scoreboard.clearScores();
-        this.removeNestFromPlayer(player);
-        if(!exists) {
-            return;
-        }
-
         Flower flower = this.flowers.getFlowerByEntityId(entityId);
-        if(flower == null) {
-            return;
-        }
-
         this.scoreboard.displayFlowerValues(bs, flower);
-        this.giveNestToPlayer(player);
+
+        if(exists) {
+            this.giveNestToPlayer(player);
+        } else {
+            this.removeNestFromPlayer(player);
+        }
     }
 
     private void giveNestToPlayer(ServerPlayerEntity player) {
@@ -45,7 +73,7 @@ public class PlayerInteractionService {
         player.getInventory().setStack(4, new ItemStack(Items.AIR));
     }
 
-    public void giveTimeTravelItemsToPlayer(ServerPlayerEntity player) {
+    private void giveTimeTravelItemsToPlayer(ServerPlayerEntity player) {
         ItemStack backward = new ItemStack(Items.CLOCK);
         backward.set(DataComponentTypes.CUSTOM_NAME, Text.of("Back"));
         player.getInventory().setStack(0, backward);
@@ -53,5 +81,16 @@ public class PlayerInteractionService {
         ItemStack forward = new ItemStack(Items.CLOCK);
         forward.set(DataComponentTypes.CUSTOM_NAME, Text.of("Forward"));
         player.getInventory().setStack(8, forward);
+    }
+
+    private void giveCircleRadiusChangeItemToPlayer(ServerPlayerEntity player) {
+        ItemStack radiusChange = new ItemStack(Items.STRING);
+        radiusChange.set(DataComponentTypes.CUSTOM_NAME, Text.of("Change Circle Radius"));
+        player.getInventory().setStack(2, radiusChange);
+    }
+
+    public void giveInteractablesToPlayer(ServerPlayerEntity player) {
+        this.giveTimeTravelItemsToPlayer(player);
+        this.giveCircleRadiusChangeItemToPlayer(player);
     }
 }

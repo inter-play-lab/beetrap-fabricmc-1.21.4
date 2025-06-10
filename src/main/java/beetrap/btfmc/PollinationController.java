@@ -5,6 +5,7 @@ import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_TO_PLACE;
 
 import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.flower.FlowerManager;
+import beetrap.btfmc.state.BeetrapState;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -16,18 +17,20 @@ public class PollinationController {
     private final FlowerManager flowerManager;
     private final BeeNestController beeNestController;
     private final PlayerInteractionService playerInteractionService;
+    private GardenInformationBossBar gardenInformationBossBar;
     private long ticks;
     private boolean active;
     private Flower targetFlower;
     private Flower[] newFlowerCandidates;
     private Flower[] newFlowers;
 
-    public PollinationController(BeetrapGame game, ServerWorld world, FlowerManager manager, BeeNestController controller, PlayerInteractionService interaction) {
+    public PollinationController(BeetrapGame game, ServerWorld world, FlowerManager manager, BeeNestController controller, PlayerInteractionService interaction, GardenInformationBossBar gardenInformationBossBar) {
         this.game = game;
         this.serverWorld = world;
         this.flowerManager = manager;
         this.beeNestController = controller;
         this.playerInteractionService = interaction;
+        this.gardenInformationBossBar = gardenInformationBossBar;
     }
 
     public void onPollinationStart(Flower flower, Vec3d target) {
@@ -41,13 +44,13 @@ public class PollinationController {
         this.ticks = 0;
 
         this.serverWorld.getPlayers().forEach(
-                PollinationController.this.playerInteractionService::giveTimeTravelItemsToPlayer);
+                PollinationController.this.playerInteractionService::giveInteractablesToPlayer);
         this.game.regenerateState();
     }
 
     private void tickGrowBuds() {
         BeetrapState state = this.game.getState();
-        this.newFlowerCandidates = state.getNFlowersClosestTo(this.targetFlower, AMOUNT_OF_BUDS_TO_PLACE);
+        this.newFlowerCandidates = state.getNFlowersNotInGardenClosestToFByMappedNormalFlowerPosition(this.targetFlower, AMOUNT_OF_BUDS_TO_PLACE);
         this.flowerManager.placeBuds(this.newFlowerCandidates);
     }
 
@@ -62,7 +65,18 @@ public class PollinationController {
     }
 
     private void tickRankBuds() {
-        FallingBlockEntity[] fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(this.flowerManager.getFlowerEntity(this.targetFlower).getPos(), this.game.getState().getPollinationCircleRadius());
+        FallingBlockEntity[] fbe;
+
+        if(this.game.isUsingDiversifyingRankingMethod()) {
+            fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByMostDistanceToCenter(
+                    this.flowerManager.getFlowerEntity(this.targetFlower).getPos(),
+                    this.game.getPollinationCircleRadius());
+        } else {
+            fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(
+                    this.flowerManager.getFlowerEntity(this.targetFlower).getPos(),
+                    this.game.getPollinationCircleRadius());
+        }
+
         this.newFlowers = new Flower[AMOUNT_OF_BUDS_RANKED];
 
         int r = 0;
@@ -98,6 +112,10 @@ public class PollinationController {
         this.flowerManager.placeFlowerEntities(this.newFlowers);
 
         for(Flower f : this.newFlowers) {
+            if(f == null) {
+                return;
+            }
+
             this.game.getState().setFlower(f.getNumber(), true);
         }
     }
@@ -106,7 +124,7 @@ public class PollinationController {
         FallingBlockEntity[] fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(this.flowerManager.getFlowerEntity(this.targetFlower).getPos(), Double.POSITIVE_INFINITY);
 
         int r = 0;
-        for(int i = fbe.length - 1; i >= 0 && r < this.game.getState().getAmountOfFlowersToWither(); --i) {
+        for(int i = fbe.length - 1; i >= 0 && r < this.game.getAmountOfFlowersToWither(); --i) {
             Flower f = this.flowerManager.getFlowerByEntityId(fbe[i].getId());
 
             if(f.hasWithered()) {
@@ -129,10 +147,6 @@ public class PollinationController {
         this.onPollinationEnd();
     }
 
-    public void onPollinationEnd() {
-        this.active = false;
-    }
-
     public void tick() {
         if(!this.active) {
             return;
@@ -147,5 +161,15 @@ public class PollinationController {
         // this.ticks == 220
         this.onTick220();
         ++this.ticks;
+    }
+
+    private void onPollinationEnd() {
+        this.active = false;
+        this.game.getState().setBeeNestMinecraftPosition(this.beeNestController.getBeeNestPosition());
+        this.gardenInformationBossBar.updateBossBar();
+    }
+
+    public boolean isActive() {
+        return this.active;
     }
 }

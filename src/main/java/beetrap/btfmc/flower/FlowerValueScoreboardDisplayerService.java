@@ -1,6 +1,6 @@
 package beetrap.btfmc.flower;
 
-import beetrap.btfmc.BeetrapState;
+import beetrap.btfmc.state.BeetrapState;
 import net.minecraft.scoreboard.ScoreHolder;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardCriterion;
@@ -33,12 +33,14 @@ public class FlowerValueScoreboardDisplayerService {
     }
 
     public void displayFlowerValues(BeetrapState bs, Flower f) {
+        if(f == null) {
+            return;
+        }
+
         if(f.hasWithered()) {
             return;
         }
 
-        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Garden %d", bs.getNumber())), this.flowerValues).setScore(7);
-        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("no.: %d", f.getNumber())), this.flowerValues).setScore(6);
         this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("v: %.2f", f.v)), this.flowerValues).setScore(5);
         this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("w: %.2f", f.w)), this.flowerValues).setScore(4);
         this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("x: %.2f", f.x)), this.flowerValues).setScore(3);

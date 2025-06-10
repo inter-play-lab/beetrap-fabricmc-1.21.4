@@ -4,17 +4,25 @@ import beetrap.btfmc.networking.PlayerPollinateC2SPayload;
 import beetrap.btfmc.networking.PlayerTargetNewEntityC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
+import beetrap.btfmc.networking.PollinationCircleRadiusChangeRequestC2SPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.CommandBlock;
+import net.minecraft.block.LeverBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResult.Pass;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.hit.HitResult.Type;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class BeetrapGameClient {
@@ -96,6 +104,10 @@ public class BeetrapGameClient {
         switch(player.getInventory().selectedSlot) {
             case 0 -> {
                 ClientPlayNetworking.send(new PlayerTimeTravelRequestC2SPayload(-1, Operations.ADD));
+            }
+
+            case 2 -> {
+                ClientPlayNetworking.send(new PollinationCircleRadiusChangeRequestC2SPayload());
             }
 
             case 4 -> {
