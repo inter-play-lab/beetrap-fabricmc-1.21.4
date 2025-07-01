@@ -47,4 +47,8 @@ public class FlowerValueScoreboardDisplayerService {
         this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("y: %.2f", f.y)), this.flowerValues).setScore(2);
         this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("z: %.2f", f.z)), this.flowerValues).setScore(1);
     }
+
+    public void dispose() {
+        this.scoreboard.removeObjective(this.flowerValues);
+    }
 }

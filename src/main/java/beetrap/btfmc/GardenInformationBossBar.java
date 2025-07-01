@@ -1,6 +1,7 @@
 package beetrap.btfmc;
 
 import beetrap.btfmc.state.BeetrapState;
+import beetrap.btfmc.state.BeetrapStateManager;
 import net.minecraft.entity.boss.BossBar.Color;
 import net.minecraft.entity.boss.BossBarManager;
 import net.minecraft.entity.boss.CommandBossBar;
@@ -11,14 +12,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class GardenInformationBossBar {
-    private final BeetrapGame game;
     private final BossBarManager manager;
     private final ServerBossBar bossBar;
 
-    public GardenInformationBossBar(BeetrapGame game, MinecraftServer server) {
-        this.game = game;
+    public GardenInformationBossBar(MinecraftServer server) {
         this.manager = server.getBossBarManager();
-        this.bossBar = this.manager.add(Identifier.of("garden"), this.getTitle(this.game.getState()));
+        this.bossBar = this.manager.add(Identifier.of("garden"), Text.of(""));
         this.bossBar.setPercent(1);
         this.bossBar.setColor(Color.GREEN);
 
@@ -29,12 +28,12 @@ public class GardenInformationBossBar {
         this.bossBar.setVisible(true);
     }
 
-    private Text getTitle(BeetrapState state) {
-        return Text.of("Garden " + state.getNumber() + " - Diversity score: " + state.computeDiversityScore());
+    private Text getTitle(BeetrapState state, int stage) {
+        return Text.of("Garden " + stage + " - Diversity score: " + state.computeDiversityScore());
     }
 
-    public void updateBossBar() {
-        this.bossBar.setName(this.getTitle(this.game.getState()));
+    public void updateBossBar(BeetrapState bs, int stage) {
+        this.bossBar.setName(this.getTitle(bs, stage));
     }
 
     public void dispose() {

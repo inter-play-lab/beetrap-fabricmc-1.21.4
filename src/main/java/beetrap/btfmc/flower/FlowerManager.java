@@ -1,6 +1,5 @@
 package beetrap.btfmc.flower;
 
-import beetrap.btfmc.BeetrapGame;
 import beetrap.btfmc.state.BeetrapState;
 import beetrap.btfmc.factories.FallingBlockFactory;
 import java.util.Comparator;
@@ -17,22 +16,20 @@ import org.apache.logging.log4j.Logger;
 import org.joml.Vector3i;
 
 public class FlowerManager {
-    private static final Logger LOG = LogManager.getLogger(FlowerManager.class);
-    private final BeetrapGame game;
+    private final Logger LOG = LogManager.getLogger(FlowerManager.class);
     private final ServerWorld world;
     private final Vector3i bottomLeft, topRight;
     private final double width, length, baseY;
     private final FallingBlockEntity[] flowers;
 
-    public FlowerManager(BeetrapGame game, int n, ServerWorld world, Vector3i bottomLeft, Vector3i topRight) {
-        this.game = game;
+    public FlowerManager(ServerWorld world, int maximumFlowerCount, Vector3i bottomLeft, Vector3i topRight) {
         this.world = world;
         this.bottomLeft = bottomLeft;
         this.topRight = topRight;
         this.width = topRight.x - bottomLeft.x + 1;
         this.length = topRight.z - bottomLeft.z + 1;
         this.baseY = Math.min(bottomLeft.y, topRight.y);
-        this.flowers = new FallingBlockEntity[n];
+        this.flowers = new FallingBlockEntity[maximumFlowerCount];
     }
 
     private BlockState getBlockState(BeetrapState beetrapState, Flower f) {
@@ -81,8 +78,8 @@ public class FlowerManager {
         this.world.spawnEntity(e);
     }
 
-    public void placeFlowerEntity(Flower f, BlockState blockState) {
-        RealVector np = this.game.getState().getFlowerPool().getMappedNormalFlowerPosition(f.getNumber());
+    public void placeFlowerEntity(BeetrapState bs, Flower f, BlockState blockState) {
+        RealVector np = bs.getFlowerPool().getMappedNormalFlowerPosition(f.getNumber());
         this.placeFlowerEntity(f,
                 blockState,
                 this.bottomLeft.x + np.getEntry(0) * this.width,
@@ -92,37 +89,35 @@ public class FlowerManager {
     }
 
     public void placeFlowerEntities(BeetrapState bs) {
-        FlowerPool flowerPool = bs.getFlowerPool();
-
-        for(Flower f : flowerPool) {
+        for(Flower f : bs) {
             if(f == null) {
                 continue;
             }
 
             if(!bs.hasFlower(f.getNumber())) {
-
+                return;
             }
 
-            this.placeFlowerEntity(f, this.getBlockState(bs, f));
+            this.placeFlowerEntity(bs, f, this.getBlockState(bs, f));
         }
     }
 
-    public void placeFlowerEntity(Flower f) {
+    public void placeFlowerEntity(BeetrapState state, Flower f) {
         if(f == null) {
             return;
         }
 
-        this.placeFlowerEntity(f, this.getBlockState(null, f));
+        this.placeFlowerEntity(state, f, this.getBlockState(null, f));
     }
 
-    public void placeFlowerEntities(Flower[] flowers) {
+    public void placeFlowerEntities(BeetrapState state, Flower[] flowers) {
         for(Flower f : flowers) {
-            this.placeFlowerEntity(f);
+            this.placeFlowerEntity(state, f);
         }
     }
 
-    public void placeBuds(Flower[] flowers) {
-        FlowerPool flowerPool = this.game.getState().getFlowerPool();
+    public void placeBuds(BeetrapState state, Flower[] flowers) {
+        FlowerPool flowerPool = state.getFlowerPool();
         for(Flower f : flowers) {
             RealVector np = flowerPool.getMappedNormalFlowerPosition(f.getNumber());
             this.placeFlowerEntity(f,
@@ -143,8 +138,8 @@ public class FlowerManager {
         }
     }
 
-    public Flower getFlowerByEntityId(int entityId) {
-        FlowerPool flowerPool = this.game.getState().getFlowerPool();
+    public Flower getFlowerByEntityId(BeetrapState state, int entityId) {
+        FlowerPool flowerPool = state.getFlowerPool();
         for(int i = 0; i < this.flowers.length; ++i) {
             FallingBlockEntity fbe = this.flowers[i];
 
@@ -199,12 +194,7 @@ public class FlowerManager {
 
     public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByMostDistanceToCenter(Vec3d center, double r) {
         return this.findAllFlowerEntitiesWithinRSortedByG(center, r, Comparator.comparingDouble(
-                new ToDoubleFunction<FallingBlockEntity>() {
-                    @Override
-                    public double applyAsDouble(FallingBlockEntity value) {
-                        return center.squaredDistanceTo(value.getPos());
-                    }
-                }).reversed());
+                (ToDoubleFunction<FallingBlockEntity>)value -> center.squaredDistanceTo(value.getPos())).reversed());
     }
 
     public FallingBlockEntity getFlowerEntity(Flower f) {
@@ -226,5 +216,17 @@ public class FlowerManager {
         for(Flower f : flowers){
             this.removeFlowerEntity(f);
         }
+    }
+
+    public Vec3d getFlowerMinecraftPosition(BeetrapState state, Flower f) {
+        FlowerPool flowerPool = state.getFlowerPool();
+        RealVector np = flowerPool.getMappedNormalFlowerPosition(f.getNumber());
+        return new Vec3d(this.bottomLeft.x + np.getEntry(0) * this.width,
+                this.baseY,
+                this.bottomLeft.z + np.getEntry(1) * this.length);
+    }
+
+    public double getBaseY() {
+        return this.baseY;
     }
 }

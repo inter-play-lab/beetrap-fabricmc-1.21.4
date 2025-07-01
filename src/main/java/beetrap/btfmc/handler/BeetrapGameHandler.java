@@ -1,10 +1,11 @@
 package beetrap.btfmc.handler;
 
 import beetrap.btfmc.BeetrapGame;
+import beetrap.btfmc.networking.MultipleChoiceSelectionResultC2SPayload;
 import beetrap.btfmc.networking.PlayerPollinateC2SPayload;
 import beetrap.btfmc.networking.PlayerTargetNewEntityC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload;
-import beetrap.btfmc.networking.PollinationCircleRadiusChangeRequestC2SPayload;
+import beetrap.btfmc.networking.PollinationCircleRadiusIncreaseRequestC2SPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.Context;
 import net.minecraft.server.MinecraftServer;
@@ -65,13 +66,13 @@ public final class BeetrapGameHandler {
         game.onPlayerRequestTimeTravel(context.player(), payload.n(), payload.operation());
     }
 
-    public static void onPollinationCircleRadiusChangeRequested(
-            PollinationCircleRadiusChangeRequestC2SPayload payload, Context context) {
+    public static void onPollinationCircleRadiusIncreaseRequested(
+            PollinationCircleRadiusIncreaseRequestC2SPayload payload, Context context) {
         if(!hasGame()) {
             return;
         }
 
-        game.onPollinationCircleRadiusChangeRequested();
+        game.onPollinationCircleRadiusIncreaseRequested(payload.a());
     }
 
     public static void onWorldTick(ServerWorld world) {
@@ -84,5 +85,15 @@ public final class BeetrapGameHandler {
 
     public static void registerEvents() {
         ServerTickEvents.START_WORLD_TICK.register(BeetrapGameHandler::onWorldTick);
+    }
+
+    public static void onMultipleChoiceSelectionResultReceived(
+            MultipleChoiceSelectionResultC2SPayload multipleChoiceSelectionResultC2SPayload,
+            Context context) {
+        if(!hasGame()) {
+            return;
+        }
+
+        game.onMultipleChoiceSelectionResultReceived(multipleChoiceSelectionResultC2SPayload.questionId(), multipleChoiceSelectionResultC2SPayload.option());
     }
 }

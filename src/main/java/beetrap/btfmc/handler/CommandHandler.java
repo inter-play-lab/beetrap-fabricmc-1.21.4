@@ -11,11 +11,14 @@ import com.openai.models.responses.Response;
 import java.util.concurrent.CompletableFuture;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.world.GameMode;
 
 public final class CommandHandler {
     private CommandHandler() {
@@ -26,7 +29,16 @@ public final class CommandHandler {
         String arg1 = commandContext.getArgument("option", String.class);
 
         if(arg1.equalsIgnoreCase("new")) {
-            BeetrapGameHandler.createGame(commandContext.getSource().getServer());
+            MinecraftServer server = commandContext.getSource().getServer();
+            ServerWorld world = server.getOverworld();
+
+            for(ServerPlayerEntity player : world.getPlayers()) {
+                player.changeGameMode(GameMode.ADVENTURE);
+                player.getAbilities().allowFlying = true;
+                player.sendAbilitiesUpdate();
+            }
+
+            BeetrapGameHandler.createGame(server);
         } else if(arg1.equalsIgnoreCase("destroy")) {
             BeetrapGameHandler.destroyGame();
         }

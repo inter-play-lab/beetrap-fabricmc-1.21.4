@@ -1,37 +1,82 @@
 package beetrap.btfmc;
 
+import static beetrap.btfmc.networking.BeginSubActivityS2CPayload.SUB_ACTIVITY_NULL;
+import static beetrap.btfmc.networking.BeginSubActivityS2CPayload.SUB_ACTIVITY_PRESS_B_TO_INCREASE_POLLINATION_RADIUS;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.glfwGetKey;
+
 import beetrap.btfmc.networking.PlayerPollinateC2SPayload;
 import beetrap.btfmc.networking.PlayerTargetNewEntityC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
-import beetrap.btfmc.networking.PollinationCircleRadiusChangeRequestC2SPayload;
+import beetrap.btfmc.networking.PollinationCircleRadiusIncreaseRequestC2SPayload;
+import beetrap.btfmc.screen.MultipleChoiceScreen;
+import beetrap.btfmc.screen.TextScreen;
+import beetrap.btfmc.screen.ScreenQueue;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CommandBlock;
-import net.minecraft.block.LeverBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResult.Pass;
 import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.hit.HitResult.Type;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class BeetrapGameClient {
     private final MinecraftClient client;
+    private final ScreenQueue sq;
     private Entity targetedEntity;
     private Entity glowingEntity;
+    private int currentSubActivity;
+    private boolean bPressed;
 
     public BeetrapGameClient() {
         this.client = MinecraftClient.getInstance();
+        this.sq = new ScreenQueue();
+        this.currentSubActivity = SUB_ACTIVITY_NULL;
+    }
+
+    private void onSubActivity1() {
+        if(this.currentSubActivity != SUB_ACTIVITY_PRESS_B_TO_INCREASE_POLLINATION_RADIUS) {
+            return;
+        }
+
+        if(glfwGetKey(this.client.getWindow().getHandle(), GLFW_KEY_B) == GLFW_PRESS) {
+            if(!this.bPressed) {
+                ClientPlayNetworking.send(new PollinationCircleRadiusIncreaseRequestC2SPayload(0.1));
+            }
+
+            this.bPressed = true;
+        } else {
+            this.bPressed = false;
+        }
+    }
+
+    public void onStartWorldTick(ClientWorld clientWorld) {
+        if(this.updateTargetEntity()) {
+            this.updateGlowingEntity();
+
+            PlayerTargetNewEntityC2SPayload ptnec2sp;
+
+            if(this.targetedEntity != null) {
+                ptnec2sp = new PlayerTargetNewEntityC2SPayload(true, this.targetedEntity.getId());
+            } else {
+                ptnec2sp = new PlayerTargetNewEntityC2SPayload(false, 0);
+            }
+
+            ClientPlayNetworking.send(ptnec2sp);
+        }
+
+        if(this.sq.shouldShowNext()) {
+            this.client.setScreen(this.sq.pop());
+        }
+
+        this.onSubActivity1();
     }
 
     private boolean updateTargetEntity() {
@@ -82,32 +127,12 @@ public class BeetrapGameClient {
         }
     }
 
-    public void onStartWorldTick(ClientWorld clientWorld) {
-        if(this.updateTargetEntity()) {
-            this.updateGlowingEntity();
-
-            PlayerTargetNewEntityC2SPayload ptnec2sp;
-
-            if(this.targetedEntity != null) {
-                ptnec2sp = new PlayerTargetNewEntityC2SPayload(true, this.targetedEntity.getId());
-            } else {
-                ptnec2sp = new PlayerTargetNewEntityC2SPayload(false, 0);
-            }
-
-            ClientPlayNetworking.send(ptnec2sp);
-        }
-    }
-
     public ActionResult onPlayerUseItem(PlayerEntity player, World world, Hand hand) {
         ActionResult ar = new Pass();
 
         switch(player.getInventory().selectedSlot) {
             case 0 -> {
                 ClientPlayNetworking.send(new PlayerTimeTravelRequestC2SPayload(-1, Operations.ADD));
-            }
-
-            case 2 -> {
-                ClientPlayNetworking.send(new PollinationCircleRadiusChangeRequestC2SPayload());
             }
 
             case 4 -> {
@@ -138,5 +163,17 @@ public class BeetrapGameClient {
         }
 
         e.setPosition(x, y, z);
+    }
+
+    public void showTextScreen(String s) {
+        this.sq.push(new TextScreen(this.sq, s));
+    }
+
+    public void showMultipleChoiceScreen(String questionId, String question, String[] choices) {
+        this.sq.push(new MultipleChoiceScreen(this.sq, questionId, question, choices));
+    }
+
+    public void beginSubActivity(int subActivityId) {
+        this.currentSubActivity = subActivityId;
     }
 }

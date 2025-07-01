@@ -18,14 +18,12 @@ import net.minecraft.text.Text;
 
 public class PlayerInteractionService {
     private final ServerWorld world;
-    private final FlowerManager flowers;
     private final FlowerValueScoreboardDisplayerService scoreboard;
     private boolean changeRankingMethodLeverPowered;
 
-    public PlayerInteractionService(ServerWorld world, FlowerManager flowers,
+    public PlayerInteractionService(ServerWorld world,
             FlowerValueScoreboardDisplayerService scoreboard) {
         this.world = world;
-        this.flowers = flowers;
         this.scoreboard = scoreboard;
     }
 
@@ -51,29 +49,17 @@ public class PlayerInteractionService {
         return this.changeRankingMethodLeverPowered;
     }
 
-    public void handleTarget(BeetrapState bs, ServerPlayerEntity player, boolean exists, int entityId) {
-        this.scoreboard.clearScores();
-        Flower flower = this.flowers.getFlowerByEntityId(entityId);
-        this.scoreboard.displayFlowerValues(bs, flower);
-
-        if(exists) {
-            this.giveNestToPlayer(player);
-        } else {
-            this.removeNestFromPlayer(player);
-        }
-    }
-
-    private void giveNestToPlayer(ServerPlayerEntity player) {
+    public void giveNestToPlayer(ServerPlayerEntity player) {
         ItemStack nest = new ItemStack(Items.BEE_NEST);
         nest.set(DataComponentTypes.CUSTOM_NAME, Text.of("Pollinate"));
         player.getInventory().setStack(4, nest);
     }
 
-    private void removeNestFromPlayer(ServerPlayerEntity player) {
+    public void removeNestFromPlayer(ServerPlayerEntity player) {
         player.getInventory().setStack(4, new ItemStack(Items.AIR));
     }
 
-    private void giveTimeTravelItemsToPlayer(ServerPlayerEntity player) {
+    public void giveTimeTravelItemsToPlayer(ServerPlayerEntity player) {
         ItemStack backward = new ItemStack(Items.CLOCK);
         backward.set(DataComponentTypes.CUSTOM_NAME, Text.of("Back"));
         player.getInventory().setStack(0, backward);
@@ -83,7 +69,7 @@ public class PlayerInteractionService {
         player.getInventory().setStack(8, forward);
     }
 
-    private void giveCircleRadiusChangeItemToPlayer(ServerPlayerEntity player) {
+    public void giveCircleRadiusChangeItemToPlayer(ServerPlayerEntity player) {
         ItemStack radiusChange = new ItemStack(Items.STRING);
         radiusChange.set(DataComponentTypes.CUSTOM_NAME, Text.of("Change Circle Radius"));
         player.getInventory().setStack(2, radiusChange);
@@ -92,5 +78,11 @@ public class PlayerInteractionService {
     public void giveInteractablesToPlayer(ServerPlayerEntity player) {
         this.giveTimeTravelItemsToPlayer(player);
         this.giveCircleRadiusChangeItemToPlayer(player);
+    }
+
+    public void dispose() {
+        for(ServerPlayerEntity player : this.world.getPlayers()) {
+            player.getInventory().clear();
+        }
     }
 }
