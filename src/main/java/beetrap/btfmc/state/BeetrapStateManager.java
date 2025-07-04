@@ -4,6 +4,8 @@ import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE
 import static beetrap.btfmc.BeetrapGame.FLOWER_POOL_FLOWER_COUNT;
 import static beetrap.btfmc.BeetrapGame.INITIAL_FLOWER_COUNT;
 import static beetrap.btfmc.BeetrapGame.INITIAL_POLLINATION_CIRCLE_RADIUS;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_TIME_MACHINE_BACKWARD;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_TIME_MACHINE_FORWARD;
 
 import beetrap.btfmc.BeeNestController;
 import beetrap.btfmc.GardenInformationBossBar;
@@ -12,6 +14,7 @@ import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.flower.FlowerPool;
 import beetrap.btfmc.flower.FlowerValueScoreboardDisplayerService;
+import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,7 @@ public class BeetrapStateManager {
     private final GardenInformationBossBar gardenInformationBossBar;
     private BeetrapState state;
     private final double initialDiversityScore;
+    private NetworkingService net;
 
     private void recordState() {
         this.oldBeetrapStates.add(this.state);
@@ -53,6 +57,8 @@ public class BeetrapStateManager {
         flowerManager.placeFlowerEntities(this.state);
         this.initialDiversityScore = this.state.computeDiversityScore();
         this.recordState();
+
+        this.net = new NetworkingService(this.world);
     }
 
     public double getInitialDiversityScore() {
@@ -153,6 +159,8 @@ public class BeetrapStateManager {
                 } else {
                     this.setState(new TimeTravelableBeetrapState(prs));
                 }
+
+                this.net.beetrapLog(BEETRAP_LOG_ID_TIME_MACHINE_FORWARD, "");
             }
 
             if(n == -1) {
@@ -167,6 +175,8 @@ public class BeetrapStateManager {
 
                 this.pointer = newPointer[0];
                 this.setState(new TimeTravelableBeetrapState(prs));
+
+                this.net.beetrapLog(BEETRAP_LOG_ID_TIME_MACHINE_BACKWARD, "");
             }
         }
     }

@@ -1,5 +1,9 @@
 package beetrap.btfmc;
 
+import static beetrap.btfmc.BeetrapfabricmcClient.MOD_ID;
+import static beetrap.btfmc.BeetrapfabricmcClient.beetrapLog;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_MULTIPLE_CHOICE_SCREEN_SHOWN;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_TEXT_SCREEN_SHOWN;
 import static beetrap.btfmc.networking.BeginSubActivityS2CPayload.SUB_ACTIVITY_NULL;
 import static beetrap.btfmc.networking.BeginSubActivityS2CPayload.SUB_ACTIVITY_PRESS_B_TO_INCREASE_POLLINATION_RADIUS;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
@@ -16,6 +20,7 @@ import beetrap.btfmc.screen.TextScreen;
 import beetrap.btfmc.screen.ScreenQueue;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,6 +31,8 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.hit.HitResult.Type;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BeetrapGameClient {
     private final MinecraftClient client;
@@ -73,7 +80,15 @@ public class BeetrapGameClient {
         }
 
         if(this.sq.shouldShowNext()) {
-            this.client.setScreen(this.sq.pop());
+            Screen s = this.sq.pop();
+
+            if(s instanceof TextScreen ts) {
+                beetrapLog(BEETRAP_LOG_ID_TEXT_SCREEN_SHOWN, ts.toString());
+            } else if(s instanceof MultipleChoiceScreen mcs) {
+                beetrapLog(BEETRAP_LOG_ID_MULTIPLE_CHOICE_SCREEN_SHOWN, mcs.toString());
+            }
+
+            this.client.setScreen(s);
         }
 
         this.onSubActivity1();

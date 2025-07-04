@@ -2,6 +2,7 @@ package beetrap.btfmc.state;
 
 import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
 import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_INITIATED;
 
 import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.networking.ShowTextScreenS2CPayload;
@@ -55,6 +56,7 @@ public class ExploreFilterBubbleEffectPollinationReadyState extends PollinationR
         this.pastPollinationLocations.add(flowerMinecraftPosition);
         Vec3d pl = this.computeAveragePastPollinationPositions();
         this.nextState = new ExploreFilterBubbleEffectPollinationHappeningState(this, pl, this.stage);
+        this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_INITIATED, "");
     }
 
     @Override

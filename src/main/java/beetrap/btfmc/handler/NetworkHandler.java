@@ -1,5 +1,6 @@
 package beetrap.btfmc.handler;
 
+import beetrap.btfmc.networking.BeetrapLogS2CPayload;
 import beetrap.btfmc.networking.BeginSubActivityS2CPayload;
 import beetrap.btfmc.networking.EndSubActivityC2SPayload;
 import beetrap.btfmc.networking.EntityPositionUpdateS2CPayload;
@@ -24,6 +25,7 @@ public final class NetworkHandler {
                 ShowTextScreenS2CPayload.ID, ShowTextScreenS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowMultipleChoiceScreenS2CPayload.ID, ShowMultipleChoiceScreenS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(BeginSubActivityS2CPayload.ID, BeginSubActivityS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(BeetrapLogS2CPayload.ID, BeetrapLogS2CPayload.CODEC);
 
         PayloadTypeRegistry.playC2S().register(PlayerTargetNewEntityC2SPayload.ID, PlayerTargetNewEntityC2SPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(PlayerTargetNewEntityC2SPayload.ID, BeetrapGameHandler::onPlayerTargetNewEntity);

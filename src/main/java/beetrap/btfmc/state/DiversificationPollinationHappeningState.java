@@ -5,6 +5,7 @@ import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_TO_PLACE_DIVERSIFYING_MOD
 import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
 import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
 import static beetrap.btfmc.BeetrapGame.CHANGE_RANKING_METHOD_LEVER_POSITION;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_CIRCLE_RADIUS_INCREASED;
 
 import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.networking.BeginSubActivityS2CPayload;
@@ -62,7 +63,14 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
             return false;
         }
 
+        if(this.newFlowerCandidates == null) {
+            return false;
+        }
+
         for(Flower g : this.newFlowerCandidates) {
+            if(g == null) {
+                return false;
+            }
 
             if(f.equals(g)) {
                 return true;
@@ -226,6 +234,7 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
     public void onPollinationCircleRadiusIncreaseRequested(double a) {
         if(this.subStage == SUB_STAGE_BEFORE_TARGET_CIRCLE_RADIUS_HIT) {
             this.pollinationCircleRadius = this.pollinationCircleRadius + a;
+            this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_CIRCLE_RADIUS_INCREASED, "Current radius: " + this.pollinationCircleRadius);
         }
     }
 

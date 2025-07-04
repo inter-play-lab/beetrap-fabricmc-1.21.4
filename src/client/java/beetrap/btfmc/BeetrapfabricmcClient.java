@@ -1,20 +1,41 @@
 package beetrap.btfmc;
 
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_INITIALIZE;
+
 import beetrap.btfmc.handler.EntityHandler;
+import beetrap.btfmc.networking.BeetrapLogS2CPayload;
 import beetrap.btfmc.networking.BeginSubActivityS2CPayload;
 import beetrap.btfmc.networking.EntityPositionUpdateS2CPayload;
 import beetrap.btfmc.networking.ShowMultipleChoiceScreenS2CPayload;
 import beetrap.btfmc.networking.ShowTextScreenS2CPayload;
 import beetrap.btfmc.render.entity.FlowerEntityRenderer;
 import beetrap.btfmc.render.entity.model.BeetrapEntityModelLayers;
+import java.io.File;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.Context;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 public class BeetrapfabricmcClient implements ClientModInitializer {
+    public static final String MOD_ID = "beetrap-fabricmc";
+    public static final String MOD_DATE_TIME_PATTERN = "uuuu-MM-dd-HH-mm-ss-nnnnnnnnn";
+    public static final DateTimeFormatter MOD_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(MOD_DATE_TIME_PATTERN);
+    public static final File MOD_PATH = new File("beetrap");
+    public static final File MOD_PATH_LOG = new File(MOD_PATH, "logs");
+    private static Logger LOG;
     private BeetrapGameClient bg;
 
     private void onEntityPositionUpdate(EntityPositionUpdateS2CPayload payload, Context context) {
@@ -26,8 +47,56 @@ public class BeetrapfabricmcClient implements ClientModInitializer {
         this.bg.showMultipleChoiceScreen(showMultipleChoiceScreenS2CPayload.questionId(), showMultipleChoiceScreenS2CPayload.question(), showMultipleChoiceScreenS2CPayload.choices());
     }
 
+    private void initializeLogger() {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+
+        String fileName = new File(MOD_PATH_LOG, MOD_ID + "-" + ZonedDateTime.now(
+                ZoneId.systemDefault()).format(MOD_DATE_TIME_FORMATTER) + ".log").getAbsolutePath();
+        PatternLayout layout = PatternLayout.newBuilder()
+                .withPattern("[%d{ABSOLUTE}] [%t/%level]: %msg%n")
+                .build();
+
+        FileAppender appender = FileAppender.newBuilder()
+                .setName(MOD_ID + "-file-appender")
+                .withFileName(fileName)
+                .setLayout(layout)
+                .setIgnoreExceptions(false)
+                .build();
+        appender.start();
+        config.addAppender(appender);
+
+        AppenderRef ref = AppenderRef.createAppenderRef(MOD_ID + "-file-appender", null, null);
+        LoggerConfig loggerConfig = LoggerConfig.createLogger(
+                false,
+                org.apache.logging.log4j.Level.ALL,
+                MOD_ID,
+                "true",
+                new AppenderRef[]{ref},
+                null,
+                config,
+                null
+        );
+        loggerConfig.addAppender(appender, null, null);
+        config.addLogger(MOD_ID, loggerConfig);
+        ctx.updateLoggers();
+
+        LOG = LogManager.getLogger(MOD_ID);
+
+        beetrapLog(BEETRAP_LOG_ID_INITIALIZE, "Imagine!");
+    }
+
+    public static void beetrapLog(String id, String log) {
+        LOG.info("{{}}{}", id, log);
+    }
+
+    private void beetrapLog(BeetrapLogS2CPayload beetrapLogS2CPayload, Context context) {
+        beetrapLog(beetrapLogS2CPayload.id(), beetrapLogS2CPayload.log());
+    }
+
     @Override
 	public void onInitializeClient() {
+        this.initializeLogger();
         this.bg = new BeetrapGameClient();
 		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
         ClientTickEvents.START_WORLD_TICK.register(bg::onStartWorldTick);
@@ -36,6 +105,7 @@ public class BeetrapfabricmcClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(ShowTextScreenS2CPayload.ID, this::onShowTextScreenReceived);
         ClientPlayNetworking.registerGlobalReceiver(ShowMultipleChoiceScreenS2CPayload.ID, this::onShowMultipleChoiceScreenReceived);
         ClientPlayNetworking.registerGlobalReceiver(BeginSubActivityS2CPayload.ID, this::beginSubActivity);
+        ClientPlayNetworking.registerGlobalReceiver(BeetrapLogS2CPayload.ID, this::beetrapLog);
 
         EntityRendererRegistry.register(EntityHandler.FLOWER, FlowerEntityRenderer::new);
         BeetrapEntityModelLayers.registerModelLayers();

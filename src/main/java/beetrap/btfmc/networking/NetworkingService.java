@@ -14,14 +14,18 @@ public class NetworkingService {
     }
 
     public void broadcastPacket(Packet<?> pkt) {
-        for (ServerPlayerEntity player : world.getPlayers()) {
+        for(ServerPlayerEntity player : world.getPlayers()) {
             player.networkHandler.sendPacket(pkt);
         }
     }
 
     public void broadcastCustomPayload(CustomPayload cp) {
-        for (ServerPlayerEntity player : world.getPlayers()) {
+        for(ServerPlayerEntity player : world.getPlayers()) {
             ServerPlayNetworking.send(player, cp);
         }
+    }
+
+    public void beetrapLog(String id, String log) {
+        this.broadcastCustomPayload(new BeetrapLogS2CPayload(id, log));
     }
 }

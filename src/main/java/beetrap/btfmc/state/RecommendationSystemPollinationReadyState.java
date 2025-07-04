@@ -1,5 +1,7 @@
 package beetrap.btfmc.state;
 
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_INITIATED;
+
 import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.networking.MultipleChoiceSelectionResultC2SPayload;
 import beetrap.btfmc.networking.ShowMultipleChoiceScreenS2CPayload;
@@ -104,6 +106,8 @@ public class RecommendationSystemPollinationReadyState extends PollinationReadyS
         this.pastPollinationLocations.add(flowerMinecraftPosition);
         Vec3d pl = this.computeAveragePastPollinationPositions();
         this.nextState = new RecommendationSystemPollinationHappeningState(this, pl, this.stage);
+
+        this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_INITIATED, "");
 
         if(this.stage < 2) {
             this.showTextScreenToAllPlayers("What goes into the beehive?");

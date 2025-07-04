@@ -1,7 +1,8 @@
 package beetrap.btfmc.state;
 
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_INITIATED;
+
 import beetrap.btfmc.flower.Flower;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import net.minecraft.util.math.Vec3d;
@@ -57,5 +58,7 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
                     pl, this.stage, this.targetDiversityScore,
                     DiversificationPollinationHappeningState.SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD);
         }
+
+        this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_INITIATED, "");
     }
 }

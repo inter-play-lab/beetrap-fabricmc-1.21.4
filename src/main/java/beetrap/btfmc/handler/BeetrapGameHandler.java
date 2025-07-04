@@ -1,5 +1,8 @@
 package beetrap.btfmc.handler;
 
+import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_CHAT_ONLY;
+import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_PHYSICAL;
+
 import beetrap.btfmc.BeetrapGame;
 import beetrap.btfmc.networking.MultipleChoiceSelectionResultC2SPayload;
 import beetrap.btfmc.networking.PlayerPollinateC2SPayload;
@@ -7,8 +10,12 @@ import beetrap.btfmc.networking.PlayerTargetNewEntityC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload;
 import beetrap.btfmc.networking.PollinationCircleRadiusIncreaseRequestC2SPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.Context;
+import net.minecraft.network.message.MessageType.Parameters;
+import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import org.joml.Vector3i;
 
@@ -23,12 +30,12 @@ public final class BeetrapGameHandler {
         return game != null;
     }
 
-    public static void createGame(MinecraftServer server) {
+    public static void createGame(MinecraftServer server, int aiLevel) {
         if(hasGame()) {
             return;
         }
 
-        game = new BeetrapGame(server, new Vector3i(-10, 0, -10), new Vector3i(10, 0, 10));
+        game = new BeetrapGame(server, new Vector3i(-10, 0, -10), new Vector3i(10, 0, 10), aiLevel);
     }
 
     public static void destroyGame() {
@@ -83,8 +90,17 @@ public final class BeetrapGameHandler {
         game.onWorldTick();
     }
 
+    public static void onChatMessageReceived(SignedMessage signedMessage, ServerPlayerEntity serverPlayerEntity, Parameters parameters) {
+        if(!hasGame()) {
+
+        }
+
+        game.onChatMessageMessage(signedMessage, serverPlayerEntity, parameters);
+    }
+
     public static void registerEvents() {
         ServerTickEvents.START_WORLD_TICK.register(BeetrapGameHandler::onWorldTick);
+        ServerMessageEvents.CHAT_MESSAGE.register(BeetrapGameHandler::onChatMessageReceived);
     }
 
     public static void onMultipleChoiceSelectionResultReceived(

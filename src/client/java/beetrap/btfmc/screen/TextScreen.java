@@ -1,5 +1,7 @@
 package beetrap.btfmc.screen;
 
+import static beetrap.btfmc.BeetrapfabricmcClient.beetrapLog;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_TEXT_SCREEN_CONFIRMATION_BUTTON_PRESSED;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class TextScreen extends Screen {
     private final Screen parent;
     private final List<TextWidget> linesOfText;
     private ButtonWidget confirmation;
+    private String text;
 
     public TextScreen(ScreenQueue tss, String s) {
         super(Text.of(s));
@@ -29,6 +32,7 @@ public class TextScreen extends Screen {
 
         this.parent = this.client.currentScreen;
         this.linesOfText = new ArrayList<>();
+        this.text = s;
     }
 
     @Override
@@ -72,6 +76,7 @@ public class TextScreen extends Screen {
         this.confirmation = ButtonWidget.builder(Text.of("Confirm"),
                 button -> {
             this.close();
+            beetrapLog(BEETRAP_LOG_ID_TEXT_SCREEN_CONFIRMATION_BUTTON_PRESSED, "");
                 }).build();
         this.confirmation.setWidth(200);
         this.confirmation.setPosition(
@@ -90,5 +95,12 @@ public class TextScreen extends Screen {
     public void close() {
         this.client.setScreen(this.parent);
         this.tss.setActive(false);
+    }
+
+    @Override
+    public String toString() {
+        return "TextScreen{" +
+                "text='" + text + '\'' +
+                '}';
     }
 }

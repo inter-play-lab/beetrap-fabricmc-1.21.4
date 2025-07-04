@@ -1,17 +1,24 @@
 package beetrap.btfmc;
 
+import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_PHYSICAL;
+import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_CHAT_ONLY;
+import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_NO_AGENT;
+
+import beetrap.btfmc.agent.Agent;
+import beetrap.btfmc.agent.ChatOnlyAgent;
+import beetrap.btfmc.agent.EmptyAgent;
+import beetrap.btfmc.agent.PhysicalAgent;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.flower.FlowerValueScoreboardDisplayerService;
 import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.state.BeetrapStateManager;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.LeverBlock;
+import net.minecraft.network.message.MessageType.Parameters;
+import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import org.joml.Vector3i;
 import net.minecraft.util.math.Vec3d;
 
@@ -40,8 +47,9 @@ public class BeetrapGame {
     private final Vector3i bottomLeft;
     private final Vector3i topRight;
     private final int amountOfFlowersToWither;
+    private final Agent agent;
 
-    public BeetrapGame(MinecraftServer server, Vector3i bottomLeft, Vector3i topRight) {
+    public BeetrapGame(MinecraftServer server, Vector3i bottomLeft, Vector3i topRight, int agentLevel) {
         this.server = server;
         this.bottomLeft = bottomLeft;
         this.topRight = topRight;
@@ -56,12 +64,31 @@ public class BeetrapGame {
         this.gardenInformationBossBar.updateBossBar(this.stateManager.getState(), 0);
         this.beeNestController.spawnNest();
         this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
+
+        switch(agentLevel) {
+            case AGENT_LEVEL_NO_AGENT -> {
+                this.agent = new EmptyAgent();
+            }
+
+            case AGENT_LEVEL_CHAT_ONLY -> {
+                this.agent = new ChatOnlyAgent(this.world);
+            }
+
+            case AGENT_LEVEL_PHYSICAL -> {
+                this.agent = new PhysicalAgent(this.world);
+            }
+
+            default -> {
+                this.agent = new EmptyAgent();
+            }
+        }
     }
 
     public void onWorldTick() {
         if(System.nanoTime() - this.lastTickTime < TICK_INTERVAL_NANO) return;
         this.stateManager.tick();
         this.lastTickTime = System.nanoTime();
+        this.agent.tick();
     }
 
     public void onPlayerTargetNewEntity(ServerPlayerEntity player, boolean exists, int id) {
@@ -74,21 +101,6 @@ public class BeetrapGame {
 
     public void onPlayerRequestTimeTravel(ServerPlayerEntity player, int n, int operation) {
         this.stateManager.onPlayerRequestTimeTravel(player, n, operation);
-    }
-
-    public void dispose() {
-        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY() - 1, CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
-                Blocks.AIR.getDefaultState());
-        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
-                Blocks.AIR.getDefaultState());
-        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ()),
-                Blocks.AIR.getDefaultState());
-
-        this.flowerManager.destroyAll();
-        this.beeNestController.dispose();
-        this.gardenInformationBossBar.dispose();
-        this.flowerValueScoreboardDisplayerService.dispose();
-        this.interaction.dispose();
     }
 
     private Vec3d calculateNestBase(Vector3i tl, Vector3i br) {
@@ -118,5 +130,30 @@ public class BeetrapGame {
 
     public void onMultipleChoiceSelectionResultReceived(String questionId, int option) {
         this.stateManager.onMultipleChoiceSelectionResultReceived(questionId, option);
+    }
+
+    public void onChatMessageMessage(SignedMessage signedMessage,
+            ServerPlayerEntity serverPlayerEntity, Parameters parameters) {
+        this.agent.onChatMessageReceived(signedMessage.getSignedContent());
+    }
+
+    public void dispose() {
+        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY() - 1, CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
+                Blocks.AIR.getDefaultState());
+        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
+                Blocks.AIR.getDefaultState());
+        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ()),
+                Blocks.AIR.getDefaultState());
+
+        this.flowerManager.destroyAll();
+        this.beeNestController.dispose();
+        this.gardenInformationBossBar.dispose();
+        this.flowerValueScoreboardDisplayerService.dispose();
+        this.interaction.dispose();
+        try {
+            this.agent.close();
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

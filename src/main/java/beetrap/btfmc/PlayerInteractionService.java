@@ -1,10 +1,12 @@
 package beetrap.btfmc;
 
 import static beetrap.btfmc.BeetrapGame.CHANGE_RANKING_METHOD_LEVER_POSITION;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_RANKING_METHOD_LEVER_FLICKED;
 
 import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.flower.FlowerValueScoreboardDisplayerService;
+import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.state.BeetrapState;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -20,11 +22,13 @@ public class PlayerInteractionService {
     private final ServerWorld world;
     private final FlowerValueScoreboardDisplayerService scoreboard;
     private boolean changeRankingMethodLeverPowered;
+    private NetworkingService net;
 
     public PlayerInteractionService(ServerWorld world,
             FlowerValueScoreboardDisplayerService scoreboard) {
         this.world = world;
         this.scoreboard = scoreboard;
+        this.net = new NetworkingService(this.world);
     }
 
     public boolean rankingMethodLeverChanged() {
@@ -40,6 +44,7 @@ public class PlayerInteractionService {
 
         if(r) {
             this.changeRankingMethodLeverPowered = f;
+            this.net.beetrapLog(BEETRAP_LOG_ID_RANKING_METHOD_LEVER_FLICKED, "Current lever state: " + (f ? "POWERED" : "UNPOWERED"));
         }
 
         return r;

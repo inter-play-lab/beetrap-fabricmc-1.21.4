@@ -3,10 +3,9 @@ package beetrap.btfmc.handler;
 import beetrap.btfmc.openai.OpenAiUtil;
 import beetrap.btfmc.tts.TextToSpeechUtil;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.openai.models.responses.Response;
 import java.util.concurrent.CompletableFuture;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -25,40 +24,39 @@ public final class CommandHandler {
         throw new AssertionError();
     }
 
-    private static int gameCommand(CommandContext<ServerCommandSource> commandContext) {
-        String arg1 = commandContext.getArgument("option", String.class);
+    private static int gameNewCommand(CommandContext<ServerCommandSource> commandContext) {
+        Integer aiLevel = commandContext.getArgument("ai_level", Integer.class);
 
-        if(arg1.equalsIgnoreCase("new")) {
-            MinecraftServer server = commandContext.getSource().getServer();
-            ServerWorld world = server.getOverworld();
+        MinecraftServer server = commandContext.getSource().getServer();
+        ServerWorld world = server.getOverworld();
 
-            for(ServerPlayerEntity player : world.getPlayers()) {
-                player.changeGameMode(GameMode.ADVENTURE);
-                player.getAbilities().allowFlying = true;
-                player.sendAbilitiesUpdate();
-            }
-
-            BeetrapGameHandler.createGame(server);
-        } else if(arg1.equalsIgnoreCase("destroy")) {
-            BeetrapGameHandler.destroyGame();
+        for(ServerPlayerEntity player : world.getPlayers()) {
+            player.changeGameMode(GameMode.ADVENTURE);
+            player.getAbilities().allowFlying = true;
+            player.sendAbilitiesUpdate();
         }
+
+        BeetrapGameHandler.createGame(server, aiLevel == null ? 0 : aiLevel);
 
         return 1;
     }
 
-    private static CompletableFuture<Suggestions> getGameCommandSuggestions(
-            CommandContext<ServerCommandSource> commandContext,
-            SuggestionsBuilder builder) {
-        builder.suggest("new");
-        builder.suggest("destroy");
-        return builder.buildFuture();
+    private static int gameDestroyCommand(
+            CommandContext<ServerCommandSource> commandSourceCommandContext) {
+        BeetrapGameHandler.destroyGame();
+        return 0;
     }
 
     private static void registerCommands0(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, RegistrationEnvironment registrationEnvironment) {
         dispatcher.register(CommandManager.literal("game")
-                .then(CommandManager.argument("option", StringArgumentType.greedyString())
-                        .suggests(CommandHandler::getGameCommandSuggestions)
-                        .executes(CommandHandler::gameCommand))
+                .then(CommandManager.literal("new")
+                        .then(CommandManager.argument("ai_level", IntegerArgumentType.integer())
+                                .executes(CommandHandler::gameNewCommand)
+                        )
+                )
+                .then(CommandManager.literal("destroy")
+                        .executes(CommandHandler::gameDestroyCommand)
+                )
         );
 
         dispatcher.register(

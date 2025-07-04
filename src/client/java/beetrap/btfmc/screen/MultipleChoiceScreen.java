@@ -1,8 +1,11 @@
 package beetrap.btfmc.screen;
 
+import static beetrap.btfmc.BeetrapfabricmcClient.beetrapLog;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_MULTIPLE_CHOICE_SCREEN_ANSWER_SELECTED;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 import beetrap.btfmc.networking.MultipleChoiceSelectionResultC2SPayload;
+import java.util.Arrays;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -59,6 +62,7 @@ public class MultipleChoiceScreen extends Screen {
                     button -> {
                         ClientPlayNetworking.send(new MultipleChoiceSelectionResultC2SPayload(this.questionId,
                                 finalI));
+                        beetrapLog(BEETRAP_LOG_ID_MULTIPLE_CHOICE_SCREEN_ANSWER_SELECTED, "Question id: " + this.questionId + ", choice: " + this.choices[finalI]);
                         this.close();
                     }).build();
             choiceWidget.setWidth(300);
@@ -76,5 +80,14 @@ public class MultipleChoiceScreen extends Screen {
     public void close() {
         this.client.setScreen(this.parent);
         this.sq.setActive(false);
+    }
+
+    @Override
+    public String toString() {
+        return "MultipleChoiceScreen{" +
+                "questionId='" + questionId + '\'' +
+                ", question='" + question + '\'' +
+                ", choices=" + Arrays.toString(choices) +
+                '}';
     }
 }

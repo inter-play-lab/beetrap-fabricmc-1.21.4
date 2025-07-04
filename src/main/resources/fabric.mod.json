@@ -20,6 +20,9 @@
 		],
 		"client": [
 			"beetrap.btfmc.BeetrapfabricmcClient"
+		],
+		"voicechat": [
+			"beetrap.btfmc.stt.SimpleVoiceChatPlugin"
 		]
 	},
 	"mixins": [
@@ -30,10 +33,11 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": "~1.21.4",
-		"java": ">=21",
-		"fabric-api": "*"
+		"fabricloader": ">=${loader_version}",
+		"fabric": ">=${fabric_version}",
+		"minecraft": "${minecraft_dependency}",
+		"java": ">=${java_version}",
+		"voicechat": ">=${voicechat_dependency}"
 	},
 	"suggests": {
 		"another-mod": "*"

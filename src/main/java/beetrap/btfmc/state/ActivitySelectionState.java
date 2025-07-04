@@ -1,5 +1,9 @@
 package beetrap.btfmc.state;
 
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIVITY_BEGIN_0;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIVITY_BEGIN_1;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIVITY_BEGIN_2;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIVITY_BEGIN_3;
 import static beetrap.btfmc.state.RecommendationSystemPollinationReadyState.RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_BEFORE_PLAYER_LOOK_AT_BEE_NEST;
 
 import beetrap.btfmc.BeeNestController;
@@ -56,10 +60,22 @@ public class ActivitySelectionState extends BeetrapState {
     @Override
     public BeetrapState getNextState() {
         return switch(this.activityNumber) {
-            case OBSERVE_FLOWERS_ONLY -> new ObserveFlowersOnlyState(this);
-            case FILTER_BUBBLE -> new ExploreFilterBubbleEffectPollinationReadyState(this, 0);
-            case RECOMMENDATION_SYSTEM -> new RecommendationSystemPollinationReadyState(this, 0, RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_BEFORE_PLAYER_LOOK_AT_BEE_NEST);
-            case DIVERSIFICATION -> new DiversificationPollinationReadyState(this);
+            case OBSERVE_FLOWERS_ONLY -> {
+                this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_0, "The user have chosen to observe flowers only!");
+                yield new ObserveFlowersOnlyState(this);
+            }
+            case FILTER_BUBBLE -> {
+                this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_1, "The user have chosen to explore the filter bubble effect!");
+                yield new ExploreFilterBubbleEffectPollinationReadyState(this, 0);
+            }
+            case RECOMMENDATION_SYSTEM -> {
+                this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_2, "The user have chosen to explore the recommendation system!");
+                yield new RecommendationSystemPollinationReadyState(this, 0, RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_BEFORE_PLAYER_LOOK_AT_BEE_NEST);
+            }
+            case DIVERSIFICATION -> {
+                this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_3, "The user have chosen to explore diversifying the garden!");
+                yield new DiversificationPollinationReadyState(this);
+            }
             default -> null;
         };
     }

@@ -3,6 +3,7 @@ plugins {
 	id 'maven-publish'
 }
 
+
 version = project.mod_version
 group = project.maven_group
 
@@ -16,6 +17,19 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+	mavenCentral()
+	maven {
+		name = "henkelmax.public"
+		url = 'https://maven.maxhenkel.de/repository/public'
+	}
+	maven {
+		name = "Modrinth"
+		url = "https://api.modrinth.com/maven"
+		content {
+			includeGroup "maven.modrinth"
+		}
+	}
+	mavenLocal()
 }
 
 loom {
@@ -42,13 +56,22 @@ dependencies {
 	implementation 'org.apache.commons:commons-math3:3.6.1'
 	implementation 'com.openai:openai-java:2.3.0'
 	implementation 'ca.weblite:java-objc-bridge:1.2'
+	implementation("org.apache.httpcomponents.client5:httpclient5:5.5")
+
+	implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
+	modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${voicechat_dependency}"
 }
 
 processResources {
-	inputs.property "version", project.version
+	inputs.property "version", version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand "version": mod_version,
+				"java_version": java_version,
+				"minecraft_dependency": minecraft_dependency,
+				"loader_version": loader_version,
+				"fabric_version": fabric_version,
+				"voicechat_dependency": voicechat_dependency
 	}
 }
 
