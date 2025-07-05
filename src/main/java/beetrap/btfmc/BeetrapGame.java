@@ -5,7 +5,7 @@ import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_CHAT_ONLY;
 import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_NO_AGENT;
 
 import beetrap.btfmc.agent.Agent;
-import beetrap.btfmc.agent.ChatOnlyAgent;
+import beetrap.btfmc.agent.chatonly.ChatOnlyAgent;
 import beetrap.btfmc.agent.EmptyAgent;
 import beetrap.btfmc.agent.PhysicalAgent;
 import beetrap.btfmc.flower.FlowerManager;
@@ -71,7 +71,7 @@ public class BeetrapGame {
             }
 
             case AGENT_LEVEL_CHAT_ONLY -> {
-                this.agent = new ChatOnlyAgent(this.world);
+                this.agent = new ChatOnlyAgent(this.world, this.stateManager);
             }
 
             case AGENT_LEVEL_PHYSICAL -> {
@@ -134,7 +134,7 @@ public class BeetrapGame {
 
     public void onChatMessageMessage(SignedMessage signedMessage,
             ServerPlayerEntity serverPlayerEntity, Parameters parameters) {
-        this.agent.onChatMessageReceived(signedMessage.getSignedContent());
+        this.agent.onChatMessageReceived(serverPlayerEntity, signedMessage.getSignedContent());
     }
 
     public void dispose() {

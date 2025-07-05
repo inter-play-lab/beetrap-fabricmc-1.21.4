@@ -96,7 +96,7 @@ public class PhysicalAgent extends Agent {
     }
 
     @Override
-    public void onChatMessageReceived(String message) {
+    public void onChatMessageReceived(ServerPlayerEntity serverPlayerEntity, String message) {
         this.getGpt4oLatestResponseAsync(message).whenComplete(
                 (response, throwable) -> {
                     String s = response.output().getFirst().asMessage().content().getFirst().asOutputText().text();
