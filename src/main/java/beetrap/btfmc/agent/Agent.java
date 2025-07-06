@@ -1,6 +1,7 @@
 package beetrap.btfmc.agent;
 
 import beetrap.btfmc.agent.event.EventMessage;
+import beetrap.btfmc.event.BeetrapGameEvent;
 import beetrap.btfmc.openai.OpenAiUtil;
 import beetrap.btfmc.state.BeetrapStateManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +9,10 @@ import com.openai.client.OpenAIClient;
 import com.openai.models.ChatModel;
 import com.openai.models.responses.Response;
 import com.openai.models.responses.ResponseCreateParams;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.packet.CustomPayload;
@@ -33,6 +38,8 @@ public abstract class Agent implements AutoCloseable {
     private AgentState currentState;
     private String instructions;
 
+    private final List<BeetrapGameEvent> gameEvents;
+
     private void setCurrentAgentState(AgentState currentAgentState) {
         this.currentState = currentAgentState;
         this.currentState.onAttach(this);
@@ -44,6 +51,7 @@ public abstract class Agent implements AutoCloseable {
         this.name = name;
         this.setCurrentAgentState(initialAgentState);
         this.openAiClient = OpenAiUtil.getClient();
+        this.gameEvents = new ArrayList<BeetrapGameEvent>();
     }
 
     public Agent(ServerWorld world, BeetrapStateManager beetrapStateManager, AgentState initialState) {
@@ -139,5 +147,9 @@ public abstract class Agent implements AutoCloseable {
         for(ServerPlayerEntity player : this.world.getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
+    }
+
+    public void addGameEvent(BeetrapGameEvent bge) {
+        gameEvents.add(bge);
     }
 }

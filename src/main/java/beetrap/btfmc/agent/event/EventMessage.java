@@ -11,6 +11,8 @@ public class EventMessage extends LinkedHashMap<String, Object> {
     public static final String EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_CHAT_EVENT = "chat";
     public static final String CHAT_EVENT_MESSAGE_KEY_PLAYER_MESSAGE = "player_message";
     public static final String EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_GAME_START_EVENT = "game_start";
+    public static final String EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_PLAYER_POLLINATE_EVENT = "player_pollinate";
+    public static final String EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_DEAD_FLOWER = "dead_flower";
 
     public EventMessage(String eventType) {
         this.setEventType(eventType);

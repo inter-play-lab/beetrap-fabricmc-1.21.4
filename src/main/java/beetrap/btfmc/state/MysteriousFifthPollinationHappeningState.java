@@ -4,6 +4,8 @@ import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_RANKED;
 import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_TO_PLACE_DEFAULT_MODE;
 
 import beetrap.btfmc.flower.Flower;
+import beetrap.btfmc.event.BeetrapGameEvent;
+import beetrap.btfmc.handler.BeetrapGameHandler;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -110,6 +112,13 @@ public class MysteriousFifthPollinationHappeningState extends BeetrapState {
             if(f.hasWithered()) {
                 continue;
             }
+
+            Vec3d flowerPos = this.flowerManager.getFlowerMinecraftPosition(this, f);
+            BeetrapGameEvent<Vec3d> deadFlowerEvent = new BeetrapGameEvent<>(
+                BeetrapGameEvent.EventType.DEAD_FLOWER, 
+                flowerPos
+            );
+            BeetrapGameHandler.getGame().getAgent().addGameEvent(deadFlowerEvent);
 
             f.setWithered(true);
             this.flowerManager.placeFlowerEntity(this, f);
