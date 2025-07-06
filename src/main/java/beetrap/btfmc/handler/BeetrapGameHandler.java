@@ -112,4 +112,8 @@ public final class BeetrapGameHandler {
 
         game.onMultipleChoiceSelectionResultReceived(multipleChoiceSelectionResultC2SPayload.questionId(), multipleChoiceSelectionResultC2SPayload.option());
     }
+
+    public static BeetrapGame getGame() {
+        return game;
+    }
 }

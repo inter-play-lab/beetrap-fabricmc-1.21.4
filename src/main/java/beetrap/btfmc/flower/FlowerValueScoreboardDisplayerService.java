@@ -41,11 +41,11 @@ public class FlowerValueScoreboardDisplayerService {
             return;
         }
 
-        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("v: %.2f", f.v)), this.flowerValues).setScore(5);
-        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("w: %.2f", f.w)), this.flowerValues).setScore(4);
-        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("x: %.2f", f.x)), this.flowerValues).setScore(3);
-        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("y: %.2f", f.y)), this.flowerValues).setScore(2);
-        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("z: %.2f", f.z)), this.flowerValues).setScore(1);
+        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Color: %.2f", f.v)), this.flowerValues).setScore(5);
+        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Smell strength: %.2f", f.w)), this.flowerValues).setScore(4);
+        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Nectar sweetness: %.2f", f.x)), this.flowerValues).setScore(3);
+        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Water needed: %.2f", f.y)), this.flowerValues).setScore(2);
+        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Sunlight needed: %.2f", f.z)), this.flowerValues).setScore(1);
     }
 
     public void dispose() {

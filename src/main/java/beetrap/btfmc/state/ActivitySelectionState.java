@@ -4,6 +4,7 @@ import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIV
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIVITY_BEGIN_1;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIVITY_BEGIN_2;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIVITY_BEGIN_3;
+import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_ACTIVITY_BEGIN_4;
 import static beetrap.btfmc.state.RecommendationSystemPollinationReadyState.RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_BEFORE_PLAYER_LOOK_AT_BEE_NEST;
 
 import beetrap.btfmc.BeeNestController;
@@ -12,6 +13,7 @@ import beetrap.btfmc.PlayerInteractionService;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.flower.FlowerPool;
 import beetrap.btfmc.flower.FlowerValueScoreboardDisplayerService;
+import beetrap.btfmc.handler.BeetrapGameHandler;
 import beetrap.btfmc.networking.ShowMultipleChoiceScreenS2CPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -23,6 +25,7 @@ public class ActivitySelectionState extends BeetrapState {
     private static final int FILTER_BUBBLE = 1;
     private static final int RECOMMENDATION_SYSTEM = 2;
     private static final int DIVERSIFICATION = 3;
+    private static final int MYSTERIOUS_FIFTH_ACTIVITY = 4;
     private int activityNumber;
 
     public ActivitySelectionState(ServerWorld world, BeetrapStateManager manager,
@@ -37,7 +40,14 @@ public class ActivitySelectionState extends BeetrapState {
                 gardenInformationBossBar, flowerValueScoreboardDisplayerService, usingDiversifyingRankingMethod, pollinationCircleRadius,
                 amountOfFlowersToWither);
         this.activityNumber = NO_ACTIVITY;
-        this.net.broadcastCustomPayload(new ShowMultipleChoiceScreenS2CPayload(ACTIVITY_SELECTION_SCREEN_ID, "Select an activity!", "Observe flowers only", "What is the filter bubble effect?", "How does the garden recommend flowers?", "How do we break the filter bubble?"));
+        this.net.broadcastCustomPayload(new ShowMultipleChoiceScreenS2CPayload(
+                ACTIVITY_SELECTION_SCREEN_ID,
+                "Select an activity!",
+                "Observe flowers only",
+                "What is the filter bubble effect?",
+                "How does the garden recommend flowers?",
+                "How do we break the filter bubble?",
+                "Mysterious Fifth Activity"));
     }
 
     @Override
@@ -75,6 +85,12 @@ public class ActivitySelectionState extends BeetrapState {
             case DIVERSIFICATION -> {
                 this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_3, "The user have chosen to explore diversifying the garden!");
                 yield new DiversificationPollinationReadyState(this);
+            }
+
+            case MYSTERIOUS_FIFTH_ACTIVITY -> {
+                BeetrapGameHandler.getGame().newAgent();
+                this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_4, "The user have chosen to explore mysterious fifth activity!");
+                yield new MysteriousFifthPollinationReadyState(this, 0);
             }
             default -> null;
         };

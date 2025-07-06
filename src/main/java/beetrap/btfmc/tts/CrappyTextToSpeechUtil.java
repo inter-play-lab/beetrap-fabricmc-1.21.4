@@ -7,10 +7,10 @@ import com.mojang.text2speech.NarratorMac;
 import com.mojang.text2speech.NarratorWindows;
 import com.mojang.text2speech.OperatingSystem;
 
-public final class TextToSpeechUtil {
+public final class CrappyTextToSpeechUtil {
     private static final Narrator narrator;
 
-    private TextToSpeechUtil() {
+    private CrappyTextToSpeechUtil() {
 
     }
 

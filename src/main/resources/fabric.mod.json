@@ -22,7 +22,7 @@
 			"beetrap.btfmc.BeetrapfabricmcClient"
 		],
 		"voicechat": [
-			"beetrap.btfmc.stt.SimpleVoiceChatPlugin"
+			"beetrap.btfmc.textandspeech.SimpleVoiceChatPlugin"
 		]
 	},
 	"mixins": [

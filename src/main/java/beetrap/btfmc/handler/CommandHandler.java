@@ -1,7 +1,7 @@
 package beetrap.btfmc.handler;
 
 import beetrap.btfmc.openai.OpenAiUtil;
-import beetrap.btfmc.tts.TextToSpeechUtil;
+import beetrap.btfmc.tts.CrappyTextToSpeechUtil;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -18,27 +18,35 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class CommandHandler {
+    private static final Logger LOG = LogManager.getLogger(CommandHandler.class);
+
     private CommandHandler() {
         throw new AssertionError();
     }
 
     private static int gameNewCommand(CommandContext<ServerCommandSource> commandContext) {
-        Integer aiLevel = commandContext.getArgument("ai_level", Integer.class);
+        try {
+            Integer aiLevel = commandContext.getArgument("ai_level", Integer.class);
 
-        MinecraftServer server = commandContext.getSource().getServer();
-        ServerWorld world = server.getOverworld();
+            MinecraftServer server = commandContext.getSource().getServer();
+            ServerWorld world = server.getOverworld();
 
-        for(ServerPlayerEntity player : world.getPlayers()) {
-            player.changeGameMode(GameMode.ADVENTURE);
-            player.getAbilities().allowFlying = true;
-            player.sendAbilitiesUpdate();
+            for(ServerPlayerEntity player : world.getPlayers()) {
+                player.changeGameMode(GameMode.ADVENTURE);
+                player.getAbilities().allowFlying = true;
+                player.sendAbilitiesUpdate();
+            }
+
+            BeetrapGameHandler.createGame(server, aiLevel == null ? 0 : aiLevel);
+        } catch(Throwable t) {
+            LOG.error(t);
         }
 
-        BeetrapGameHandler.createGame(server, aiLevel == null ? 0 : aiLevel);
-
-        return 1;
+        return 0;
     }
 
     private static int gameDestroyCommand(
@@ -75,7 +83,7 @@ public final class CommandHandler {
     private static int openaiClearCommand(CommandContext<ServerCommandSource> ctx) {
         OpenAiUtil.clearHistory();
         ctx.getSource().sendFeedback(() -> Text.of("History cleared."), false);
-        return 1;
+        return 0;
     }
 
     private static int openaiSayCommand(CommandContext<ServerCommandSource> ctx) {
@@ -84,14 +92,14 @@ public final class CommandHandler {
 
         response.whenComplete((response1, throwable) -> {
             String s = response1.output().getFirst().asMessage().content().getFirst().asOutputText().text();
-            TextToSpeechUtil.say(s);
+            CrappyTextToSpeechUtil.say(s);
             Text t = Text.of(s);
             for(ServerPlayerEntity player : ctx.getSource().getServer().getOverworld().getPlayers()) {
                 player.sendMessage(t);
             }
         });
 
-        return 1;
+        return 0;
     }
 
     public static void registerCommands() {

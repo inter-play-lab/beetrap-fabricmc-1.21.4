@@ -18,6 +18,7 @@ public record BeetrapLogS2CPayload(String id, String log) implements CustomPaylo
     public static final String BEETRAP_LOG_ID_ACTIVITY_BEGIN_1 = "ACTIVITY_BEGIN_1";
     public static final String BEETRAP_LOG_ID_ACTIVITY_BEGIN_2 = "ACTIVITY_BEGIN_2";
     public static final String BEETRAP_LOG_ID_ACTIVITY_BEGIN_3 = "ACTIVITY_BEGIN_3";
+    public static final String BEETRAP_LOG_ID_ACTIVITY_BEGIN_4 = "ACTIVITY_BEGIN_4";
     public static final String BEETRAP_LOG_ID_POLLINATION_INITIATED = "POLLINATION_INITIATED";
     public static final String BEETRAP_LOG_ID_DIVERSITY_SCORE = "DIVERSITY_SCORE";
     public static final String BEETRAP_LOG_ID_TIME_MACHINE_BACKWARD = "TIME_MACHINE_BACKWARD";

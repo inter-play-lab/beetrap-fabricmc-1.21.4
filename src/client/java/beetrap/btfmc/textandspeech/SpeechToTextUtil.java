@@ -1,4 +1,4 @@
-package beetrap.btfmc.stt;
+package beetrap.btfmc.textandspeech;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

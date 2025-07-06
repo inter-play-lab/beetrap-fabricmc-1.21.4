@@ -1,16 +1,16 @@
-package beetrap.btfmc.stt;
+package beetrap.btfmc.textandspeech;
 
 import static beetrap.btfmc.BeetrapfabricmcClient.MOD_ID;
-import static org.lwjgl.glfw.GLFW.*;
 
 import de.maxhenkel.voicechat.api.VoicechatApi;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.events.ClientSoundEvent;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,6 +30,7 @@ public class SimpleVoiceChatPlugin implements VoicechatPlugin {
     private long lastAudioTimestamp;
     private static final long VOICE_TIMEOUT_MS = 500; // 1 second of silence indicates end of transmission
     private boolean isRecording = false;
+    private ExecutorService es;
 
 
     @Override
@@ -39,6 +40,7 @@ public class SimpleVoiceChatPlugin implements VoicechatPlugin {
 
         // Register tick event to check for voice transmission timeout
         ClientTickEvents.START_WORLD_TICK.register(this::onStartWorldTick);
+        this.es = Executors.newSingleThreadExecutor();
     }
 
     private void onStartWorldTick(ClientWorld clientWorld) {
@@ -117,11 +119,12 @@ public class SimpleVoiceChatPlugin implements VoicechatPlugin {
 
             // 3. Transcribe using Whisper API with the saved WAV file
             LOG.info("Transcribing audio file: {}", audioFilePath);
-            String transcription = SpeechToTextUtil.transcribeAudioFile(audioFilePath);
-            MinecraftClient.getInstance().player.sendMessage(Text.of(transcription), false);
-            LOG.info("Transcription: " + transcription);
 
-
+            this.es.submit(() -> {
+                String transcription = SpeechToTextUtil.transcribeAudioFile(audioFilePath);
+                MinecraftClient.getInstance().player.networkHandler.sendChatMessage(transcription);
+                LOG.info("Transcription: " + transcription);
+            });
         } catch (Exception e) {
             LOG.error("Error processing voice transmission", e);
         } finally {
