@@ -3,7 +3,7 @@ package beetrap.btfmc.agent.physical;
 import beetrap.btfmc.agent.Agent;
 import beetrap.btfmc.agent.GptJsonResponseDeserialized;
 import beetrap.btfmc.agent.event.EventMessage;
-import beetrap.btfmc.agent.physical.state.PAS0Initial;
+import beetrap.btfmc.agent.physical.state.PAS0Introduction;
 import beetrap.btfmc.event.BeetrapGameEvent;
 import beetrap.btfmc.state.BeetrapStateManager;
 import beetrap.btfmc.tts.SlopTextToSpeechUtil;
@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openai.models.responses.Response;
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
 import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -21,7 +20,6 @@ import net.minecraft.util.math.Vec3d;
 
 import static beetrap.btfmc.agent.event.EventMessage.EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_DEAD_FLOWER;
 import static beetrap.btfmc.event.BeetrapGameEvent.EventType.DEAD_FLOWER;
-import static beetrap.btfmc.event.BeetrapGameEvent.EventType.PLAYER_POLLINATE;
 import static net.minecraft.entity.MovementType.SELF;
 
 public class PhysicalAgent extends Agent {
@@ -32,9 +30,10 @@ public class PhysicalAgent extends Agent {
     private Vec3d flyDestination;
 
     public PhysicalAgent(ServerWorld world, BeetrapStateManager beetrapStateManager) {
-        super(world, beetrapStateManager, new PAS0Initial());
+        super(world, beetrapStateManager, new PAS0Introduction());
 
         this.beeEntity = new BeeEntity(EntityType.BEE, this.world);
+        this.beeEntity.setInvulnerable(true);
         this.beeEntity.setAiDisabled(true);
         this.beeEntity.setPos(0.5, 1, 0.5);
         this.world.spawnEntity(this.beeEntity);
@@ -90,10 +89,10 @@ public class PhysicalAgent extends Agent {
             GptJsonResponseDeserialized gjrd = om.readValue(s, GptJsonResponseDeserialized.class);
             if (gjrd.action().equals("fly")) {
 //                this.world
-            }   
-            SlopTextToSpeechUtil.say(gjrd.dialogue());
+            }
             this.world.getPlayers().forEach(
-                    serverPlayerEntity -> serverPlayerEntity.sendMessage(Text.of(gjrd.dialogue())));
+                    serverPlayerEntity -> serverPlayerEntity.sendMessage(Text.of("<" + super.name + "> " + gjrd.dialogue())));
+            SlopTextToSpeechUtil.say(gjrd.dialogue());
         } catch(JsonProcessingException e) {
             for(ServerPlayerEntity player : this.world.getPlayers()) {
                 player.sendMessage(Text.of(e.getMessage()));

@@ -14,7 +14,6 @@ import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.flower.FlowerPool;
 import beetrap.btfmc.flower.FlowerValueScoreboardDisplayerService;
-import beetrap.btfmc.handler.BeetrapGameHandler;
 import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public class BeetrapStateManager {
     private final GardenInformationBossBar gardenInformationBossBar;
     private BeetrapState state;
     private final double initialDiversityScore;
-    private NetworkingService net;
+    private final NetworkingService net;
 
     private void recordState() {
         this.oldBeetrapStates.add(this.state);
@@ -188,5 +187,14 @@ public class BeetrapStateManager {
 
     public void onPollinationCircleRadiusIncreaseRequested(double a) {
         this.state.onPollinationCircleRadiusIncreaseRequested(a);
+    }
+
+    public void getJsonReadyDataForGpt(StringBuilder sb) {
+        sb.append("Player position: ").append(this.world.getPlayers().getFirst().getPos()).append(System.lineSeparator());
+        sb.append("Flowers: ").append(System.lineSeparator());
+
+        for(Flower f : this.state) {
+            sb.append("'Flower ").append(f.getNumber()).append("': {").append("'position': ").append(this.flowerManager.getFlowerMinecraftPosition(this.state, f)).append(", 'color': '").append(this.flowerManager.getFlowerMinecraftColor(f)).append("'").append(System.lineSeparator());
+        }
     }
 }

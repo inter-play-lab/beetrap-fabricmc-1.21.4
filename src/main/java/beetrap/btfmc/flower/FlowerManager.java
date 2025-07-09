@@ -229,4 +229,38 @@ public class FlowerManager {
     public double getBaseY() {
         return this.baseY;
     }
+
+    public String getFlowerMinecraftColor(Flower f) {
+        if(f.hasWithered()) {
+            return "Withered";
+        }
+
+        switch((int)(f.v)) {
+            case 0 -> {
+                return "Red";
+            }
+
+            case 1 -> {
+                return "Orange";
+            }
+
+            case 2 -> {
+                return "Yellow";
+            }
+
+            case 3 -> {
+                return "Light blue";
+            }
+
+            case 4 -> {
+                return "Dark blue";
+            }
+
+            case 5 -> {
+                return "Purple";
+            }
+        }
+
+        return "Green";
+    }
 }

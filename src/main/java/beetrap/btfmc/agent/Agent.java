@@ -4,7 +4,6 @@ import beetrap.btfmc.agent.event.EventMessage;
 import beetrap.btfmc.event.BeetrapGameEvent;
 import beetrap.btfmc.openai.OpenAiUtil;
 import beetrap.btfmc.state.BeetrapStateManager;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openai.client.OpenAIClient;
 import com.openai.models.ChatModel;
 import com.openai.models.responses.Response;
@@ -12,7 +11,6 @@ import com.openai.models.responses.ResponseCreateParams;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.packet.CustomPayload;
@@ -20,12 +18,16 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class Agent implements AutoCloseable {
     public static final int AGENT_LEVEL_NO_AGENT = 0;
     public static final int AGENT_LEVEL_CHAT_ONLY = 1;
     public static final int AGENT_LEVEL_CHAT_WITH_VOICE_TO_TEXT = 2;
     public static final int AGENT_LEVEL_PHYSICAL = 3;
+
+    private static final Logger LOG = LogManager.getLogger(Agent.class);
 
     public static final String AGENT_NAME = "Bip Buzzley";
 
@@ -103,6 +105,10 @@ public abstract class Agent implements AutoCloseable {
         this.getGpt4oLatestResponseAsyncWithPresetInstructions(input).whenComplete(this::onGptResponseReceived);
     }
 
+    public void sendGpt4oLatestResponseToInputToChatWithAdditionInstructionsToPreset(String additionalInstructions, String input) {
+        this.getGpt4oLatestResponseAsyncWithInstructions(this.instructions + additionalInstructions, input).whenComplete(this::onGptResponseReceived);
+    }
+
     public void onGptResponseReceived(Response response, Throwable throwable) {
         String s = response.output().getFirst().asMessage().content().getFirst().asOutputText().text();
 
@@ -113,6 +119,37 @@ public abstract class Agent implements AutoCloseable {
 
     public void sendGptEventMessage(EventMessage eventMessage) {
         this.sendGpt4oLatestResponseToInputToChatWithPresetInstructions(eventMessage.toJsonString());
+    }
+
+    public void sendGptEventMessageWithAdditionalInstructions(String instructions, EventMessage eventMessage) {
+        this.sendGpt4oLatestResponseToInputToChatWithAdditionInstructionsToPreset(instructions, eventMessage.toJsonString());
+    }
+
+    public CompletableFuture<Response> getGpt4oLatestResponseAsyncWithInstructions(String instructions, String input) {
+        ResponseCreateParams params;
+
+        if(previousResponse != null) {
+            params = ResponseCreateParams.builder()
+                    .instructions(instructions)
+                    .input(input)
+                    .model(ChatModel.CHATGPT_4O_LATEST)
+                    .previousResponseId(previousResponse.id())
+                    .build();
+        } else {
+            params = ResponseCreateParams.builder()
+                    .instructions(instructions)
+                    .input(input)
+                    .model(ChatModel.CHATGPT_4O_LATEST)
+                    .build();
+        }
+
+        CompletableFuture<Response> response = this.openAiClient.async().responses().create(params);
+        return response.whenComplete((response1, throwable) -> {
+            this.previousResponse = response1;
+            if(throwable != null) {
+                LOG.error(throwable);
+            }
+        });
     }
 
     public CompletableFuture<Response> getGpt4oLatestResponseAsyncWithPresetInstructions(String input) {
@@ -134,7 +171,13 @@ public abstract class Agent implements AutoCloseable {
         }
 
         CompletableFuture<Response> response = this.openAiClient.async().responses().create(params);
-        return response.whenComplete((response1, throwable) -> this.previousResponse = response1);
+        return response.whenComplete((response1, throwable) -> {
+            this.previousResponse = response1;
+
+            if(throwable != null) {
+                LOG.error(throwable);
+            }
+        });
     }
 
     public void sendPacketToAllPlayers(Packet<?> packet) {

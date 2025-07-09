@@ -92,7 +92,7 @@ public final class BeetrapGameHandler {
 
     public static void onChatMessageReceived(SignedMessage signedMessage, ServerPlayerEntity serverPlayerEntity, Parameters parameters) {
         if(!hasGame()) {
-
+            return;
         }
 
         game.onChatMessageMessage(signedMessage, serverPlayerEntity, parameters);

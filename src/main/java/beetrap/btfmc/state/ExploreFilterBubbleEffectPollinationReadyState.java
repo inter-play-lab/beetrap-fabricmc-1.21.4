@@ -38,6 +38,7 @@ public class ExploreFilterBubbleEffectPollinationReadyState extends PollinationR
         }
 
         this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("Hi Bee! Welcome to the magic garden. Pollinate flowers that you like and pay attention to what happens.", 50)));
+        this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("To pollinate a flower, aim a flower, hold the bee nest that appears, right click.", 50)));
     }
 
     @Override
