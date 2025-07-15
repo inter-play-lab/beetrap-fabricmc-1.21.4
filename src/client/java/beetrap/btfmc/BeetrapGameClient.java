@@ -7,6 +7,7 @@ import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_TEXT_
 import static beetrap.btfmc.networking.BeginSubActivityS2CPayload.SUB_ACTIVITY_NULL;
 import static beetrap.btfmc.networking.BeginSubActivityS2CPayload.SUB_ACTIVITY_PRESS_B_TO_INCREASE_POLLINATION_RADIUS;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_K;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.glfwGetKey;
 
@@ -39,11 +40,15 @@ public class BeetrapGameClient {
     private Entity glowingEntity;
     private int currentSubActivity;
     private boolean bPressed;
+    private boolean hPressed;
+    private String lastShownHint;
 
     public BeetrapGameClient() {
         this.client = MinecraftClient.getInstance();
         this.sq = new ScreenQueue();
         this.currentSubActivity = SUB_ACTIVITY_NULL;
+        this.hPressed = false;
+        this.lastShownHint = null;
     }
 
     private void onSubActivity1() {
@@ -59,6 +64,18 @@ public class BeetrapGameClient {
             this.bPressed = true;
         } else {
             this.bPressed = false;
+        }
+    }
+
+    private void handleHKeyPress() {
+        if(glfwGetKey(this.client.getWindow().getHandle(), GLFW_KEY_K) == GLFW_PRESS) {
+            if(!this.hPressed && this.lastShownHint != null) {
+                this.sq.push(new TextScreen(this.sq, this.lastShownHint));
+            }
+
+            this.hPressed = true;
+        } else {
+            this.hPressed = false;
         }
     }
 
@@ -90,6 +107,7 @@ public class BeetrapGameClient {
         }
 
         this.onSubActivity1();
+        this.handleHKeyPress();
     }
 
     private boolean updateTargetEntity() {
@@ -179,6 +197,7 @@ public class BeetrapGameClient {
     }
 
     public void showTextScreen(String s) {
+        this.lastShownHint = s;
         this.sq.push(new TextScreen(this.sq, s));
     }
 

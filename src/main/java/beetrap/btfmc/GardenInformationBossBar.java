@@ -29,7 +29,9 @@ public class GardenInformationBossBar {
     }
 
     private Text getTitle(BeetrapState state, int stage) {
-        return Text.of("Garden " + stage + " - Diversity score: " + state.computeDiversityScore());
+        int correctStage = stage % 2 == 0 ? stage / 2 : (stage / 2) + 1;
+        int correctDiversityScore = (int)state.computeDiversityScore();
+        return Text.of("Garden " + correctStage + " - Diversity score: " + correctDiversityScore);
     }
 
     public void updateBossBar(BeetrapState bs, int stage) {

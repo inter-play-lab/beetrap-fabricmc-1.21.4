@@ -17,7 +17,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 
 public class BeeNestController {
-    private static final double EPSILON = 0.05;
+    private static final double EPSILON = 0.01;
     private static final long MAX_ANIMATION_TICKS = 20;
     private static final long MAX_CIRCLE_TICKS = 20 + 10 * 20;
     private final ServerWorld world;

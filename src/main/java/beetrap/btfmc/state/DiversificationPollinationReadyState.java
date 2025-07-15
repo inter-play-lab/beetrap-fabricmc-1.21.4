@@ -29,7 +29,7 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
         }
 
         this.flowerManager.placeFlowerEntities(this);
-        this.targetDiversityScore = (Math.ceil(this.computeDiversityScore() / 100.0) + 1) * 100;
+        this.targetDiversityScore = (Math.ceil(this.computeDiversityScore() / 100.0) + 7) * 100;
 
         if(this.stage == 0) {
             this.showTextScreenToAllPlayers("You learned about how the inner workings of AI recommendation form filter bubbles. Now let's learn how to break filter bubbles in the garden. Let's try to make the flower diversity go up. Let's try to make it go above " + (int)this.targetDiversityScore + "! <- this is not a factorial symbol.");
@@ -39,7 +39,7 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
 
     @Override
     public boolean timeTravelAvailable() {
-        return false;
+        return true;
     }
 
     @Override

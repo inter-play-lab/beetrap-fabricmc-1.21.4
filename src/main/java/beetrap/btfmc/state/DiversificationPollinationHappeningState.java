@@ -1,10 +1,6 @@
 package beetrap.btfmc.state;
 
-import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_RANKED;
-import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_TO_PLACE_DIVERSIFYING_MODE;
-import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
-import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
-import static beetrap.btfmc.BeetrapGame.CHANGE_RANKING_METHOD_LEVER_POSITION;
+import static beetrap.btfmc.BeetrapGame.*;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_CIRCLE_RADIUS_INCREASED;
 
 import beetrap.btfmc.flower.Flower;
@@ -52,9 +48,11 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
     }
 
     private void tickGrowBuds() {
-        this.newFlowerCandidates = this.findAtMostNClosestFlowersNotInGardenToCenterByLeastMinecraftDistance(this.pollinationCenter,
-                AMOUNT_OF_BUDS_TO_PLACE_DIVERSIFYING_MODE);
-
+        // Only place buds within the pollination circle radius
+        this.newFlowerCandidates = this.findFlowersWithinRadius(
+                this.pollinationCenter,
+                this.pollinationCircleRadius,
+                AMOUNT_OF_BUDS_TO_PLACE_DEFAULT_MODE);
         this.flowerManager.placeBuds(this, this.newFlowerCandidates);
     }
 
@@ -94,6 +92,11 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
         }
 
         this.newFlowers = new Flower[AMOUNT_OF_BUDS_RANKED];
+
+        for (int i = 0; i < fbe.length; i++) {
+            fbe[i].setCustomName(Text.of(""));
+            fbe[i].setCustomNameVisible(false);
+        }
 
         int r = 0;
         for(int i = 0; i < fbe.length && r < AMOUNT_OF_BUDS_RANKED; ++i) {
@@ -200,6 +203,16 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
             }
 
             case SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD -> {
+                if(this.interaction.rankingMethodLeverChanged()) {
+                    boolean b = this.interaction.isChangeRankingMethodLeverPowered();
+
+                    this.usingDiversifyingRankingMethod = b;
+
+                    if(!b) {
+                        --this.ticks;
+                    }
+                }
+
                 this.tickRankBuds();
                 this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager, this.newFlowerCandidates);
                 this.on200TicksLater(this.pollinationTrulyReadyTick);
@@ -234,6 +247,8 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
     public void onPollinationCircleRadiusIncreaseRequested(double a) {
         if(this.subStage == SUB_STAGE_BEFORE_TARGET_CIRCLE_RADIUS_HIT) {
             this.pollinationCircleRadius = this.pollinationCircleRadius + a;
+            this.tickGrowBuds();
+            this.tickRankBuds();
             this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_CIRCLE_RADIUS_INCREASED, "Current radius: " + this.pollinationCircleRadius);
         }
     }

@@ -35,7 +35,10 @@ public class ExploreFilterBubbleEffectPollinationHappeningState extends BeetrapS
     }
 
     private void tickGrowBuds() {
-        this.newFlowerCandidates = this.findAtMostNClosestFlowersNotInGardenToCenterByLeastMinecraftDistance(this.pollinationCenter,
+        // Only place buds within the pollination circle radius
+        this.newFlowerCandidates = this.findFlowersWithinRadius(
+                this.pollinationCenter,
+                this.pollinationCircleRadius,
                 AMOUNT_OF_BUDS_TO_PLACE_DEFAULT_MODE);
         this.flowerManager.placeBuds(this, this.newFlowerCandidates);
     }
