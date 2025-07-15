@@ -268,7 +268,7 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
 
     @Override
     public float getGardenInformationBossBarPercent() {
-        double a = this.stateManager.getInitialDiversityScore();
+        double a = 0;
         double x = this.computeDiversityScore();
         double b = this.targetDiversityScore;
 
