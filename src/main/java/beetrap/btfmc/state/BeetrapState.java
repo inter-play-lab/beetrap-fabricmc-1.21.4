@@ -92,6 +92,40 @@ public abstract class BeetrapState implements Iterable<Flower> {
         this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap(message, 50)));
     }
 
+    /**
+     * Finds flowers within the pollination circle radius that are not already in the garden.
+     *
+     * @param center The center of the pollination circle
+     * @param radius The radius of the pollination circle
+     * @param maxCount The maximum number of flowers to return
+     * @return An array of flowers within the radius that are not in the garden
+     */
+    protected Flower[] findFlowersWithinRadius(Vec3d center, double radius, int maxCount) {
+        double limitedRadius = Math.max(radius - 0.2, 0.0);
+        // Find all flowers within the radius sorted by distance to center
+        Flower[] flowersWithinRadius = this.findAllFlowersWithinRSortedByG(center, limitedRadius,
+                (o1, o2) -> {
+                    Vec3d pos1 = flowerManager.getFlowerMinecraftPosition(this, o1);
+                    Vec3d pos2 = flowerManager.getFlowerMinecraftPosition(this, o2);
+                    double d1 = center.distanceTo(pos1);
+                    double d2 = center.distanceTo(pos2);
+                    return Double.compare(d1, d2);
+                });
+
+        // Filter out flowers that are already in the garden
+        List<Flower> candidateFlowers = new ArrayList<>();
+        for (Flower flower : flowersWithinRadius) {
+            if (!this.hasFlower(flower.getNumber())) {
+                candidateFlowers.add(flower);
+                if (candidateFlowers.size() >= maxCount) {
+                    break;
+                }
+            }
+        }
+
+        return candidateFlowers.toArray(new Flower[0]);
+    }
+
     public abstract void tick();
     public abstract boolean hasNextState();
     public abstract BeetrapState getNextState();

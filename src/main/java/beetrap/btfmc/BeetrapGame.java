@@ -31,7 +31,7 @@ public class BeetrapGame {
     public static final double INITIAL_POLLINATION_CIRCLE_RADIUS = 3;
     public static final int AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE = 3;
     public static final int AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE = 1;
-    public static final BlockPos CHANGE_RANKING_METHOD_LEVER_POSITION = new BlockPos(0, 1, -22);
+    public static final BlockPos CHANGE_RANKING_METHOD_LEVER_POSITION = new BlockPos(0, 1, 0);
     public static final int MAX_POLLINATION_COUNT = 6;
     private static final long TICK_INTERVAL_NANO = 50_000_000L;
     private final MinecraftServer server;

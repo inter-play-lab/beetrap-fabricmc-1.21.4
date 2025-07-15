@@ -1,5 +1,6 @@
 package beetrap.btfmc.screen;
 
+import static beetrap.btfmc.BeetrapfabricmcClient.MOD_ID;
 import static beetrap.btfmc.BeetrapfabricmcClient.beetrapLog;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_TEXT_SCREEN_CONFIRMATION_BUTTON_PRESSED;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
@@ -7,21 +8,27 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class TextScreen extends Screen {
     private static final int TEXT_WIDGET_WIDTH = 800;
     private static final int TEXT_WIDGET_HEIGHT = 12;
+    private static final int IMAGE_WIDTH = 200;
+    private static final int IMAGE_HEIGHT = 200;
     private final ScreenQueue tss;
     private final Screen parent;
     private final List<TextWidget> linesOfText;
     private ButtonWidget confirmation;
     private String text;
+    private Identifier imageId;
+    private boolean hasImage;
 
     public TextScreen(ScreenQueue tss, String s) {
         super(Text.of(s));
