@@ -41,6 +41,7 @@ public class FlowerValueScoreboardDisplayerService {
             return;
         }
 
+        this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Flower number: %d", f.getNumber())), this.flowerValues).setScore(6);
         this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Color: %.2f", f.v)), this.flowerValues).setScore(5);
         this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Smell strength: %.2f", f.w)), this.flowerValues).setScore(4);
         this.scoreboard.getOrCreateScore(ScoreHolder.fromName(String.format("Nectar sweetness: %.2f", f.x)), this.flowerValues).setScore(3);

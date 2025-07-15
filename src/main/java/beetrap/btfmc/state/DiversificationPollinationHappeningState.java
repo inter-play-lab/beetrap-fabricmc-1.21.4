@@ -205,12 +205,11 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
             case SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD -> {
                 if(this.interaction.rankingMethodLeverChanged()) {
                     boolean b = this.interaction.isChangeRankingMethodLeverPowered();
-
                     this.usingDiversifyingRankingMethod = b;
+                }
 
-                    if(!b) {
-                        --this.ticks;
-                    }
+                if(!this.usingDiversifyingRankingMethod) {
+                    ++this.pollinationTrulyReadyTick;
                 }
 
                 this.tickRankBuds();

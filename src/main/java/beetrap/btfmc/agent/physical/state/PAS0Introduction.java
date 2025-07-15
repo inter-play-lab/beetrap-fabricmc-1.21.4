@@ -83,7 +83,8 @@ public class PAS0Introduction extends AgentState {
         StringBuilder additionalInstructionsBuilder = new StringBuilder();
         additionalInstructionsBuilder.append("Your position: ")
                 .append(this.physicalAgent.getBeeEntity().getPos()).append(System.lineSeparator());
-        this.agent.getBeetrapStateManager().getJsonReadyDataForGpt(additionalInstructionsBuilder);
+
+        this.agent.getBeetrapStateManager().getJsonReadyDataForGpt(this.physicalAgent.getBeeEntity(), serverPlayerEntity, additionalInstructionsBuilder);
         String ai = additionalInstructionsBuilder.toString();
         LOG.info("The additional instructions: {}", ai);
         this.agent.sendGptEventMessageWithAdditionalInstructions(ai, new ChatEventMessage(message));

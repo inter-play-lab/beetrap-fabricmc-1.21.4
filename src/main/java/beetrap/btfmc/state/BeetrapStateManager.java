@@ -22,8 +22,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Vec3d;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Vector2d;
 
 public class BeetrapStateManager {
     private static final Logger LOG = LogManager.getLogger(BeetrapState.class);
@@ -189,12 +191,127 @@ public class BeetrapStateManager {
         this.state.onPollinationCircleRadiusIncreaseRequested(a);
     }
 
-    public void getJsonReadyDataForGpt(StringBuilder sb) {
+    private Vector2d toPolarCoordinatesRelativeToPos(Vec3d pos, Vec3d flowerPos) {
+        double ix = flowerPos.x - pos.x;
+        double iz = flowerPos.z - pos.z;
+
+        double nx = iz;
+        double nz = -ix;
+
+        double d = Math.hypot(nx, nz);
+
+        if(nx >= 0 && nz >= 0) {
+            return new Vector2d(
+                    d,
+                    Math.atan2(nz, nx)
+            );
+        } else if(nx <= 0 && nz >= 0) {
+            return new Vector2d(
+                    d,
+                    Math.PI + Math.atan2(nz, nx)
+            );
+        } else if(nx <= 0 && nz <= 0) {
+            return new Vector2d(
+                    d,
+                    Math.PI + Math.atan2(nz, nx)
+            );
+        }
+
+        return new Vector2d(
+                d,
+                Math.TAU + Math.atan2(nz, nx)
+        );
+    }
+
+    private double clampDegrees(double deg) {
+        while(deg >= 360) {deg = deg - 360;}
+        while(deg < 0) {deg = deg + 360;}
+        return deg;
+    }
+
+    private double clampRadians(double rad) {
+        while(rad >= Math.TAU) {rad = rad - Math.TAU;}
+        while(rad < 0) {rad = rad + Math.TAU;}
+        return rad;
+    }
+
+    private boolean tInClosedIntervalAB(double t, double a, double b) {
+        return a <= t && t <= b;
+    }
+
+    private static final double PI_OVER_FOUR = Math.PI / 4;
+    private static final double THREE_PI_OVER_FOUR = 3 * Math.PI / 4;
+    private static final double FIVE_PI_OVER_FOUR = 5 * Math.PI / 4;
+    private static final double SEVEN_PI_OVER_FOUR = 7 * Math.PI / 4;
+
+    private String[] getStringifiedPolarCoordinates(double r, double theta) {
+        String distance;
+
+        if(r < 0.5) {
+            distance = "close";
+        } else if(0.5 <= r && r < 4) {
+            distance = "within_reach";
+        } else if(4 <= r && r < 8) {
+            distance = "big_in_view";
+        } else if(8 <= r && r < 16) {
+            distance = "need_to_walk_a_bit";
+        } else {
+            distance = "far";
+        }
+
+        String angle;
+
+        if(this.tInClosedIntervalAB(theta, 0, PI_OVER_FOUR) || this.tInClosedIntervalAB(theta, SEVEN_PI_OVER_FOUR, Math.TAU)) {
+            angle = "front";
+        } else if(this.tInClosedIntervalAB(theta, PI_OVER_FOUR, THREE_PI_OVER_FOUR)) {
+            angle = "left";
+        } else if(this.tInClosedIntervalAB(theta, THREE_PI_OVER_FOUR, FIVE_PI_OVER_FOUR)) {
+            angle = "behind";
+        } else {
+            angle = "right";
+        }
+
+        return new String[] {distance, angle};
+    }
+
+    public void getJsonReadyDataForGpt(Entity agentEntity, ServerPlayerEntity serverPlayerEntity, StringBuilder sb) {
         sb.append("Player position: ").append(this.world.getPlayers().getFirst().getPos()).append(System.lineSeparator());
-        sb.append("Flowers: ").append(System.lineSeparator());
+        sb.append("Flowers (Note that in terms of distance, close < within_reach < big_in_view < need_to_walk_a_bit < far): ").append(System.lineSeparator());
+
+        Vec3d playerPos = serverPlayerEntity.getPos();
+        Vec3d agentPos = agentEntity.getPos();
+
+        LOG.info("Player head yaw: {}", serverPlayerEntity.getHeadYaw());
+        LOG.info("Agent head yaw: {}", agentEntity.getHeadYaw());
 
         for(Flower f : this.state) {
-            sb.append("'Flower ").append(f.getNumber()).append("': {").append("'position': ").append(this.flowerManager.getFlowerMinecraftPosition(this.state, f)).append(", 'color': '").append(this.flowerManager.getFlowerMinecraftColor(f)).append("'").append(System.lineSeparator());
+            Vec3d flowerPos = this.flowerManager.getFlowerMinecraftPosition(this.state, f);
+
+            Vector2d pc = this.toPolarCoordinatesRelativeToPos(playerPos, flowerPos);
+            double r = pc.x;
+            double theta = pc.y;
+            theta = this.clampRadians(theta + Math.toRadians(serverPlayerEntity.getHeadYaw()));
+            String[] pcp = this.getStringifiedPolarCoordinates(r, theta);
+
+            LOG.info("Flower {} angle to player: {}", f.getNumber(), Math.toDegrees(theta));
+
+            pc = this.toPolarCoordinatesRelativeToPos(agentPos, flowerPos);
+            r = pc.x;
+            theta = pc.y;
+            theta = this.clampRadians(theta + Math.toRadians(agentEntity.getHeadYaw()));
+
+            LOG.info("Flower {} angle to agent: {}", f.getNumber(), Math.toDegrees(theta));
+
+            String[] pcb = this.getStringifiedPolarCoordinates(r, theta);
+
+
+            sb.append("'Flower ").append(f.getNumber()).append("': {")
+                    .append("'distance_to_player': '").append(pcp[0]).append("', ")
+                    .append("'angle_to_player': ").append(pcp[1]).append("', ")
+                    .append("'distance_to_you': '").append(pcb[0]).append("', ")
+                    .append("'angle_to_you': ").append(pcb[1]).append("', ")
+                    .append(", 'color': '").append(this.flowerManager.getFlowerMinecraftColor(f)).append("'")
+                    .append(System.lineSeparator());
         }
     }
 }

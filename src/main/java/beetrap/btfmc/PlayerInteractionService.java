@@ -20,14 +20,11 @@ import net.minecraft.text.Text;
 
 public class PlayerInteractionService {
     private final ServerWorld world;
-    private final FlowerValueScoreboardDisplayerService scoreboard;
     private boolean changeRankingMethodLeverPowered;
     private NetworkingService net;
 
-    public PlayerInteractionService(ServerWorld world,
-            FlowerValueScoreboardDisplayerService scoreboard) {
+    public PlayerInteractionService(ServerWorld world) {
         this.world = world;
-        this.scoreboard = scoreboard;
         this.net = new NetworkingService(this.world);
     }
 
@@ -74,15 +71,8 @@ public class PlayerInteractionService {
         player.getInventory().setStack(8, forward);
     }
 
-    public void giveCircleRadiusChangeItemToPlayer(ServerPlayerEntity player) {
-        ItemStack radiusChange = new ItemStack(Items.STRING);
-        radiusChange.set(DataComponentTypes.CUSTOM_NAME, Text.of("Change Circle Radius"));
-        player.getInventory().setStack(2, radiusChange);
-    }
-
     public void giveInteractablesToPlayer(ServerPlayerEntity player) {
         this.giveTimeTravelItemsToPlayer(player);
-        this.giveCircleRadiusChangeItemToPlayer(player);
     }
 
     public void dispose() {

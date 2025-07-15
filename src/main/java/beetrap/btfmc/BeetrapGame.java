@@ -2,7 +2,6 @@ package beetrap.btfmc;
 
 import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_PHYSICAL;
 import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_CHAT_ONLY;
-import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_NO_AGENT;
 
 import beetrap.btfmc.agent.Agent;
 import beetrap.btfmc.agent.chatonly.ChatOnlyAgent;
@@ -10,6 +9,7 @@ import beetrap.btfmc.agent.empty.EmptyAgent;
 import beetrap.btfmc.agent.physical.PhysicalAgent;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.flower.FlowerValueScoreboardDisplayerService;
+import beetrap.btfmc.handler.SignalHandler;
 import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.state.BeetrapStateManager;
 import net.minecraft.block.Blocks;
@@ -59,7 +59,7 @@ public class BeetrapGame {
         this.flowerManager = new FlowerManager(this.world, FLOWER_POOL_FLOWER_COUNT, bottomLeft, topRight);
         this.beeNestController = new BeeNestController(this.world, this.net, this.calculateNestBase(bottomLeft, topRight));
         this.flowerValueScoreboardDisplayerService = new FlowerValueScoreboardDisplayerService(server);
-        this.interaction = new PlayerInteractionService(this.world, this.flowerValueScoreboardDisplayerService);
+        this.interaction = new PlayerInteractionService(this.world);
         this.gardenInformationBossBar = new GardenInformationBossBar(this.server);
         this.stateManager = new BeetrapStateManager(this.world, this.flowerManager, this.interaction, this.beeNestController, this.gardenInformationBossBar, this.flowerValueScoreboardDisplayerService);
         this.gardenInformationBossBar.updateBossBar(this.stateManager.getState(), 0);
@@ -80,6 +80,7 @@ public class BeetrapGame {
             }
         }
 
+        SignalHandler.registerSignalTypes();
         this.agent.onGameStart();
     }
 
@@ -159,5 +160,7 @@ public class BeetrapGame {
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
+
+        SignalHandler.deregisterSignalTypes();
     }
 }

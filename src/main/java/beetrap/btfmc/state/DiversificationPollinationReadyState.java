@@ -1,5 +1,7 @@
 package beetrap.btfmc.state;
 
+import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
+import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_INITIATED;
 
 import beetrap.btfmc.flower.Flower;
@@ -34,6 +36,23 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
         if(this.stage == 0) {
             this.showTextScreenToAllPlayers("You learned about how the inner workings of AI recommendation form filter bubbles. Now let's learn how to break filter bubbles in the garden. Let's try to make the flower diversity go up. Let's try to make it go above " + (int)this.targetDiversityScore + "! <- this is not a factorial symbol.");
             this.showTextScreenToAllPlayers("For this part, you will switch back and forth from being a bee and being an environmental scientist. The scientist can help the bee increase the flower diversity.");
+        }
+    }
+
+    @Override
+    public void tick() {
+        if(this.interaction.rankingMethodLeverChanged()) {
+            boolean b = this.interaction.isChangeRankingMethodLeverPowered();
+
+            this.usingDiversifyingRankingMethod = b;
+
+            if(b) {
+                this.sendMessageToAllPlayers("Diversifying ranking method enabled!");
+                this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
+            } else {
+                this.sendMessageToAllPlayers("Diversifying ranking method disabled!");
+                this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
+            }
         }
     }
 

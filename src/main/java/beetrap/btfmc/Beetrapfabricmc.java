@@ -4,6 +4,7 @@ import beetrap.btfmc.handler.BeetrapGameHandler;
 import beetrap.btfmc.handler.CommandHandler;
 import beetrap.btfmc.handler.EntityHandler;
 import beetrap.btfmc.handler.NetworkHandler;
+import beetrap.btfmc.handler.SignalHandler;
 import beetrap.btfmc.openai.OpenAiUtil;
 import net.fabricmc.api.ModInitializer;
 
