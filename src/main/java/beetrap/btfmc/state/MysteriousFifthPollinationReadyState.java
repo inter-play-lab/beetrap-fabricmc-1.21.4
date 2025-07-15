@@ -34,6 +34,7 @@ public class MysteriousFifthPollinationReadyState extends PollinationReadyState 
     public void tick() {
         this.clearItems();
         ++this.ticks;
+        this.beeNestController.tickPollinationLines(this.ticks, this.pastPollinationLocations);
     }
 
     @Override

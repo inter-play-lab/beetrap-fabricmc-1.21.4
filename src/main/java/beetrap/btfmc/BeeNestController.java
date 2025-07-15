@@ -6,6 +6,7 @@ import beetrap.btfmc.flower.Flower;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.networking.EntityPositionUpdateS2CPayload;
 import beetrap.btfmc.networking.NetworkingService;
+import beetrap.btfmc.state.BeetrapState;
 import beetrap.btfmc.util.TicksUtil;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.ExperienceOrbEntity;
@@ -15,6 +16,8 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
+
+import java.util.List;
 
 public class BeeNestController {
     private static final double EPSILON = 0.01;
@@ -70,6 +73,22 @@ public class BeeNestController {
         }
     }
 
+    private void spawnLineParticles(Vec3d start, Vec3d end) {
+        Vec3d direction = end.subtract(start);
+        double distance = direction.length();
+        Vec3d normalizedDirection = direction.normalize();
+
+        // Spawn particles along the line with small intervals
+        double particleSpacing = 0.01; // Distance between particles
+        for(double d = 0; d <= distance; d += particleSpacing) {
+            Vec3d particlePos = start.add(normalizedDirection.multiply(d));
+            // Use yellow particles (FALLING_NECTAR for yellow color)
+            this.world.spawnParticles(ParticleTypes.FALLING_NECTAR, 
+                particlePos.x, particlePos.y - 0.9, particlePos.z,
+                1, 0, 0, 0, 0);
+        }
+    }
+
     public void tickCircle(long ticks, double r) {
         if(!(ticks % 20 == 0 && TicksUtil.inInterval(ticks, MAX_ANIMATION_TICKS, MAX_CIRCLE_TICKS))) {
             return;
@@ -86,7 +105,7 @@ public class BeeNestController {
     }
 
     public void tickSpawnPollensThatFlyTowardsNest(long ticks, FlowerManager flowerManager, Flower[] positions) {
-        if(!(ticks % 20 == 0 && TicksUtil.inInterval(ticks, MAX_ANIMATION_TICKS, MAX_CIRCLE_TICKS))) {
+        if(!(ticks % 15 == 0 && TicksUtil.inInterval(ticks, MAX_ANIMATION_TICKS, MAX_CIRCLE_TICKS))) {
             return;
         }
 
@@ -105,6 +124,30 @@ public class BeeNestController {
         }
 
         this.spawnCircleParticles(r);
+    }
+
+    public void tickPollinationLines(long ticks, List<Vec3d> pollinationLocations) {
+        // Only draw lines every 10 ticks for performance and visual effect
+        if(ticks % 3 != 0) {
+            return;
+        }
+
+        // Don't show lines when beenest is moving
+        if(this.beeNestMoving) {
+            return;
+        }
+
+        Vec3d nestPos = this.getBeeNestPosition();
+        // Adjust the Y position to be on the ground
+        Vec3d groundNestPos = new Vec3d(nestPos.x, 1.0, nestPos.z);
+
+        // Draw lines to pollinated flowers using pastPollinationLocations
+        for(Vec3d pollinationLocation : pollinationLocations) {
+            // Adjust the Y position to be on the ground
+            Vec3d groundFlowerPos = new Vec3d(pollinationLocation.x, 1.0, pollinationLocation.z);
+
+            this.spawnLineParticles(groundNestPos, groundFlowerPos);
+        }
     }
 
     public void dispose() {

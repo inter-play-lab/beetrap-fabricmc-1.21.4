@@ -161,6 +161,10 @@ public abstract class BeetrapState implements Iterable<Flower> {
         return this.beeNestMinecraftPosition;
     }
 
+    public final List<Vec3d> getPastPollinationLocations() {
+        return this.pastPollinationLocations;
+    }
+
     public final void populateFlowers(int n) {
         AlgorithmOfFloyd aof = new AlgorithmOfFloyd(this.flowers.length);
 

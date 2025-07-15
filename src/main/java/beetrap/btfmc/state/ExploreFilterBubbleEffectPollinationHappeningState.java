@@ -177,6 +177,10 @@ public class ExploreFilterBubbleEffectPollinationHappeningState extends BeetrapS
         this.onTick210();
         // this.ticks == 220
         this.onTick220();
+
+        // Draw yellow lines from beehive to pollinated flowers
+        this.beeNestController.tickPollinationLines(this.ticks, this.pastPollinationLocations);
+
         ++this.ticks;
     }
 
@@ -190,7 +194,7 @@ public class ExploreFilterBubbleEffectPollinationHappeningState extends BeetrapS
         if(this.activityShouldEnd()) {
             this.stateManager.endActivity();
             this.nextState = new TimeTravelableBeetrapState(this);
-            this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("Your just experienced the filter bubble effect!", 50)));
+            this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("You just experienced the filter bubble effect!", 50)));
         } else {
             this.nextState = new ExploreFilterBubbleEffectPollinationReadyState(this, this.stage + 1);
         }

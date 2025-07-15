@@ -34,8 +34,8 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
         this.targetDiversityScore = (Math.ceil(this.computeDiversityScore() / 100.0) + 7) * 100;
 
         if(this.stage == 0) {
-            this.showTextScreenToAllPlayers("You learned about how the inner workings of AI recommendation form filter bubbles. Now let's learn how to break filter bubbles in the garden. Let's try to make the flower diversity go up. Let's try to make it go above " + (int)this.targetDiversityScore + "! <- this is not a factorial symbol.");
-            this.showTextScreenToAllPlayers("For this part, you will switch back and forth from being a bee and being an environmental scientist. The scientist can help the bee increase the flower diversity.");
+            this.showTextScreenToAllPlayers("You learned about how the inner workings of AI recommendation form filter bubbles. Now let's learn how to break filter bubbles in the garden.\nLet's try to make the flower diversity go up. Let's try to make it go above " + (int)this.targetDiversityScore + "! <- this is not a factorial symbol.");
+            this.showTextScreenToAllPlayers("For this part, you will need to change some elements of the garden. Remember the circle that was formed around the bee nest that can be the key to increase the flower diversity. Other things might pop up as well.");
         }
 
         this.stateManager.setInitialDiversityScore(this.computeDiversityScore());
@@ -43,6 +43,7 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
 
     @Override
     public void tick() {
+
         if(this.interaction.rankingMethodLeverChanged()) {
             boolean b = this.interaction.isChangeRankingMethodLeverPowered();
 
@@ -56,6 +57,8 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
                 this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
             }
         }
+        this.beeNestController.tickPollinationLines(this.ticks, this.pastPollinationLocations);
+
     }
 
     @Override

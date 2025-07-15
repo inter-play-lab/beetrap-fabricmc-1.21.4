@@ -4,7 +4,6 @@ import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_RANKED;
 import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_TO_PLACE_DEFAULT_MODE;
 
 import beetrap.btfmc.flower.Flower;
-import beetrap.btfmc.handler.BeetrapGameHandler;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -147,6 +146,10 @@ public class MysteriousFifthPollinationHappeningState extends BeetrapState {
         this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager, this.newFlowerCandidates);
         // this.ticks == 220
         this.onTick220();
+
+        // Draw yellow lines from beehive to pollinated flowers
+        this.beeNestController.tickPollinationLines(this.ticks, this.pastPollinationLocations);
+
         ++this.ticks;
     }
 
