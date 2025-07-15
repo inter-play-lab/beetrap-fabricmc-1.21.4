@@ -16,6 +16,7 @@ import beetrap.btfmc.networking.PlayerTargetNewEntityC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
 import beetrap.btfmc.networking.PollinationCircleRadiusIncreaseRequestC2SPayload;
+import beetrap.btfmc.networking.RestartGameC2SPayload;
 import beetrap.btfmc.screen.MultipleChoiceScreen;
 import beetrap.btfmc.screen.TextScreen;
 import beetrap.btfmc.screen.ScreenQueue;
@@ -176,6 +177,10 @@ public class BeetrapGameClient {
                 }
 
                 ClientPlayNetworking.send(ppc2sp);
+            }
+
+            case 6 -> {
+                ClientPlayNetworking.send(new RestartGameC2SPayload());
             }
 
             case 8 -> {

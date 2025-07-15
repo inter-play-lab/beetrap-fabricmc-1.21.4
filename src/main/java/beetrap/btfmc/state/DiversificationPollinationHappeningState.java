@@ -223,6 +223,7 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
         this.active = false;
 
         if(this.activityShouldEnd()) {
+            this.stateManager.endActivity();
             this.nextState = new TimeTravelableBeetrapState(this);
             this.showTextScreenToAllPlayers("Wow!");
         } else {

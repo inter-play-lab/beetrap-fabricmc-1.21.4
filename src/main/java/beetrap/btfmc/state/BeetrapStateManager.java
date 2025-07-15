@@ -18,6 +18,7 @@ import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -37,6 +38,8 @@ public class BeetrapStateManager {
     private BeetrapState state;
     private double initialDiversityScore;
     private final NetworkingService net;
+    private boolean activityEnded;
+    private PlayerInteractionService interaction;
 
     private void recordState() {
         this.oldBeetrapStates.add(this.state);
@@ -49,6 +52,7 @@ public class BeetrapStateManager {
     public BeetrapStateManager(ServerWorld world, FlowerManager flowerManager, PlayerInteractionService interaction, BeeNestController beeNestController, GardenInformationBossBar gardenInformationBossBar, FlowerValueScoreboardDisplayerService flowerValueScoreboardDisplayerService) {
         this.world = world;
         this.flowerManager = flowerManager;
+        this.interaction = interaction;
         this.gardenInformationBossBar = gardenInformationBossBar;
         this.pointer = -1;
         this.state = new ActivitySelectionState(world, this, new FlowerPool(FLOWER_POOL_FLOWER_COUNT), flowerManager, interaction,
@@ -63,6 +67,10 @@ public class BeetrapStateManager {
         this.net = new NetworkingService(this.world);
     }
 
+    public void endActivity() {
+        this.activityEnded = true;
+    }
+
     public double getInitialDiversityScore() {
         return this.initialDiversityScore;
     }
@@ -72,6 +80,11 @@ public class BeetrapStateManager {
     }
 
     public void tick() {
+        if(this.activityEnded) {
+            this.world.getPlayers().forEach(
+                    serverPlayerEntity -> BeetrapStateManager.this.interaction.giveRestartGameItemToPlayer(serverPlayerEntity));
+        }
+        
         if(this.state.hasNextState()) {
             this.state = this.state.getNextState();
             this.recordState();

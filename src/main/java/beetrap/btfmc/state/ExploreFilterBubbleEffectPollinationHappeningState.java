@@ -188,6 +188,7 @@ public class ExploreFilterBubbleEffectPollinationHappeningState extends BeetrapS
         this.active = false;
 
         if(this.activityShouldEnd()) {
+            this.stateManager.endActivity();
             this.nextState = new TimeTravelableBeetrapState(this);
             this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("Your just experienced the filter bubble effect!", 50)));
         } else {

@@ -72,6 +72,7 @@ public class ActivitySelectionState extends BeetrapState {
         return switch(this.activityNumber) {
             case OBSERVE_FLOWERS_ONLY -> {
                 this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_0, "The user have chosen to observe flowers only!");
+                this.stateManager.endActivity();
                 yield new ObserveFlowersOnlyState(this);
             }
             case FILTER_BUBBLE -> {

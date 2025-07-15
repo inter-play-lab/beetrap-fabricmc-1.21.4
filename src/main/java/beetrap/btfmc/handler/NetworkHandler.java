@@ -9,10 +9,15 @@ import beetrap.btfmc.networking.PlayerPollinateC2SPayload;
 import beetrap.btfmc.networking.PlayerTargetNewEntityC2SPayload;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload;
 import beetrap.btfmc.networking.PollinationCircleRadiusIncreaseRequestC2SPayload;
+import beetrap.btfmc.networking.RestartGameC2SPayload;
 import beetrap.btfmc.networking.ShowMultipleChoiceScreenS2CPayload;
 import beetrap.btfmc.networking.ShowTextScreenS2CPayload;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.Context;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.PlayPayloadHandler;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public final class NetworkHandler {
     private NetworkHandler() {
@@ -44,5 +49,12 @@ public final class NetworkHandler {
         ServerPlayNetworking.registerGlobalReceiver(MultipleChoiceSelectionResultC2SPayload.ID, BeetrapGameHandler::onMultipleChoiceSelectionResultReceived);
 
         PayloadTypeRegistry.playC2S().register(EndSubActivityC2SPayload.ID, EndSubActivityC2SPayload.CODEC);
+
+        PayloadTypeRegistry.playC2S().register(RestartGameC2SPayload.ID, RestartGameC2SPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(RestartGameC2SPayload.ID,
+                (payload, context) -> {
+                    BeetrapGameHandler.destroyGame();
+                    BeetrapGameHandler.createGame(context.server(), 3);
+                });
     }
 }

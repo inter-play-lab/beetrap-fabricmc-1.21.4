@@ -27,7 +27,7 @@ public class ExploreFilterBubbleEffectPollinationReadyState extends PollinationR
 
         if(!entities.isEmpty()) {
             for(ServerPlayerEntity spe : this.world.getPlayers()) {
-                this.interaction.giveInteractablesToPlayer(spe);
+                this.interaction.giveTimeTravelItemsToPlayer(spe);
             }
         }
     }

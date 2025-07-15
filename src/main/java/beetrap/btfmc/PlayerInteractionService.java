@@ -71,8 +71,10 @@ public class PlayerInteractionService {
         player.getInventory().setStack(8, forward);
     }
 
-    public void giveInteractablesToPlayer(ServerPlayerEntity player) {
-        this.giveTimeTravelItemsToPlayer(player);
+    public void giveRestartGameItemToPlayer(ServerPlayerEntity player) {
+        ItemStack restart = new ItemStack(Items.BARRIER);
+        restart.set(DataComponentTypes.CUSTOM_NAME, Text.of("restart"));
+        player.getInventory().setStack(6, restart);
     }
 
     public void dispose() {
