@@ -75,7 +75,7 @@ public final class SlopTextToSpeechUtil {
     public static void say(String message) {
         String i = requestBody.replace("{}", message.replaceAll("[\\n\\t]", " ").replaceAll("[^a-zA-Z0-9 ]", ""));
         ClassicHttpRequest tts = ClassicRequestBuilder.post("https://api.typecast.ai/v1/text-to-speech")
-                .addHeader("X-API-KEY", "__pltHycvyyMyP4ubaWCDesp6LaDhF4wQZoc43tecycMs")
+                .addHeader("X-API-KEY", "__pltEnioA8GEzeBpVAj2XPanrPZqan5mbek3dZnLaiS4")
                 .addHeader("Content-Type", "application/json")
                 .setEntity(i)
                 .build();
