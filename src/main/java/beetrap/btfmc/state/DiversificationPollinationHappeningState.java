@@ -181,40 +181,34 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
                     BlockState bs = Blocks.LEVER.getDefaultState().with(LeverBlock.FACING, Direction.SOUTH);
                     this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ()),
                             bs);
+
+                    this.pollinationTrulyReadyTick = this.ticks;
                 }
             }
 
             case SUB_STAGE_BEFORE_RANKING_METHOD_CHANGED -> {
-                if(this.interaction.rankingMethodLeverChanged()) {
-                    boolean b = this.interaction.isChangeRankingMethodLeverPowered();
-
-                    this.usingDiversifyingRankingMethod = b;
-
-                    if(b) {
-                        this.sendMessageToAllPlayers("Diversifying ranking method enabled!");
-                        this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
-                        this.subStage = SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD;
-                        this.pollinationTrulyReadyTick = this.ticks;
-                    } else {
-                        this.sendMessageToAllPlayers("Diversifying ranking method disabled!");
-                        this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
-                    }
-                }
+                this.subStage = SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD;
             }
 
             case SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD -> {
-                if(this.interaction.rankingMethodLeverChanged()) {
-                    boolean b = this.interaction.isChangeRankingMethodLeverPowered();
-                    this.usingDiversifyingRankingMethod = b;
-                }
-
-                if(!this.usingDiversifyingRankingMethod) {
-                    ++this.pollinationTrulyReadyTick;
-                }
-
                 this.tickRankBuds();
                 this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager, this.newFlowerCandidates);
                 this.on200TicksLater(this.pollinationTrulyReadyTick);
+            }
+        }
+
+        if(this.interaction.rankingMethodLeverChanged()) {
+            boolean b = this.interaction.isChangeRankingMethodLeverPowered();
+
+            this.usingDiversifyingRankingMethod = b;
+
+            if(b) {
+                this.sendMessageToAllPlayers("Diversifying ranking method enabled!");
+                this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
+                this.subStage = SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD;
+            } else {
+                this.sendMessageToAllPlayers("Diversifying ranking method disabled!");
+                this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
             }
         }
 
