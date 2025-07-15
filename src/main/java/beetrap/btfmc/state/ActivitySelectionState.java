@@ -46,8 +46,8 @@ public class ActivitySelectionState extends BeetrapState {
                 "Observe flowers only",
                 "What is the filter bubble effect?",
                 "How does the garden recommend flowers?",
-                "How do we break the filter bubble?",
-                "Mysterious Fifth Activity"));
+                "How do we break the filter bubble?"));
+//                "Mysterious Fifth Activity"));
     }
 
     @Override
@@ -88,11 +88,11 @@ public class ActivitySelectionState extends BeetrapState {
                 yield new DiversificationPollinationReadyState(this);
             }
 
-            case MYSTERIOUS_FIFTH_ACTIVITY -> {
-                BeetrapGameHandler.getGame().newAgent();
-                this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_4, "The user have chosen to explore mysterious fifth activity!");
-                yield new MysteriousFifthPollinationReadyState(this, 0);
-            }
+//            case MYSTERIOUS_FIFTH_ACTIVITY -> {
+//                BeetrapGameHandler.getGame().newAgent();
+//                this.net.beetrapLog(BEETRAP_LOG_ID_ACTIVITY_BEGIN_4, "The user have chosen to explore mysterious fifth activity!");
+//                yield new MysteriousFifthPollinationReadyState(this, 0);
+//            }
             default -> null;
         };
     }

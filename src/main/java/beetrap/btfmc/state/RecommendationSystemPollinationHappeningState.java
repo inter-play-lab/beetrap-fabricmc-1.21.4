@@ -150,6 +150,10 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
         this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager, this.newFlowerCandidates);
         // this.ticks == 220
         this.onTick220();
+
+        // Draw yellow lines from beehive to pollinated flowers
+        this.beeNestController.tickPollinationLines(this.ticks, this.pastPollinationLocations);
+
         ++this.ticks;
     }
 
@@ -245,7 +249,7 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
         if(this.activityShouldEnd()) {
             this.stateManager.endActivity();
             this.nextState = new TimeTravelableBeetrapState(this);
-            this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("Your just experienced the filter bubble effect!", 50)));
+            this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("You just experienced the filter bubble effect!", 50)));
         } else {
             this.nextState = new RecommendationSystemPollinationReadyState(this, this.stage + 1, RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_POLLINATION_TRULY_READY);
         }

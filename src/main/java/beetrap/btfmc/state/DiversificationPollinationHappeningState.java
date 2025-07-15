@@ -162,7 +162,7 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
 
         if(this.ticks == 20) {
             this.tickGrowBuds();
-            this.showTextScreenToAllPlayers("Let's first change the radius of the pollination circle by going near it and type B!");
+            this.showTextScreenToAllPlayers("Get closer to the pollination circle the press B multiple times. Look at what happens next.");
             this.net.broadcastCustomPayload(new BeginSubActivityS2CPayload(BeginSubActivityS2CPayload.SUB_ACTIVITY_PRESS_B_TO_INCREASE_POLLINATION_RADIUS));
         }
 
@@ -172,7 +172,7 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
             case SUB_STAGE_BEFORE_TARGET_CIRCLE_RADIUS_HIT -> {
                 if(this.pollinationCircleRadius >= 5) {
                     this.subStage = SUB_STAGE_BEFORE_RANKING_METHOD_CHANGED;
-                    this.showTextScreenToAllPlayers("Now let's change our method of ranking the buds by flicking the lever in the world!");
+                    this.showTextScreenToAllPlayers("A lever just popped up near the diamond square in the garden. Try flicking it up and down and see what it does!");
 
                     this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY() - 1, CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
                             Blocks.STONE.getDefaultState());
@@ -212,6 +212,9 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
             }
         }
 
+        // Draw yellow lines from beehive to pollinated flowers
+        this.beeNestController.tickPollinationLines(this.ticks, this.pastPollinationLocations);
+
         ++this.ticks;
     }
 
@@ -225,7 +228,7 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
         if(this.activityShouldEnd()) {
             this.stateManager.endActivity();
             this.nextState = new TimeTravelableBeetrapState(this);
-            this.showTextScreenToAllPlayers("Wow!");
+            this.showTextScreenToAllPlayers("Wow! you did it! You saved the garden!");
         } else {
             this.nextState = new DiversificationPollinationReadyState(this, this.stage + 1, this.targetDiversityScore);
         }

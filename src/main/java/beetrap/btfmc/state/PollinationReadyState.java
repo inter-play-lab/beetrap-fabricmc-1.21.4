@@ -20,6 +20,7 @@ public abstract class PollinationReadyState extends BeetrapState {
 
     @Override
     public void tick() {
+        this.beeNestController.tickPollinationLines(this.ticks, this.pastPollinationLocations);
 
     }
 
