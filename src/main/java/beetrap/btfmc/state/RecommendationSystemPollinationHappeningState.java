@@ -143,12 +143,29 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
         this.beeNestController.tickMovementAnimation(this.ticks);
         // this.ticks == 20
         this.onTick20();
+        this.onTick40();
         // this.ticks is in 20..219
         this.beeNestController.tickCircle(this.ticks, this.pollinationCircleRadius);
         this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager, this.newFlowerCandidates);
         // this.ticks == 220
         this.onTick220();
         ++this.ticks;
+    }
+
+    private void onTick40() {
+        if(this.ticks != 40) {
+            return;
+        }
+
+        if(this.stage < 2) {
+            this.showTextScreenToAllPlayers("What goes into the beehive?");
+            this.showTextScreenToAllPlayers("What do flowers on the ground represent?");
+            this.showTextScreenToAllPlayers("What do numbers above the flower buds represent?");
+            this.showTextScreenToAllPlayers("What does the pollen circle represent?");
+            this.showTextScreenToAllPlayers("How are the flowers placed in the garden?");
+        } else {
+            this.net.broadcastCustomPayload(new ShowMultipleChoiceScreenS2CPayload("user_profile", "What goes into the User Profile(Beehive)?", "The flowers pollinated by me.", "The flowers in the garden.", "The flowers I didn't pollinate."));
+        }
     }
 
     @Override

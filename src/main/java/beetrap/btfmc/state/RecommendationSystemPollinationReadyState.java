@@ -31,72 +31,6 @@ public class RecommendationSystemPollinationReadyState extends PollinationReadyS
     }
 
     @Override
-    public void onMultipleChoiceSelectionResultReceived(String questionId, int option) {
-        switch(questionId) {
-            case "user_profile" -> {
-                if(option == 0) {
-                    this.showTextScreenToAllPlayers("Correct!");
-                } else {
-                    this.showTextScreenToAllPlayers("That's incorrect, try again next time.");
-                }
-
-                this.net.broadcastCustomPayload(
-                        new ShowMultipleChoiceScreenS2CPayload("flower_buds_on_ground",
-                                "What do the flower buds on the ground represent?",
-                                "Available flowers to grow in the garden",
-                                "The flowers that I like", "The flowers that I dislike"));
-            }
-            case "flower_buds_on_ground" -> {
-                if(option == 0) {
-                    this.showTextScreenToAllPlayers("Correct!");
-                } else {
-                    this.showTextScreenToAllPlayers("That's incorrect, try again next time.");
-                }
-
-                this.net.broadcastCustomPayload(
-                        new ShowMultipleChoiceScreenS2CPayload("numbers_above_flower_buds",
-                                "What do numbers above flower buds represent?",
-                                "The ranking of flowers' height.", "The value of a flower feature",
-                                "The ranking of the distance between a flower and the beehive"));
-            }
-            case "numbers_above_flower_buds" -> {
-                if(option == 2) {
-                    this.showTextScreenToAllPlayers("Correct!");
-                } else {
-                    this.showTextScreenToAllPlayers("That's incorrect, try again next time.");
-                }
-
-                this.net.broadcastCustomPayload(
-                        new ShowMultipleChoiceScreenS2CPayload("pollen_circle",
-                                "What does the pollen circle represent?",
-                                "The range for me the fly.", "The range for new flowers to grow.",
-                                "The range for flowers to die out."));
-            }
-            case "pollen_circle" -> {
-                if(option == 1) {
-                    this.showTextScreenToAllPlayers("Correct!");
-                } else {
-                    this.showTextScreenToAllPlayers("That's incorrect, try again next time.");
-                }
-
-                this.net.broadcastCustomPayload(
-                        new ShowMultipleChoiceScreenS2CPayload("flowers_located_in_garden",
-                                "How are the flowers located in the garden?",
-                                "Flowers with the same colors are close together.",
-                                "Flowers with multiple similar features are close together.",
-                                "Flowers with the same sweetness values are closer together."));
-            }
-            case "flowers_located_in_garden" -> {
-                if(option == 1) {
-                    this.showTextScreenToAllPlayers("Correct!");
-                } else {
-                    this.showTextScreenToAllPlayers("That's incorrect, try again next time.");
-                }
-            }
-        }
-    }
-
-    @Override
     public void onPlayerPollinate(Flower flower, Vec3d flowerMinecraftPosition) {
         if(this.subStage < RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_POLLINATION_TRULY_READY) {
             return;
@@ -108,16 +42,6 @@ public class RecommendationSystemPollinationReadyState extends PollinationReadyS
         this.nextState = new RecommendationSystemPollinationHappeningState(this, pl, this.stage);
 
         this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_INITIATED, "");
-
-        if(this.stage < 2) {
-            this.showTextScreenToAllPlayers("What goes into the beehive?");
-            this.showTextScreenToAllPlayers("What do flowers on the ground represent?");
-            this.showTextScreenToAllPlayers("What do numbers above the flower buds represent?");
-            this.showTextScreenToAllPlayers("What does the pollen circle represent?");
-            this.showTextScreenToAllPlayers("How are the flowers placed in the garden?");
-        } else {
-            this.net.broadcastCustomPayload(new ShowMultipleChoiceScreenS2CPayload("user_profile", "What goes into the User Profile(Beehive)?", "The flowers pollinated by me.", "The flowers in the garden.", "The flowers I didn't pollinate."));
-        }
     }
 
     @Override
