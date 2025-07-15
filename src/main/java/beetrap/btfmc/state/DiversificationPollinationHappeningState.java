@@ -265,4 +265,13 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
     public boolean timeTravelAvailable() {
         return false;
     }
+
+    @Override
+    public float getGardenInformationBossBarPercent() {
+        double a = this.stateManager.getInitialDiversityScore();
+        double x = this.computeDiversityScore();
+        double b = this.targetDiversityScore;
+
+        return (float)((x - a) / (b - a));
+    }
 }

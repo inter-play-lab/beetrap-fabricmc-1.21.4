@@ -36,6 +36,7 @@ public class GardenInformationBossBar {
 
     public void updateBossBar(BeetrapState bs, int stage) {
         this.bossBar.setName(this.getTitle(bs, stage));
+        this.bossBar.setPercent(bs.getGardenInformationBossBarPercent());
     }
 
     public void dispose() {

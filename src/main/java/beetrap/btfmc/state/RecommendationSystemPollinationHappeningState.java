@@ -143,6 +143,7 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
         this.beeNestController.tickMovementAnimation(this.ticks);
         // this.ticks == 20
         this.onTick20();
+        // this.ticks == 40
         this.onTick40();
         // this.ticks is in 20..219
         this.beeNestController.tickCircle(this.ticks, this.pollinationCircleRadius);

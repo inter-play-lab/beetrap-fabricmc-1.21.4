@@ -37,6 +37,8 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
             this.showTextScreenToAllPlayers("You learned about how the inner workings of AI recommendation form filter bubbles. Now let's learn how to break filter bubbles in the garden. Let's try to make the flower diversity go up. Let's try to make it go above " + (int)this.targetDiversityScore + "! <- this is not a factorial symbol.");
             this.showTextScreenToAllPlayers("For this part, you will switch back and forth from being a bee and being an environmental scientist. The scientist can help the bee increase the flower diversity.");
         }
+
+        this.stateManager.setInitialDiversityScore(this.computeDiversityScore());
     }
 
     @Override
@@ -79,5 +81,14 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
         }
 
         this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_INITIATED, "");
+    }
+
+    @Override
+    public float getGardenInformationBossBarPercent() {
+        double a = this.stateManager.getInitialDiversityScore();
+        double x = this.computeDiversityScore();
+        double b = this.targetDiversityScore;
+
+        return (float)((x - a) / (b - a));
     }
 }

@@ -35,7 +35,7 @@ public class BeetrapStateManager {
     private final FlowerManager flowerManager;
     private final GardenInformationBossBar gardenInformationBossBar;
     private BeetrapState state;
-    private final double initialDiversityScore;
+    private double initialDiversityScore;
     private final NetworkingService net;
 
     private void recordState() {
@@ -65,6 +65,10 @@ public class BeetrapStateManager {
 
     public double getInitialDiversityScore() {
         return this.initialDiversityScore;
+    }
+
+    void setInitialDiversityScore(double initialDiversityScore) {
+        this.initialDiversityScore = initialDiversityScore;
     }
 
     public void tick() {

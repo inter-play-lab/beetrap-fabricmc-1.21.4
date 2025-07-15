@@ -313,6 +313,17 @@ public abstract class BeetrapState implements Iterable<Flower> {
 
     }
 
+    public float getGardenInformationBossBarPercent() {
+        double v = this.stateManager.getInitialDiversityScore();
+        double x = this.computeDiversityScore();
+        double w = this.computeDiversityScore() / 2;
+
+        double a = Math.min(v, w);
+        double b = Math.max(v, w);
+
+        return (float)((x - a) / (b - a));
+    }
+
     private final class FlowerIterator implements Iterator<Flower> {
         private int i;
 
