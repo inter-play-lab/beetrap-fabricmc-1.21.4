@@ -46,8 +46,8 @@ public class ActivitySelectionState extends BeetrapState {
                 "Observe flowers only",
                 "What is the filter bubble effect?",
                 "How does the garden recommend flowers?",
-                "How do we break the filter bubble?"));
-//                "Mysterious Fifth Activity"));
+                "How do we break the filter bubble?",
+                "Mysterious Fifth Activity"));
     }
 
     @Override

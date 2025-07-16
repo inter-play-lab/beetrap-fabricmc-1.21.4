@@ -84,7 +84,7 @@ public class BeetrapStateManager {
             this.world.getPlayers().forEach(
                     serverPlayerEntity -> BeetrapStateManager.this.interaction.giveRestartGameItemToPlayer(serverPlayerEntity));
         }
-        
+
         if(this.state.hasNextState()) {
             this.state = this.state.getNextState();
             this.recordState();
@@ -330,5 +330,9 @@ public class BeetrapStateManager {
                     .append(", 'color': '").append(this.flowerManager.getFlowerMinecraftColor(f)).append("'")
                     .append(System.lineSeparator());
         }
+    }
+
+    public FlowerManager getFlowerManager() {
+        return this.flowerManager;
     }
 }

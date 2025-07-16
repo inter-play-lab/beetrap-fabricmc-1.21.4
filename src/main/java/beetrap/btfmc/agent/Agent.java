@@ -1,14 +1,20 @@
 package beetrap.btfmc.agent;
 
+import static beetrap.btfmc.Beetrapfabricmc.MOD_ID;
+
 import beetrap.btfmc.agent.event.EventMessage;
-import beetrap.btfmc.handler.SignalHandler;
 import beetrap.btfmc.openai.OpenAiUtil;
 import beetrap.btfmc.state.BeetrapStateManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.openai.client.OpenAIClient;
 import com.openai.models.ChatModel;
 import com.openai.models.responses.Response;
 import com.openai.models.responses.ResponseCreateParams;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.concurrent.CompletableFuture;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.packet.CustomPayload;
@@ -16,6 +22,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,6 +33,7 @@ public abstract class Agent implements AutoCloseable {
     public static final int AGENT_LEVEL_PHYSICAL = 3;
 
     private static final Logger LOG = LogManager.getLogger(Agent.class);
+    private static final ObjectMapper om;
 
     public static final String AGENT_NAME = "Bip Buzzley";
 
@@ -33,9 +41,10 @@ public abstract class Agent implements AutoCloseable {
     protected final String name;
     protected final OpenAIClient openAiClient;
     protected Response previousResponse;
+    protected Deque<AgentCommand> agentCommandQueue;
 
     private final BeetrapStateManager beetrapStateManager;
-    private AgentState currentState;
+    protected AgentState currentState;
     private String instructions;
 
     private void setCurrentAgentState(AgentState currentAgentState) {
@@ -49,6 +58,7 @@ public abstract class Agent implements AutoCloseable {
         this.name = name;
         this.setCurrentAgentState(initialAgentState);
         this.openAiClient = OpenAiUtil.getClient();
+        this.agentCommandQueue = new ArrayDeque<>();
     }
 
     public Agent(ServerWorld world, BeetrapStateManager beetrapStateManager, AgentState initialState) {
@@ -105,11 +115,20 @@ public abstract class Agent implements AutoCloseable {
     }
 
     public void onGptResponseReceived(Response response, Throwable throwable) {
-        String s = response.output().getFirst().asMessage().content().getFirst().asOutputText().text();
+        String string = response.output().getFirst().asMessage().content().getFirst().asOutputText().text();
 
-        for(ServerPlayerEntity player : this.world.getPlayers()) {
-            player.sendMessage(Text.literal("<" + this.name + "> " + s));
+        LOG.info("Raw response: {}", string);
+
+        try {
+            GptResponse gptResponse = om.readValue(string, GptResponse.class);
+
+            for(AgentCommand agentCommand : gptResponse.getAgentCommands()) {
+                this.agentCommandQueue.addLast(agentCommand);
+            }
+        } catch(JsonProcessingException e) {
+            LOG.error(e);
         }
+
     }
 
     public void sendGptEventMessage(EventMessage eventMessage) {
@@ -185,5 +204,33 @@ public abstract class Agent implements AutoCloseable {
         for(ServerPlayerEntity player : this.world.getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
+    }
+
+    public ServerWorld getWorld() {
+        return this.world;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void addCommand(AgentCommand agentCommand) {
+        this.agentCommandQueue.addLast(agentCommand);
+    }
+
+    public AgentCommand nextCommand() {
+        return this.agentCommandQueue.removeFirst();
+    }
+
+    public boolean hasNextCommand() {
+        return !this.agentCommandQueue.isEmpty();
+    }
+
+    static {
+        om = new ObjectMapper();
+        SimpleModule sm = new SimpleModule();
+        sm.addDeserializer(AgentCommand.class, new AgentCommandDeserializer());
+        sm.addDeserializer(GptResponse.class, new GptResponseDeserializer());
+        om.registerModule(sm);
     }
 }

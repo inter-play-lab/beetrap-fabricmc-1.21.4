@@ -1,5 +1,6 @@
 package beetrap.btfmc.agent;
 
+import com.openai.models.responses.Response;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public abstract class AgentState {
@@ -39,6 +40,10 @@ public abstract class AgentState {
     }
 
     public void onGameStart() {
+
+    }
+
+    public void onGptResponseReceived(Response response, Throwable throwable) {
 
     }
 }

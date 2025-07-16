@@ -6,6 +6,9 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -21,9 +24,10 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
 public final class SlopTextToSpeechUtil {
-    private static final String TYPECAST_API_KEY = System.getenv(MOD_REQUIRED_TYPECAST_API_KEY);
+    private static final String TYPECAST_API_KEY = System.getProperty(MOD_REQUIRED_TYPECAST_API_KEY);
     private static final CloseableHttpClient httpClient;
     private static final String requestBody;
+    private static final ExecutorService es;
 
     private SlopTextToSpeechUtil() {
         throw new AssertionError();
@@ -72,29 +76,31 @@ public final class SlopTextToSpeechUtil {
         playAudioFile(f);
     }
 
-    // TODO: Add proximity thingys
-    public static void say(String message) {
-        String i = requestBody.replace("{}", message.replaceAll("[\\n\\t]", " ").replaceAll("[^a-zA-Z0-9 ]", ""));
-        ClassicHttpRequest tts = ClassicRequestBuilder.post("https://api.typecast.ai/v1/text-to-speech")
-                .addHeader("X-API-KEY", TYPECAST_API_KEY)
-                .addHeader("Content-Type", "application/json")
-                .setEntity(i)
-                .build();
-        try {
-            httpClient.execute(tts, new AbstractHttpClientResponseHandler<Void>() {
-                @Override
-                public Void handleEntity(HttpEntity entity) throws IOException {
-                    try {
-                        SlopTextToSpeechUtil.handleEntity(entity);
-                    } catch(IOException | UnsupportedAudioFileException | LineUnavailableException e) {
-                        throw new IOException(e);
+    // TODO: Add proximity thingies
+    public static CompletableFuture<?> say(String message) {
+        return CompletableFuture.runAsync(() -> {
+            String i = requestBody.replace("{}", message.replaceAll("[\\n\\t]", " ").replaceAll("[^a-zA-Z0-9 ]", ""));
+            ClassicHttpRequest tts = ClassicRequestBuilder.post("https://api.typecast.ai/v1/text-to-speech")
+                    .addHeader("X-API-KEY", TYPECAST_API_KEY)
+                    .addHeader("Content-Type", "application/json")
+                    .setEntity(i)
+                    .build();
+            try {
+                httpClient.execute(tts, new AbstractHttpClientResponseHandler<Void>() {
+                    @Override
+                    public Void handleEntity(HttpEntity entity) throws IOException {
+                        try {
+                            SlopTextToSpeechUtil.handleEntity(entity);
+                        } catch(IOException | UnsupportedAudioFileException | LineUnavailableException e) {
+                            throw new IOException(e);
+                        }
+                        return null;
                     }
-                    return null;
-                }
-            });
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
+                });
+            } catch(IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, es);
     }
 
     static {
@@ -106,5 +112,11 @@ public final class SlopTextToSpeechUtil {
             "voice_id": "tc_660e5c11eef728e75f95f520"
         }
         """;
+
+        es = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r);
+            t.setDaemon(true);
+            return t;
+        });
     }
 }
