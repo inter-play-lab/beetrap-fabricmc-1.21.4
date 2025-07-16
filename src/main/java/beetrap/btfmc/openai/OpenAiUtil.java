@@ -1,5 +1,10 @@
 package beetrap.btfmc.openai;
 
+import static beetrap.btfmc.Beetrapfabricmc.MOD_REQUIRED_OPENAI_API_KEY;
+import static beetrap.btfmc.Beetrapfabricmc.MOD_REQUIRED_OPENAI_BASE_URL;
+import static beetrap.btfmc.Beetrapfabricmc.MOD_REQUIRED_OPENAI_ORG_ID;
+import static beetrap.btfmc.Beetrapfabricmc.MOD_REQUIRED_OPENAI_PROJECT_ID;
+
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ChatModel;
@@ -48,6 +53,11 @@ public final class OpenAiUtil {
     }
 
     static {
-        client = OpenAIOkHttpClient.builder().fromEnv().build();
+        client = OpenAIOkHttpClient.builder()
+                .apiKey(System.getProperty(MOD_REQUIRED_OPENAI_API_KEY))
+                .baseUrl(System.getProperty(MOD_REQUIRED_OPENAI_BASE_URL))
+                .organization(System.getProperty(MOD_REQUIRED_OPENAI_ORG_ID))
+                .project(System.getProperty(MOD_REQUIRED_OPENAI_PROJECT_ID))
+                .build();
     }
 }

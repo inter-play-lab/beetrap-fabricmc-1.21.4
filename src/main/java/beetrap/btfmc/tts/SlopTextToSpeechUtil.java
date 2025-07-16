@@ -1,5 +1,7 @@
 package beetrap.btfmc.tts;
 
+import static beetrap.btfmc.Beetrapfabricmc.MOD_REQUIRED_TYPECAST_API_KEY;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,7 +9,6 @@ import java.io.IOException;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
@@ -20,9 +21,9 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
 public final class SlopTextToSpeechUtil {
+    private static final String TYPECAST_API_KEY = System.getenv(MOD_REQUIRED_TYPECAST_API_KEY);
     private static final CloseableHttpClient httpClient;
     private static final String requestBody;
-    private static final Clip clip;
 
     private SlopTextToSpeechUtil() {
         throw new AssertionError();
@@ -75,7 +76,7 @@ public final class SlopTextToSpeechUtil {
     public static void say(String message) {
         String i = requestBody.replace("{}", message.replaceAll("[\\n\\t]", " ").replaceAll("[^a-zA-Z0-9 ]", ""));
         ClassicHttpRequest tts = ClassicRequestBuilder.post("https://api.typecast.ai/v1/text-to-speech")
-                .addHeader("X-API-KEY", "__pltEnioA8GEzeBpVAj2XPanrPZqan5mbek3dZnLaiS4")
+                .addHeader("X-API-KEY", TYPECAST_API_KEY)
                 .addHeader("Content-Type", "application/json")
                 .setEntity(i)
                 .build();
@@ -105,11 +106,5 @@ public final class SlopTextToSpeechUtil {
             "voice_id": "tc_660e5c11eef728e75f95f520"
         }
         """;
-
-        try {
-            clip = AudioSystem.getClip();
-        } catch(LineUnavailableException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
