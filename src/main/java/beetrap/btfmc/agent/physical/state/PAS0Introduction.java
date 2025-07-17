@@ -11,6 +11,7 @@ import beetrap.btfmc.state.BeetrapState;
 import beetrap.btfmc.state.BeetrapStateManager;
 import beetrap.btfmc.tts.SlopTextToSpeechUtil;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
 import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -23,17 +24,19 @@ import org.apache.logging.log4j.Logger;
 
 public class PAS0Introduction extends AgentState {
     private static final Logger LOG = LogManager.getLogger(PAS0Introduction.class);
-    private static final double EPSILON = 0.1;
+    private static final double EPSILON = 0.2;
     private PhysicalAgent physicalAgent;
     private BeeEntity beeEntity;
     private ServerWorld world;
     private String name;
     private AgentCommand currentCommand;
+    private final Object currentCommandLock;
     private long commandTick;
     private Vec3d flyToPosition;
 
     public PAS0Introduction() {
         super();
+        this.currentCommandLock = new Object();
     }
 
     @Override
@@ -145,6 +148,7 @@ public class PAS0Introduction extends AgentState {
 
         if(this.beeEntity.getPos().withAxis(Axis.Y, 0).distanceTo(this.flyToPosition.withAxis(
                 Axis.Y, 0)) < EPSILON) {
+            this.beeEntity.setMovementSpeed(0);
             this.completeCommand();
         }
     }
@@ -209,8 +213,11 @@ public class PAS0Introduction extends AgentState {
     }
 
     public void completeCommand() {
-        this.currentCommand = null;
-        this.commandTick = -1;
+        synchronized(this.currentCommandLock) {
+            this.agent.removeNextCommand();
+            this.currentCommand = null;
+            this.commandTick = -1;
+        }
     }
 
     @Override
@@ -224,12 +231,14 @@ public class PAS0Introduction extends AgentState {
             return;
         }
 
-        if(this.currentCommand == null) {
-            this.currentCommand = this.agent.nextCommand();
-        }
+        synchronized(this.currentCommandLock) {
+            if(this.currentCommand == null) {
+                this.currentCommand = this.agent.getNextCommand();
+            }
 
-        ++this.commandTick;
-        this.handleCurrentCommand();
+            ++this.commandTick;
+            this.handleCurrentCommand();
+        }
     }
 
     @Override

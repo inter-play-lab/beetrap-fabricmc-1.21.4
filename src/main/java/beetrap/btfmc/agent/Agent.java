@@ -1,7 +1,5 @@
 package beetrap.btfmc.agent;
 
-import static beetrap.btfmc.Beetrapfabricmc.MOD_ID;
-
 import beetrap.btfmc.agent.event.EventMessage;
 import beetrap.btfmc.openai.OpenAiUtil;
 import beetrap.btfmc.state.BeetrapStateManager;
@@ -21,8 +19,6 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -218,7 +214,11 @@ public abstract class Agent implements AutoCloseable {
         this.agentCommandQueue.addLast(agentCommand);
     }
 
-    public AgentCommand nextCommand() {
+    public AgentCommand getNextCommand() {
+        return this.agentCommandQueue.getFirst();
+    }
+
+    public AgentCommand removeNextCommand() {
         return this.agentCommandQueue.removeFirst();
     }
 
