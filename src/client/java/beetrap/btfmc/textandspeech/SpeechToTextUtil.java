@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -22,19 +20,16 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import static beetrap.btfmc.Beetrapfabricmc.MOD_REQUIRED_OPENAI_API_KEY;
+
 public final class SpeechToTextUtil {
     private static final Logger LOG = LogManager.getLogger(SpeechToTextUtil.class);
-    private static CloseableHttpClient closeableHttpClient;
-    private static ExecutorService executorService;
+    private static final CloseableHttpClient closeableHttpClient;
     private static final String OPENAI_API_URL = "https://api.openai.com/v1/audio/transcriptions";
-    private static final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY"); // Get API key from environment variable
+    private static final String OPENAI_API_KEY = System.getProperty(MOD_REQUIRED_OPENAI_API_KEY); // Get API key from environment variable
 
     private SpeechToTextUtil() {
         throw new AssertionError();
-    }
-
-    public static void say(String message) {
-
     }
 
     /**
@@ -172,6 +167,5 @@ public final class SpeechToTextUtil {
 
     static {
         closeableHttpClient = HttpClients.createDefault();
-        executorService = Executors.newSingleThreadExecutor();
     }
 }
