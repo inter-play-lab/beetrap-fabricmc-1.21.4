@@ -40,6 +40,7 @@ public class BeetrapStateManager {
     private final NetworkingService net;
     private boolean activityEnded;
     private PlayerInteractionService interaction;
+    private BeeNestController beeNestController;
 
     private void recordState() {
         this.oldBeetrapStates.add(this.state);
@@ -65,6 +66,7 @@ public class BeetrapStateManager {
         this.recordState();
 
         this.net = new NetworkingService(this.world);
+        this.beeNestController = beeNestController;
     }
 
     public void endActivity() {
@@ -334,5 +336,9 @@ public class BeetrapStateManager {
 
     public FlowerManager getFlowerManager() {
         return this.flowerManager;
+    }
+
+    public BeeNestController getBeeNestController() {
+        return this.beeNestController;
     }
 }

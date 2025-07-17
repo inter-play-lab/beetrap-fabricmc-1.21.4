@@ -171,8 +171,7 @@ public class PAS0Introduction extends AgentState {
     private void handleFlyToBeehiveCommand() {
         if(this.commandTick == 0) {
             BeetrapStateManager bsm = this.agent.getBeetrapStateManager();
-            BeetrapState bs = bsm.getState();
-            this.flyToPosition = bs.getBeeNestMinecraftPosition();
+            this.flyToPosition = bsm.getBeeNestController().getBeeNestPosition();
             this.beeEntity.getMoveControl().moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
             return;
         }
