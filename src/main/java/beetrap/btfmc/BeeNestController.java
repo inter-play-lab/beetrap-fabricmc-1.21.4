@@ -109,6 +109,10 @@ public class BeeNestController {
             return;
         }
 
+        if(positions.length == 0) {
+            return;
+        }
+
         Flower f = positions[(int)(Math.random() * positions.length)];
 
         if(f == null) {

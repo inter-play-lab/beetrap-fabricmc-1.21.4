@@ -185,9 +185,11 @@ public class PAS0Introduction extends AgentState {
         }
     }
 
-    private void handleFlyToCommand(String entityType, String number) {
+    private void handleFlyToCommand(String[] args) {
+        String entityType = args[0];
+
         if(entityType.equalsIgnoreCase("flower")) {
-            this.handleFlyToFlowerCommand(number);
+            this.handleFlyToFlowerCommand(args[1]);
         } else if(entityType.equalsIgnoreCase("player")) {
             this.handleFlyToPlayerCommand();
         } else if(entityType.equalsIgnoreCase("beehive")) {
@@ -205,7 +207,7 @@ public class PAS0Introduction extends AgentState {
         }
 
         if(this.currentCommand.type().equalsIgnoreCase("fly_to")) {
-            this.handleFlyToCommand(this.currentCommand.args()[0], this.currentCommand.args()[1]);
+            this.handleFlyToCommand(this.currentCommand.args());
             return;
         }
 
