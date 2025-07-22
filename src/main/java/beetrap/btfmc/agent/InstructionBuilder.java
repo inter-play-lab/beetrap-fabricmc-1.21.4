@@ -38,5 +38,6 @@ public class InstructionBuilder {
         this.addInstructionSection(sb, "Base instruction: ", this.baseInstruction, separator);
         this.addInstructionSection(sb, "State instruction: ", this.stateInstruction, separator);
         this.addInstructionSection(sb, "Context instruction: ", this.contextInstruction, separator);
+        return sb.toString();
     }
 }

@@ -1,10 +1,8 @@
 package beetrap.btfmc;
 
-import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_CHAT_ONLY;
 import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_PHYSICAL;
 
 import beetrap.btfmc.agent.Agent;
-import beetrap.btfmc.agent.chatonly.ChatOnlyAgent;
 import beetrap.btfmc.agent.empty.EmptyAgent;
 import beetrap.btfmc.agent.physical.PhysicalAgent;
 import beetrap.btfmc.flower.FlowerManager;
