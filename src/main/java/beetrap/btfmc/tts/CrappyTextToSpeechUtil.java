@@ -8,19 +8,8 @@ import com.mojang.text2speech.NarratorWindows;
 import com.mojang.text2speech.OperatingSystem;
 
 public final class CrappyTextToSpeechUtil {
+
     private static final Narrator narrator;
-
-    private CrappyTextToSpeechUtil() {
-
-    }
-
-    public static boolean textToSpeechSupported() {
-        return narrator != null && narrator.active();
-    }
-
-    public static void say(String s) {
-        narrator.say(s, false);
-    }
 
     static {
         try {
@@ -33,5 +22,17 @@ public final class CrappyTextToSpeechUtil {
         } catch(InitializeException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private CrappyTextToSpeechUtil() {
+
+    }
+
+    public static boolean textToSpeechSupported() {
+        return narrator != null && narrator.active();
+    }
+
+    public static void say(String s) {
+        narrator.say(s, false);
     }
 }

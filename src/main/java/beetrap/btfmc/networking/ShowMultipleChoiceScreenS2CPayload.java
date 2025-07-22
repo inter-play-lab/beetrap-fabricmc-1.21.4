@@ -7,10 +7,14 @@ import net.minecraft.network.encoding.StringEncoding;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
-public record ShowMultipleChoiceScreenS2CPayload(String questionId, String question, String... choices) implements
+public record ShowMultipleChoiceScreenS2CPayload(String questionId, String question,
+                                                 String... choices) implements
         CustomPayload {
-    public static final Identifier SHOW_MULTIPLE_CHOICE_SCREEN_ID = Identifier.of(Beetrapfabricmc.MOD_ID, "show_multiple_choice_screen");
-    public static final Id<ShowMultipleChoiceScreenS2CPayload> ID = new Id<>(SHOW_MULTIPLE_CHOICE_SCREEN_ID);
+
+    public static final Identifier SHOW_MULTIPLE_CHOICE_SCREEN_ID = Identifier.of(
+            Beetrapfabricmc.MOD_ID, "show_multiple_choice_screen");
+    public static final Id<ShowMultipleChoiceScreenS2CPayload> ID = new Id<>(
+            SHOW_MULTIPLE_CHOICE_SCREEN_ID);
     public static final PacketCodec<RegistryByteBuf, ShowMultipleChoiceScreenS2CPayload> CODEC = new PacketCodec<>() {
         @Override
         public ShowMultipleChoiceScreenS2CPayload decode(RegistryByteBuf buf) {
@@ -36,7 +40,7 @@ public record ShowMultipleChoiceScreenS2CPayload(String questionId, String quest
             }
         }
     };
-    
+
     @Override
     public Id<? extends CustomPayload> getId() {
         return ID;

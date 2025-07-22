@@ -18,7 +18,6 @@ import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -29,35 +28,37 @@ import org.apache.logging.log4j.Logger;
 import org.joml.Vector2d;
 
 public class BeetrapStateManager {
+
     private static final Logger LOG = LogManager.getLogger(BeetrapState.class);
+    private static final double PI_OVER_FOUR = Math.PI / 4;
+    private static final double THREE_PI_OVER_FOUR = 3 * Math.PI / 4;
+    private static final double FIVE_PI_OVER_FOUR = 5 * Math.PI / 4;
+    private static final double SEVEN_PI_OVER_FOUR = 7 * Math.PI / 4;
     private final ServerWorld world;
     private final List<BeetrapState> oldBeetrapStates;
-    private int pointer;
     private final FlowerManager flowerManager;
     private final GardenInformationBossBar gardenInformationBossBar;
+    private final NetworkingService net;
+    private int pointer;
     private BeetrapState state;
     private double initialDiversityScore;
-    private final NetworkingService net;
     private boolean activityEnded;
-    private PlayerInteractionService interaction;
-    private BeeNestController beeNestController;
+    private final PlayerInteractionService interaction;
+    private final BeeNestController beeNestController;
 
-    private void recordState() {
-        this.oldBeetrapStates.add(this.state);
-        LOG.info("Recording state {}...", this.pointer + 1);
-        LOG.info("State: {}", this.state);
-        LOG.info("StateType: {}", this.state.getClass());
-        ++this.pointer;
-    }
-
-    public BeetrapStateManager(ServerWorld world, FlowerManager flowerManager, PlayerInteractionService interaction, BeeNestController beeNestController, GardenInformationBossBar gardenInformationBossBar, FlowerValueScoreboardDisplayerService flowerValueScoreboardDisplayerService) {
+    public BeetrapStateManager(ServerWorld world, FlowerManager flowerManager,
+            PlayerInteractionService interaction, BeeNestController beeNestController,
+            GardenInformationBossBar gardenInformationBossBar,
+            FlowerValueScoreboardDisplayerService flowerValueScoreboardDisplayerService) {
         this.world = world;
         this.flowerManager = flowerManager;
         this.interaction = interaction;
         this.gardenInformationBossBar = gardenInformationBossBar;
         this.pointer = -1;
-        this.state = new ActivitySelectionState(world, this, new FlowerPool(FLOWER_POOL_FLOWER_COUNT), flowerManager, interaction,
-                beeNestController, gardenInformationBossBar, flowerValueScoreboardDisplayerService, false,
+        this.state = new ActivitySelectionState(world, this,
+                new FlowerPool(FLOWER_POOL_FLOWER_COUNT), flowerManager, interaction,
+                beeNestController, gardenInformationBossBar, flowerValueScoreboardDisplayerService,
+                false,
                 INITIAL_POLLINATION_CIRCLE_RADIUS, AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE);
         this.state.populateFlowers(INITIAL_FLOWER_COUNT);
         this.oldBeetrapStates = new ArrayList<>();
@@ -67,6 +68,14 @@ public class BeetrapStateManager {
 
         this.net = new NetworkingService(this.world);
         this.beeNestController = beeNestController;
+    }
+
+    private void recordState() {
+        this.oldBeetrapStates.add(this.state);
+        LOG.info("Recording state {}...", this.pointer + 1);
+        LOG.info("State: {}", this.state);
+        LOG.info("StateType: {}", this.state.getClass());
+        ++this.pointer;
     }
 
     public void endActivity() {
@@ -84,7 +93,8 @@ public class BeetrapStateManager {
     public void tick() {
         if(this.activityEnded) {
             this.world.getPlayers().forEach(
-                    serverPlayerEntity -> BeetrapStateManager.this.interaction.giveRestartGameItemToPlayer(serverPlayerEntity));
+                    serverPlayerEntity -> BeetrapStateManager.this.interaction.giveRestartGameItemToPlayer(
+                            serverPlayerEntity));
         }
 
         if(this.state.hasNextState()) {
@@ -98,6 +108,13 @@ public class BeetrapStateManager {
 
     public BeetrapState getState() {
         return this.state;
+    }
+
+    private void setState(BeetrapState state) {
+        this.state = state;
+        this.flowerManager.destroyAll();
+        this.flowerManager.placeFlowerEntities(state);
+        this.gardenInformationBossBar.updateBossBar(state, this.pointer);
     }
 
     public ServerWorld getWorld() {
@@ -150,13 +167,6 @@ public class BeetrapStateManager {
         return null;
     }
 
-    private void setState(BeetrapState state) {
-        this.state = state;
-        this.flowerManager.destroyAll();
-        this.flowerManager.placeFlowerEntities(state);
-        this.gardenInformationBossBar.updateBossBar(state, this.pointer);
-    }
-
     public void onPlayerRequestTimeTravel(ServerPlayerEntity player, int n, int operation) {
         if(!this.state.timeTravelAvailable()) {
             return;
@@ -169,7 +179,8 @@ public class BeetrapStateManager {
 
                 if(prs == null) {
                     this.world.getPlayers().forEach(
-                            playerEntity -> playerEntity.sendMessage(Text.of("This is the newest garden!")));
+                            playerEntity -> playerEntity.sendMessage(
+                                    Text.of("This is the newest garden!")));
                     return;
                 }
 
@@ -190,7 +201,8 @@ public class BeetrapStateManager {
 
                 if(prs == null) {
                     this.world.getPlayers().forEach(
-                            playerEntity -> playerEntity.sendMessage(Text.of("This is the oldest garden!")));
+                            playerEntity -> playerEntity.sendMessage(
+                                    Text.of("This is the oldest garden!")));
                     return;
                 }
 
@@ -243,25 +255,28 @@ public class BeetrapStateManager {
     }
 
     private double clampDegrees(double deg) {
-        while(deg >= 360) {deg = deg - 360;}
-        while(deg < 0) {deg = deg + 360;}
+        while(deg >= 360) {
+            deg = deg - 360;
+        }
+        while(deg < 0) {
+            deg = deg + 360;
+        }
         return deg;
     }
 
     private double clampRadians(double rad) {
-        while(rad >= Math.TAU) {rad = rad - Math.TAU;}
-        while(rad < 0) {rad = rad + Math.TAU;}
+        while(rad >= Math.TAU) {
+            rad = rad - Math.TAU;
+        }
+        while(rad < 0) {
+            rad = rad + Math.TAU;
+        }
         return rad;
     }
 
     private boolean tInClosedIntervalAB(double t, double a, double b) {
         return a <= t && t <= b;
     }
-
-    private static final double PI_OVER_FOUR = Math.PI / 4;
-    private static final double THREE_PI_OVER_FOUR = 3 * Math.PI / 4;
-    private static final double FIVE_PI_OVER_FOUR = 5 * Math.PI / 4;
-    private static final double SEVEN_PI_OVER_FOUR = 7 * Math.PI / 4;
 
     private String[] getStringifiedPolarCoordinates(double r, double theta) {
         String distance;
@@ -280,7 +295,8 @@ public class BeetrapStateManager {
 
         String angle;
 
-        if(this.tInClosedIntervalAB(theta, 0, PI_OVER_FOUR) || this.tInClosedIntervalAB(theta, SEVEN_PI_OVER_FOUR, Math.TAU)) {
+        if(this.tInClosedIntervalAB(theta, 0, PI_OVER_FOUR) || this.tInClosedIntervalAB(theta,
+                SEVEN_PI_OVER_FOUR, Math.TAU)) {
             angle = "front";
         } else if(this.tInClosedIntervalAB(theta, PI_OVER_FOUR, THREE_PI_OVER_FOUR)) {
             angle = "left";
@@ -290,12 +306,16 @@ public class BeetrapStateManager {
             angle = "right";
         }
 
-        return new String[] {distance, angle};
+        return new String[]{distance, angle};
     }
 
-    public void getJsonReadyDataForGpt(Entity agentEntity, ServerPlayerEntity serverPlayerEntity, StringBuilder sb) {
-        sb.append("Player position: ").append(this.world.getPlayers().getFirst().getPos()).append(System.lineSeparator());
-        sb.append("Flowers (Note that in terms of distance, close < within_reach < big_in_view < need_to_walk_a_bit < far): ").append(System.lineSeparator());
+    public void getJsonReadyDataForGpt(Entity agentEntity, ServerPlayerEntity serverPlayerEntity,
+            StringBuilder sb) {
+        sb.append("Player position: ").append(this.world.getPlayers().getFirst().getPos())
+                .append(System.lineSeparator());
+        sb.append(
+                        "Flowers (Note that in terms of distance, close < within_reach < big_in_view < need_to_walk_a_bit < far): ")
+                .append(System.lineSeparator());
 
         Vec3d playerPos = serverPlayerEntity.getPos();
         Vec3d agentPos = agentEntity.getPos();
@@ -323,13 +343,13 @@ public class BeetrapStateManager {
 
             String[] pcb = this.getStringifiedPolarCoordinates(r, theta);
 
-
             sb.append("'Flower ").append(f.getNumber()).append("': {")
                     .append("'distance_to_player': '").append(pcp[0]).append("', ")
                     .append("'angle_to_player': ").append(pcp[1]).append("', ")
                     .append("'distance_to_you': '").append(pcb[0]).append("', ")
                     .append("'angle_to_you': ").append(pcb[1]).append("', ")
-                    .append(", 'color': '").append(this.flowerManager.getFlowerMinecraftColor(f)).append("'")
+                    .append(", 'color': '").append(this.flowerManager.getFlowerMinecraftColor(f))
+                    .append("'")
                     .append(System.lineSeparator());
         }
     }

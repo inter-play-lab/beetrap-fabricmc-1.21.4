@@ -3,6 +3,7 @@ package beetrap.btfmc.util;
 import org.ejml.simple.SimpleMatrix;
 
 public final class MoreMatrices {
+
     private MoreMatrices() {
         throw new AssertionError();
     }

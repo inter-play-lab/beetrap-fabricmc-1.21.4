@@ -1,6 +1,10 @@
 package beetrap.btfmc.state;
 
-import static beetrap.btfmc.BeetrapGame.*;
+import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_RANKED;
+import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_BUDS_TO_PLACE_DEFAULT_MODE;
+import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
+import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
+import static beetrap.btfmc.BeetrapGame.CHANGE_RANKING_METHOD_LEVER_POSITION;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_CIRCLE_RADIUS_INCREASED;
 
 import beetrap.btfmc.flower.Flower;
@@ -16,21 +20,23 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 public class DiversificationPollinationHappeningState extends BeetrapState {
+
+    public static final int SUB_STAGE_BEFORE_TARGET_CIRCLE_RADIUS_HIT = 0;
+    public static final int SUB_STAGE_BEFORE_RANKING_METHOD_CHANGED = 1;
+    public static final int SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD = 2;
+    private final Vec3d pollinationCenter;
+    private final int stage;
+    private final double targetDiversityScore;
     private Flower[] newFlowerCandidates;
     private Flower[] newFlowers;
     private int ticks;
     private boolean active;
     private BeetrapState nextState;
-    private final Vec3d pollinationCenter;
-    private final int stage;
-    private final double targetDiversityScore;
     private int subStage;
-    public static final int SUB_STAGE_BEFORE_TARGET_CIRCLE_RADIUS_HIT = 0;
-    public static final int SUB_STAGE_BEFORE_RANKING_METHOD_CHANGED = 1;
-    public static final int SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD = 2;
     private long pollinationTrulyReadyTick;
 
-    public DiversificationPollinationHappeningState(BeetrapState state, Vec3d pollinationCenter, int stage, double targetDiversityScore, int subStage) {
+    public DiversificationPollinationHappeningState(BeetrapState state, Vec3d pollinationCenter,
+            int stage, double targetDiversityScore, int subStage) {
         super(state);
         this.pollinationCenter = pollinationCenter;
         this.active = true;
@@ -93,7 +99,7 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
 
         this.newFlowers = new Flower[AMOUNT_OF_BUDS_RANKED];
 
-        for (int i = 0; i < fbe.length; i++) {
+        for(int i = 0; i < fbe.length; i++) {
             fbe[i].setCustomName(Text.of(""));
             fbe[i].setCustomNameVisible(false);
         }
@@ -126,7 +132,8 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
     }
 
     private void tickWitherFlowers() {
-        FallingBlockEntity[] fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(this.pollinationCenter, Double.POSITIVE_INFINITY);
+        FallingBlockEntity[] fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(
+                this.pollinationCenter, Double.POSITIVE_INFINITY);
 
         int r = 0;
         for(int i = fbe.length - 1; i >= 0 && r < this.amountOfFlowersToWither; --i) {
@@ -162,24 +169,38 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
 
         if(this.ticks == 20) {
             this.tickGrowBuds();
-            this.showTextScreenToAllPlayers("Get closer to the pollination circle the press B multiple times. Look at what happens next.");
-            this.net.broadcastCustomPayload(new BeginSubActivityS2CPayload(BeginSubActivityS2CPayload.SUB_ACTIVITY_PRESS_B_TO_INCREASE_POLLINATION_RADIUS));
+            this.showTextScreenToAllPlayers(
+                    "Get closer to the pollination circle the press B multiple times. Look at what happens next.");
+            this.net.broadcastCustomPayload(new BeginSubActivityS2CPayload(
+                    BeginSubActivityS2CPayload.SUB_ACTIVITY_PRESS_B_TO_INCREASE_POLLINATION_RADIUS));
         }
 
-        this.beeNestController.tickCircleBetweenAAndInfinity(this.ticks, this.pollinationCircleRadius, 20);
+        this.beeNestController.tickCircleBetweenAAndInfinity(this.ticks,
+                this.pollinationCircleRadius, 20);
 
         switch(this.subStage) {
             case SUB_STAGE_BEFORE_TARGET_CIRCLE_RADIUS_HIT -> {
                 if(this.pollinationCircleRadius >= 5) {
                     this.subStage = SUB_STAGE_BEFORE_RANKING_METHOD_CHANGED;
-                    this.showTextScreenToAllPlayers("A lever just popped up near the diamond square in the garden. Try flicking it up and down and see what it does!");
+                    this.showTextScreenToAllPlayers(
+                            "A lever just popped up near the diamond square in the garden. Try flicking it up and down and see what it does!");
 
-                    this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY() - 1, CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
+                    this.world.setBlockState(
+                            new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(),
+                                    CHANGE_RANKING_METHOD_LEVER_POSITION.getY() - 1,
+                                    CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
                             Blocks.STONE.getDefaultState());
-                    this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
+                    this.world.setBlockState(
+                            new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(),
+                                    CHANGE_RANKING_METHOD_LEVER_POSITION.getY(),
+                                    CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
                             Blocks.STONE.getDefaultState());
-                    BlockState bs = Blocks.LEVER.getDefaultState().with(LeverBlock.FACING, Direction.SOUTH);
-                    this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ()),
+                    BlockState bs = Blocks.LEVER.getDefaultState()
+                            .with(LeverBlock.FACING, Direction.SOUTH);
+                    this.world.setBlockState(
+                            new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(),
+                                    CHANGE_RANKING_METHOD_LEVER_POSITION.getY(),
+                                    CHANGE_RANKING_METHOD_LEVER_POSITION.getZ()),
                             bs);
 
                     this.pollinationTrulyReadyTick = this.ticks;
@@ -192,7 +213,8 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
 
             case SUB_STAGE_FINISH_CHANGING_EVERYTHING_LETS_GO_FORWARD -> {
                 this.tickRankBuds();
-                this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager, this.newFlowerCandidates);
+                this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks,
+                        this.flowerManager, this.newFlowerCandidates);
                 this.on200TicksLater(this.pollinationTrulyReadyTick);
             }
         }
@@ -230,7 +252,8 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
             this.nextState = new TimeTravelableBeetrapState(this);
             this.showTextScreenToAllPlayers("Wow! you did it! You saved the garden!");
         } else {
-            this.nextState = new DiversificationPollinationReadyState(this, this.stage + 1, this.targetDiversityScore);
+            this.nextState = new DiversificationPollinationReadyState(this, this.stage + 1,
+                    this.targetDiversityScore);
         }
 
         this.setBeeNestMinecraftPosition(this.beeNestController.getBeeNestPosition());
@@ -246,7 +269,8 @@ public class DiversificationPollinationHappeningState extends BeetrapState {
             this.pollinationCircleRadius = this.pollinationCircleRadius + a;
             this.tickGrowBuds();
             this.tickRankBuds();
-            this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_CIRCLE_RADIUS_INCREASED, "Current radius: " + this.pollinationCircleRadius);
+            this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_CIRCLE_RADIUS_INCREASED,
+                    "Current radius: " + this.pollinationCircleRadius);
         }
     }
 

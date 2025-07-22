@@ -4,6 +4,7 @@ import beetrap.btfmc.flower.Flower;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class ObserveFlowersOnlyState extends BeetrapState {
+
     public ObserveFlowersOnlyState(BeetrapState state) {
         super(state);
     }

@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class CommandHandler {
+
     private static final Logger LOG = LogManager.getLogger(CommandHandler.class);
 
     private CommandHandler() {
@@ -55,7 +56,9 @@ public final class CommandHandler {
         return 0;
     }
 
-    private static void registerCommands0(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, RegistrationEnvironment registrationEnvironment) {
+    private static void registerCommands0(CommandDispatcher<ServerCommandSource> dispatcher,
+            CommandRegistryAccess commandRegistryAccess,
+            RegistrationEnvironment registrationEnvironment) {
         dispatcher.register(CommandManager.literal("game")
                 .then(CommandManager.literal("new")
                         .then(CommandManager.argument("ai_level", IntegerArgumentType.integer())
@@ -73,7 +76,8 @@ public final class CommandHandler {
                                 .executes(CommandHandler::openaiClearCommand)
                         )
                         .then(CommandManager.literal("say")
-                                .then(CommandManager.argument("message", StringArgumentType.greedyString())
+                                .then(CommandManager.argument("message",
+                                                StringArgumentType.greedyString())
                                         .executes(CommandHandler::openaiSayCommand)
                                 )
                         )
@@ -91,10 +95,12 @@ public final class CommandHandler {
         CompletableFuture<Response> response = OpenAiUtil.getGpt4oLatestResponseAsync(msg);
 
         response.whenComplete((response1, throwable) -> {
-            String s = response1.output().getFirst().asMessage().content().getFirst().asOutputText().text();
+            String s = response1.output().getFirst().asMessage().content().getFirst().asOutputText()
+                    .text();
             CrappyTextToSpeechUtil.say(s);
             Text t = Text.of(s);
-            for(ServerPlayerEntity player : ctx.getSource().getServer().getOverworld().getPlayers()) {
+            for(ServerPlayerEntity player : ctx.getSource().getServer().getOverworld()
+                    .getPlayers()) {
                 player.sendMessage(t);
             }
         });

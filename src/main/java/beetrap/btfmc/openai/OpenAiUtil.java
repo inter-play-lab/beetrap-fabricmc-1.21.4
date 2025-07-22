@@ -13,8 +13,18 @@ import com.openai.models.responses.ResponseCreateParams;
 import java.util.concurrent.CompletableFuture;
 
 public final class OpenAiUtil {
+
     private static final OpenAIClient client;
     private static Response previousResponse;
+
+    static {
+        client = OpenAIOkHttpClient.builder()
+                .apiKey(System.getProperty(MOD_REQUIRED_OPENAI_API_KEY))
+                .baseUrl(System.getProperty(MOD_REQUIRED_OPENAI_BASE_URL))
+                .organization(System.getProperty(MOD_REQUIRED_OPENAI_ORG_ID))
+                .project(System.getProperty(MOD_REQUIRED_OPENAI_PROJECT_ID))
+                .build();
+    }
 
     private OpenAiUtil() {
         throw new AssertionError();
@@ -45,19 +55,11 @@ public final class OpenAiUtil {
         }
 
         CompletableFuture<Response> response = client.async().responses().create(params);
-        return response.whenComplete((response1, throwable) -> OpenAiUtil.previousResponse = response1);
+        return response.whenComplete(
+                (response1, throwable) -> OpenAiUtil.previousResponse = response1);
     }
 
     public static OpenAIClient getClient() {
         return client;
-    }
-
-    static {
-        client = OpenAIOkHttpClient.builder()
-                .apiKey(System.getProperty(MOD_REQUIRED_OPENAI_API_KEY))
-                .baseUrl(System.getProperty(MOD_REQUIRED_OPENAI_BASE_URL))
-                .organization(System.getProperty(MOD_REQUIRED_OPENAI_ORG_ID))
-                .project(System.getProperty(MOD_REQUIRED_OPENAI_PROJECT_ID))
-                .build();
     }
 }

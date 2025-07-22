@@ -3,13 +3,12 @@ package beetrap.btfmc.state;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_INITIATED;
 
 import beetrap.btfmc.flower.Flower;
-import beetrap.btfmc.networking.MultipleChoiceSelectionResultC2SPayload;
-import beetrap.btfmc.networking.ShowMultipleChoiceScreenS2CPayload;
 import beetrap.btfmc.networking.ShowTextScreenS2CPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
 public class RecommendationSystemPollinationReadyState extends PollinationReadyState {
+
     public static final int RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_BEFORE_PLAYER_LOOK_AT_BEE_NEST = 0;
     public static final int RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_AFTER_PLAYER_LOOK_AT_BEE_NEST = 1;
     public static final int RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_POLLINATION_TRULY_READY = 2;
@@ -48,7 +47,10 @@ public class RecommendationSystemPollinationReadyState extends PollinationReadyS
     public void onPlayerTargetNewEntity(ServerPlayerEntity player, boolean exists, int id) {
         if(this.subStage < RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_AFTER_PLAYER_LOOK_AT_BEE_NEST) {
             if(this.beeNestController.getBeeNest().getId() == id) {
-                this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("Walk in the garden, look at all the flowers colors and other attributes then make a guess on what do the distances between flowers represent?", 50)));
+                this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(
+                        ShowTextScreenS2CPayload.lineWrap(
+                                "Walk in the garden, look at all the flowers colors and other attributes then make a guess on what do the distances between flowers represent?",
+                                50)));
                 this.subStage = RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_POLLINATION_TRULY_READY;
             }
         }

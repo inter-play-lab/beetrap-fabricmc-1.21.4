@@ -3,9 +3,10 @@ package beetrap.btfmc.flower;
 import java.util.Random;
 
 public class Flower {
+
     private static final Random r = new Random();
-    private final int number;
     public final double v, w, x, y, z;
+    private final int number;
     private boolean withered;
 
     public Flower(int number, double v, double w, double x, double y, double z) {
@@ -85,6 +86,7 @@ public class Flower {
 
     @Override
     public String toString() {
-        return "Flower_" + this.number + "=(" + this.v + ", " + this.w + ", " + this.x + ", " + this.y + ", " + this.z + ")";
+        return "Flower_" + this.number + "=(" + this.v + ", " + this.w + ", " + this.x + ", "
+                + this.y + ", " + this.z + ")";
     }
 }

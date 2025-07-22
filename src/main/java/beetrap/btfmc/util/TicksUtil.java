@@ -1,6 +1,7 @@
 package beetrap.btfmc.util;
 
 public final class TicksUtil {
+
     private TicksUtil() {
         throw new AssertionError();
     }

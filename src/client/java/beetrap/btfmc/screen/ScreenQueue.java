@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.client.gui.screen.Screen;
 
 public class ScreenQueue {
+
     private final List<Screen> stack;
     private boolean active;
 

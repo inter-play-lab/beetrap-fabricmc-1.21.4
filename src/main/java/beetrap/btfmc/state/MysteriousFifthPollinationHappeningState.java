@@ -10,15 +10,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 
 public class MysteriousFifthPollinationHappeningState extends BeetrapState {
+
+    private final Vec3d pollinationCenter;
+    private final int stage;
     private Flower[] newFlowerCandidates;
     private Flower[] newFlowers;
     private int ticks;
     private boolean active;
     private BeetrapState nextState;
-    private final Vec3d pollinationCenter;
-    private final int stage;
 
-    public MysteriousFifthPollinationHappeningState(BeetrapState state, Vec3d pollinationCenter, int stage) {
+    public MysteriousFifthPollinationHappeningState(BeetrapState state, Vec3d pollinationCenter,
+            int stage) {
         super(state);
         this.pollinationCenter = pollinationCenter;
         this.active = true;
@@ -104,7 +106,8 @@ public class MysteriousFifthPollinationHappeningState extends BeetrapState {
     }
 
     private void tickWitherFlowers() {
-        FallingBlockEntity[] fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(this.pollinationCenter, Double.POSITIVE_INFINITY);
+        FallingBlockEntity[] fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(
+                this.pollinationCenter, Double.POSITIVE_INFINITY);
 
         int r = 0;
         for(int i = fbe.length - 1; i >= 0 && r < this.amountOfFlowersToWither; --i) {
@@ -143,7 +146,8 @@ public class MysteriousFifthPollinationHappeningState extends BeetrapState {
         this.onTick20();
         // this.ticks is in 20..219
         this.beeNestController.tickCircle(this.ticks, this.pollinationCircleRadius);
-        this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager, this.newFlowerCandidates);
+        this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager,
+                this.newFlowerCandidates);
         // this.ticks == 220
         this.onTick220();
 

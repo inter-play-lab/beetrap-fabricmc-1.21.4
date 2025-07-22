@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
 
 public class EventMessage extends LinkedHashMap<String, Object> {
-    private static final ObjectMapper om;
 
     public static final String EVENT_MESSAGE_KEY_EVENT_TYPE = "event_type";
     public static final String EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_CHAT_EVENT = "chat";
@@ -13,6 +12,11 @@ public class EventMessage extends LinkedHashMap<String, Object> {
     public static final String EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_GAME_START_EVENT = "game_start";
     public static final String EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_PLAYER_POLLINATE_EVENT = "player_pollinate";
     public static final String EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_DEAD_FLOWER = "dead_flower";
+    private static final ObjectMapper om;
+
+    static {
+        om = new ObjectMapper();
+    }
 
     public EventMessage(String eventType) {
         this.setEventType(eventType);
@@ -28,9 +32,5 @@ public class EventMessage extends LinkedHashMap<String, Object> {
         } catch(JsonProcessingException e) {
             throw new AssertionError(e);
         }
-    }
-
-    static {
-        om = new ObjectMapper();
     }
 }

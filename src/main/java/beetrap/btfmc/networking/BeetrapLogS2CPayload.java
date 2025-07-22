@@ -8,10 +8,13 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record BeetrapLogS2CPayload(String id, String log) implements CustomPayload {
-    public static final Identifier BEETRAP_LOG_ID = Identifier.of(Beetrapfabricmc.MOD_ID, "beetrap_log");
+
+    public static final Identifier BEETRAP_LOG_ID = Identifier.of(Beetrapfabricmc.MOD_ID,
+            "beetrap_log");
     public static final Id<BeetrapLogS2CPayload> ID = new Id<>(BEETRAP_LOG_ID);
     public static final PacketCodec<RegistryByteBuf, BeetrapLogS2CPayload> CODEC = PacketCodec.tuple(
-            PacketCodecs.STRING, BeetrapLogS2CPayload::id, PacketCodecs.STRING, BeetrapLogS2CPayload::log, BeetrapLogS2CPayload::new);
+            PacketCodecs.STRING, BeetrapLogS2CPayload::id, PacketCodecs.STRING,
+            BeetrapLogS2CPayload::log, BeetrapLogS2CPayload::new);
 
     public static final String BEETRAP_LOG_ID_INITIALIZE = "INITIALIZE";
     public static final String BEETRAP_LOG_ID_ACTIVITY_BEGIN_0 = "ACTIVITY_BEGIN_0";

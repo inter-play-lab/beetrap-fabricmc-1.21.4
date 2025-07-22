@@ -9,6 +9,7 @@ import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
 
 public class FlowerPool implements Iterable<Flower> {
+
     private final Flower[] flowers;
     private final RealVector[] mappedNormalizedPositions;
     private final int n;
@@ -35,7 +36,8 @@ public class FlowerPool implements Iterable<Flower> {
         }
 
         this.mappedNormalizedPositions = new RealVector[fp.mappedNormalizedPositions.length];
-        System.arraycopy(fp.mappedNormalizedPositions, 0, this.mappedNormalizedPositions, 0, fp.mappedNormalizedPositions.length);
+        System.arraycopy(fp.mappedNormalizedPositions, 0, this.mappedNormalizedPositions, 0,
+                fp.mappedNormalizedPositions.length);
         this.n = fp.n;
     }
 

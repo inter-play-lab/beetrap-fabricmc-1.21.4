@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.Arrays;
 
 public class GptResponse {
+
     @JsonAlias("commands")
-    private AgentCommand[] commands;
+    private final AgentCommand[] commands;
 
     public GptResponse(AgentCommand[] commands) {
         this.commands = commands;

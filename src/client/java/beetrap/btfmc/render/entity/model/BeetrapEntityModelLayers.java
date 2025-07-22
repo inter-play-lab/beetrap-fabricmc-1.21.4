@@ -1,7 +1,5 @@
 package beetrap.btfmc.render.entity.model;
 
-import static beetrap.btfmc.Beetrapfabricmc.MOD_ID;
-
 import beetrap.btfmc.Beetrapfabricmc;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -11,6 +9,7 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public final class BeetrapEntityModelLayers {
+
     public static final EntityModelLayer FLOWER = createModelLayer("flower_entity");
 
     private static EntityModelLayer createModelLayer(String name) {
@@ -18,6 +17,7 @@ public final class BeetrapEntityModelLayers {
     }
 
     public static void registerModelLayers() {
-        EntityModelLayerRegistry.registerModelLayer(FLOWER, FlowerEntityModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(FLOWER,
+                FlowerEntityModel::getTexturedModelData);
     }
 }

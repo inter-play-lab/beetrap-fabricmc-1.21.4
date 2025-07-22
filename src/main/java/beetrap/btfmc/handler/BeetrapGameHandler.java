@@ -1,8 +1,5 @@
 package beetrap.btfmc.handler;
 
-import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_CHAT_ONLY;
-import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_PHYSICAL;
-
 import beetrap.btfmc.BeetrapGame;
 import beetrap.btfmc.networking.MultipleChoiceSelectionResultC2SPayload;
 import beetrap.btfmc.networking.PlayerPollinateC2SPayload;
@@ -20,6 +17,7 @@ import net.minecraft.server.world.ServerWorld;
 import org.joml.Vector3i;
 
 public final class BeetrapGameHandler {
+
     private static BeetrapGame game;
 
     private BeetrapGameHandler() {
@@ -65,7 +63,8 @@ public final class BeetrapGameHandler {
         game.onPlayerPollinate(context.player(), payload.exists(), payload.entityId());
     }
 
-    public static void onPlayerRequestTimeTravel(PlayerTimeTravelRequestC2SPayload payload, Context context) {
+    public static void onPlayerRequestTimeTravel(PlayerTimeTravelRequestC2SPayload payload,
+            Context context) {
         if(!hasGame()) {
             return;
         }
@@ -90,7 +89,8 @@ public final class BeetrapGameHandler {
         game.onWorldTick();
     }
 
-    public static void onChatMessageReceived(SignedMessage signedMessage, ServerPlayerEntity serverPlayerEntity, Parameters parameters) {
+    public static void onChatMessageReceived(SignedMessage signedMessage,
+            ServerPlayerEntity serverPlayerEntity, Parameters parameters) {
         if(!hasGame()) {
             return;
         }
@@ -110,7 +110,9 @@ public final class BeetrapGameHandler {
             return;
         }
 
-        game.onMultipleChoiceSelectionResultReceived(multipleChoiceSelectionResultC2SPayload.questionId(), multipleChoiceSelectionResultC2SPayload.option());
+        game.onMultipleChoiceSelectionResultReceived(
+                multipleChoiceSelectionResultC2SPayload.questionId(),
+                multipleChoiceSelectionResultC2SPayload.option());
     }
 
     public static BeetrapGame getGame() {

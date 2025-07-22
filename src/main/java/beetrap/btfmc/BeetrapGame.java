@@ -1,7 +1,7 @@
 package beetrap.btfmc;
 
-import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_PHYSICAL;
 import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_CHAT_ONLY;
+import static beetrap.btfmc.agent.Agent.AGENT_LEVEL_PHYSICAL;
 
 import beetrap.btfmc.agent.Agent;
 import beetrap.btfmc.agent.chatonly.ChatOnlyAgent;
@@ -19,10 +19,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import org.joml.Vector3i;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3i;
 
 public class BeetrapGame {
+
     public static final int FLOWER_POOL_FLOWER_COUNT = 200;
     public static final int INITIAL_FLOWER_COUNT = 20;
     public static final int AMOUNT_OF_BUDS_RANKED = 3;
@@ -43,25 +44,31 @@ public class BeetrapGame {
     private final NetworkingService net;
     private final GardenInformationBossBar gardenInformationBossBar;
     private final FlowerValueScoreboardDisplayerService flowerValueScoreboardDisplayerService;
-    private long lastTickTime;
     private final Vector3i bottomLeft;
     private final Vector3i topRight;
     private final int amountOfFlowersToWither;
     private final int aiLevel;
+    private long lastTickTime;
     private Agent agent;
 
-    public BeetrapGame(MinecraftServer server, Vector3i bottomLeft, Vector3i topRight, int aiLevel) {
+    public BeetrapGame(MinecraftServer server, Vector3i bottomLeft, Vector3i topRight,
+            int aiLevel) {
         this.server = server;
         this.bottomLeft = bottomLeft;
         this.topRight = topRight;
         this.world = this.server.getOverworld();
         this.net = new NetworkingService(this.world);
-        this.flowerManager = new FlowerManager(this.world, FLOWER_POOL_FLOWER_COUNT, bottomLeft, topRight);
-        this.beeNestController = new BeeNestController(this.world, this.net, this.calculateNestBase(bottomLeft, topRight));
-        this.flowerValueScoreboardDisplayerService = new FlowerValueScoreboardDisplayerService(server);
+        this.flowerManager = new FlowerManager(this.world, FLOWER_POOL_FLOWER_COUNT, bottomLeft,
+                topRight);
+        this.beeNestController = new BeeNestController(this.world, this.net,
+                this.calculateNestBase(bottomLeft, topRight));
+        this.flowerValueScoreboardDisplayerService = new FlowerValueScoreboardDisplayerService(
+                server);
         this.interaction = new PlayerInteractionService(this.world);
         this.gardenInformationBossBar = new GardenInformationBossBar(this.server);
-        this.stateManager = new BeetrapStateManager(this.world, this.flowerManager, this.interaction, this.beeNestController, this.gardenInformationBossBar, this.flowerValueScoreboardDisplayerService);
+        this.stateManager = new BeetrapStateManager(this.world, this.flowerManager,
+                this.interaction, this.beeNestController, this.gardenInformationBossBar,
+                this.flowerValueScoreboardDisplayerService);
         this.gardenInformationBossBar.updateBossBar(this.stateManager.getState(), 0);
         this.beeNestController.spawnNest();
         this.amountOfFlowersToWither = AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
@@ -89,7 +96,9 @@ public class BeetrapGame {
     }
 
     public void onWorldTick() {
-        if(System.nanoTime() - this.lastTickTime < TICK_INTERVAL_NANO) return;
+        if(System.nanoTime() - this.lastTickTime < TICK_INTERVAL_NANO) {
+            return;
+        }
         this.stateManager.tick();
         this.lastTickTime = System.nanoTime();
 
@@ -143,11 +152,17 @@ public class BeetrapGame {
     }
 
     public void dispose() {
-        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY() - 1, CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
+        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(),
+                        CHANGE_RANKING_METHOD_LEVER_POSITION.getY() - 1,
+                        CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
                 Blocks.AIR.getDefaultState());
-        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
+        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(),
+                        CHANGE_RANKING_METHOD_LEVER_POSITION.getY(),
+                        CHANGE_RANKING_METHOD_LEVER_POSITION.getZ() - 1),
                 Blocks.AIR.getDefaultState());
-        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(), CHANGE_RANKING_METHOD_LEVER_POSITION.getY(), CHANGE_RANKING_METHOD_LEVER_POSITION.getZ()),
+        this.world.setBlockState(new BlockPos(CHANGE_RANKING_METHOD_LEVER_POSITION.getX(),
+                        CHANGE_RANKING_METHOD_LEVER_POSITION.getY(),
+                        CHANGE_RANKING_METHOD_LEVER_POSITION.getZ()),
                 Blocks.AIR.getDefaultState());
 
         this.flowerManager.destroyAll();

@@ -1,6 +1,5 @@
 package beetrap.btfmc;
 
-import static beetrap.btfmc.BeetrapfabricmcClient.MOD_ID;
 import static beetrap.btfmc.BeetrapfabricmcClient.beetrapLog;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_MULTIPLE_CHOICE_SCREEN_SHOWN;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_TEXT_SCREEN_SHOWN;
@@ -18,8 +17,8 @@ import beetrap.btfmc.networking.PlayerTimeTravelRequestC2SPayload.Operations;
 import beetrap.btfmc.networking.PollinationCircleRadiusIncreaseRequestC2SPayload;
 import beetrap.btfmc.networking.RestartGameC2SPayload;
 import beetrap.btfmc.screen.MultipleChoiceScreen;
-import beetrap.btfmc.screen.TextScreen;
 import beetrap.btfmc.screen.ScreenQueue;
+import beetrap.btfmc.screen.TextScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -35,6 +34,7 @@ import net.minecraft.util.hit.HitResult.Type;
 import net.minecraft.world.World;
 
 public class BeetrapGameClient {
+
     private final MinecraftClient client;
     private final ScreenQueue sq;
     private Entity targetedEntity;
@@ -59,7 +59,8 @@ public class BeetrapGameClient {
 
         if(glfwGetKey(this.client.getWindow().getHandle(), GLFW_KEY_B) == GLFW_PRESS) {
             if(!this.bPressed) {
-                ClientPlayNetworking.send(new PollinationCircleRadiusIncreaseRequestC2SPayload(0.1));
+                ClientPlayNetworking.send(
+                        new PollinationCircleRadiusIncreaseRequestC2SPayload(0.1));
             }
 
             this.bPressed = true;
@@ -164,7 +165,8 @@ public class BeetrapGameClient {
 
         switch(player.getInventory().selectedSlot) {
             case 0 -> {
-                ClientPlayNetworking.send(new PlayerTimeTravelRequestC2SPayload(-1, Operations.ADD));
+                ClientPlayNetworking.send(
+                        new PlayerTimeTravelRequestC2SPayload(-1, Operations.ADD));
             }
 
             case 4 -> {

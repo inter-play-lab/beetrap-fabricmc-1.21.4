@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 
 public class GptResponseDeserializer extends StdDeserializer<GptResponse> {
+
     private final AgentCommandDeserializer agentCommandDeserializer;
 
     public GptResponseDeserializer() {
@@ -26,7 +27,8 @@ public class GptResponseDeserializer extends StdDeserializer<GptResponse> {
 
         for(int i = 0; i < n; ++i) {
             JsonNode agentCommandNode = commandsNode.get(i);
-            commands[i] = this.agentCommandDeserializer.deserialize(agentCommandNode.traverse(codec), deserializationContext);
+            commands[i] = this.agentCommandDeserializer.deserialize(
+                    agentCommandNode.traverse(codec), deserializationContext);
         }
 
         return new GptResponse(commands);

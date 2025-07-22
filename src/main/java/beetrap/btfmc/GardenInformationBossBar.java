@@ -1,7 +1,6 @@
 package beetrap.btfmc;
 
 import beetrap.btfmc.state.BeetrapState;
-import beetrap.btfmc.state.BeetrapStateManager;
 import net.minecraft.entity.boss.BossBar.Color;
 import net.minecraft.entity.boss.BossBarManager;
 import net.minecraft.entity.boss.CommandBossBar;
@@ -12,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class GardenInformationBossBar {
+
     private final BossBarManager manager;
     private final ServerBossBar bossBar;
 
