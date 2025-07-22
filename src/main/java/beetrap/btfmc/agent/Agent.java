@@ -13,6 +13,7 @@ import com.openai.models.responses.ResponseCreateParams;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
@@ -22,7 +23,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class Agent implements AutoCloseable {
-
     public static final int AGENT_LEVEL_NO_AGENT = 0;
     public static final int AGENT_LEVEL_CHAT_ONLY = 1;
     public static final int AGENT_LEVEL_CHAT_WITH_VOICE_TO_TEXT = 2;
@@ -46,7 +46,7 @@ public abstract class Agent implements AutoCloseable {
     protected Response previousResponse;
     protected Deque<AgentCommand> agentCommandQueue;
     protected AgentState currentState;
-    private String instructions;
+    protected InstructionBuilder instructionBuilder;
 
     public Agent(ServerWorld world, BeetrapStateManager beetrapStateManager, String name,
             AgentState initialAgentState) {
@@ -56,6 +56,7 @@ public abstract class Agent implements AutoCloseable {
         this.setCurrentAgentState(initialAgentState);
         this.openAiClient = OpenAiUtil.getClient();
         this.agentCommandQueue = new ArrayDeque<>();
+        this.instructionBuilder = new InstructionBuilder();
     }
 
     public Agent(ServerWorld world, BeetrapStateManager beetrapStateManager,
@@ -70,14 +71,6 @@ public abstract class Agent implements AutoCloseable {
 
     public BeetrapStateManager getBeetrapStateManager() {
         return this.beetrapStateManager;
-    }
-
-    public String getInstructions() {
-        return this.instructions;
-    }
-
-    public void setInstructions(String instructions) {
-        this.instructions = instructions;
     }
 
     public void onPlayerPollinate(ServerPlayerEntity serverPlayerEntity) {
@@ -109,17 +102,6 @@ public abstract class Agent implements AutoCloseable {
 
     }
 
-    public void sendGpt4oLatestResponseToInputToChatWithPresetInstructions(String input) {
-        this.getGpt4oLatestResponseAsyncWithPresetInstructions(input)
-                .whenComplete(this::onGptResponseReceived);
-    }
-
-    public void sendGpt4oLatestResponseToInputToChatWithAdditionInstructionsToPreset(
-            String additionalInstructions, String input) {
-        this.getGpt4oLatestResponseAsyncWithInstructions(this.instructions + additionalInstructions,
-                input).whenComplete(this::onGptResponseReceived);
-    }
-
     public void onGptResponseReceived(Response response, Throwable throwable) {
         String string = response.output().getFirst().asMessage().content().getFirst().asOutputText()
                 .text();
@@ -139,51 +121,23 @@ public abstract class Agent implements AutoCloseable {
     }
 
     public void sendGptEventMessage(EventMessage eventMessage) {
-        this.sendGpt4oLatestResponseToInputToChatWithPresetInstructions(
-                eventMessage.toJsonString());
-    }
-
-    public void sendGptEventMessageWithAdditionalInstructions(String instructions,
-            EventMessage eventMessage) {
-        this.sendGpt4oLatestResponseToInputToChatWithAdditionInstructionsToPreset(instructions,
-                eventMessage.toJsonString());
-    }
-
-    public CompletableFuture<Response> getGpt4oLatestResponseAsyncWithInstructions(
-            String instructions, String input) {
-        ResponseCreateParams params;
-
-        if(previousResponse != null) {
-            params = ResponseCreateParams.builder()
-                    .instructions(instructions)
-                    .input(input)
-                    .model(ChatModel.CHATGPT_4O_LATEST)
-                    .previousResponseId(previousResponse.id())
-                    .build();
-        } else {
-            params = ResponseCreateParams.builder()
-                    .instructions(instructions)
-                    .input(input)
-                    .model(ChatModel.CHATGPT_4O_LATEST)
-                    .build();
+        try {
+            String eventMessageJsonString = om.writeValueAsString(eventMessage);
+            this.getGpt4oLatestResponseAsync(eventMessageJsonString).whenCompleteAsync(this::onGptResponseReceived);
+        } catch(JsonProcessingException e) {
+            LOG.error(e);
         }
-
-        CompletableFuture<Response> response = this.openAiClient.async().responses().create(params);
-        return response.whenComplete((response1, throwable) -> {
-            this.previousResponse = response1;
-            if(throwable != null) {
-                LOG.error(throwable);
-            }
-        });
     }
 
-    public CompletableFuture<Response> getGpt4oLatestResponseAsyncWithPresetInstructions(
+    private CompletableFuture<Response> getGpt4oLatestResponseAsync(
             String input) {
+        String instructions = this.instructionBuilder.build();
+        LOG.info("The complete instruction: {}", instructions);
         ResponseCreateParams params;
 
         if(previousResponse != null) {
             params = ResponseCreateParams.builder()
-                    .instructions(this.instructions)
+                    .instructions(instructions)
                     .input(input)
                     .model(ChatModel.CHATGPT_4O_LATEST)
                     .previousResponseId(previousResponse.id())
@@ -240,5 +194,9 @@ public abstract class Agent implements AutoCloseable {
 
     public boolean hasNextCommand() {
         return !this.agentCommandQueue.isEmpty();
+    }
+
+    public InstructionBuilder getInstructionBuilder() {
+        return this.instructionBuilder;
     }
 }

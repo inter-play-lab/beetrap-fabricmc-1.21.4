@@ -78,12 +78,12 @@ public class BeetrapGame {
 
     public void newAgent() {
         switch(this.aiLevel) {
-            case AGENT_LEVEL_CHAT_ONLY -> {
-                this.agent = new ChatOnlyAgent(this.world, this.stateManager);
-            }
-
             case AGENT_LEVEL_PHYSICAL -> {
                 this.agent = new PhysicalAgent(this.world, this.stateManager);
+            }
+
+            default -> {
+                this.agent = new EmptyAgent(this.world, this.stateManager);
             }
         }
 
