@@ -10,10 +10,13 @@ import beetrap.btfmc.networking.ShowMultipleChoiceScreenS2CPayload;
 import beetrap.btfmc.networking.ShowTextScreenS2CPayload;
 import beetrap.btfmc.render.entity.FlowerEntityRenderer;
 import beetrap.btfmc.render.entity.model.BeetrapEntityModelLayers;
+import beetrap.btfmc.util.TextUtil;
 import java.io.File;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import net.minecraft.client.MinecraftClient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -125,23 +128,32 @@ public class BeetrapfabricmcClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(this::renderGuideText);
     }
 
+
     private void renderGuideText(net.minecraft.client.gui.DrawContext drawContext, net.minecraft.client.render.RenderTickCounter tickCounter) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null && client.world != null) {
-            String guideText = "use RIGHT click to use a tool";
+            String guideText = "use RIGHT click to use an item. scroll (or use numbers) to change item from inventory";
+            List<String> wrappedLines = TextUtil.wrapText(guideText, 32);
+
             int x = 10; // Top left corner with some padding
-            int y = 25; // Moved lower from 10 to 25
+            int y = 25;
             int color = 0xFFFFFF; // White color
+            int lineHeight = 10; // Height between lines
 
             // Scale the text to make it smaller
             drawContext.getMatrices().push();
-            drawContext.getMatrices().scale(0.75f, 0.75f, 1.0f);
+            drawContext.getMatrices().scale(0.85f, 0.85f, 1.0f);
 
             // Adjust coordinates for the scaled text
-            int scaledX = (int)(x / 0.75f);
-            int scaledY = (int)(y / 0.75f);
+            int scaledX = (int)(x / 0.85f);
+            int scaledY = (int)(y / 0.85f);
+            int scaledLineHeight = (int)(lineHeight / 0.85f);
 
-            drawContext.drawText(client.textRenderer, guideText, scaledX, scaledY, color, true);
+            // Render each line
+            for (int i = 0; i < wrappedLines.size(); i++) {
+                drawContext.drawText(client.textRenderer, wrappedLines.get(i), scaledX, scaledY + (i * scaledLineHeight), color, true);
+            }
+
             drawContext.getMatrices().pop();
         }
     }
