@@ -1,45 +1,45 @@
 {
-	"schemaVersion": 1,
-	"id": "beetrap-fabricmc",
-	"version": "${version}",
-	"name": "beetrap-fabricmc",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/beetrap-fabricmc/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"beetrap.btfmc.Beetrapfabricmc"
-		],
-		"client": [
-			"beetrap.btfmc.BeetrapfabricmcClient"
-		],
-		"voicechat": [
-			"beetrap.btfmc.textandspeech.SimpleVoiceChatPlugin"
-		]
-	},
-	"mixins": [
-		"beetrap-fabricmc.mixins.json",
-		{
-			"config": "beetrap-fabricmc.client.mixins.json",
-			"environment": "client"
-		}
-	],
-	"depends": {
-		"fabricloader": ">=${loader_version}",
-		"fabric": ">=${fabric_version}",
-		"minecraft": "${minecraft_dependency}",
-		"java": ">=${java_version}",
-		"voicechat": ">=${voicechat_dependency}"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion": 1,
+  "id": "beetrap-fabricmc",
+  "version": "${version}",
+  "name": "beetrap-fabricmc",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "Me!"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/beetrap-fabricmc/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "beetrap.btfmc.Beetrapfabricmc"
+    ],
+    "client": [
+      "beetrap.btfmc.BeetrapfabricmcClient"
+    ],
+    "voicechat": [
+      "beetrap.btfmc.textandspeech.SimpleVoiceChatPlugin"
+    ]
+  },
+  "mixins": [
+    "beetrap-fabricmc.mixins.json",
+    {
+      "config": "beetrap-fabricmc.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": ">=${fabric_version}",
+    "minecraft": "${minecraft_dependency}",
+    "java": ">=${java_version}",
+    "voicechat": ">=${voicechat_dependency}"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
 }

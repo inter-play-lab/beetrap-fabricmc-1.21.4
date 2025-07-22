@@ -1,7 +1,5 @@
 package beetrap.btfmc.state;
 
-import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DEFAULT_MODE;
-import static beetrap.btfmc.BeetrapGame.AMOUNT_OF_FLOWERS_TO_WITHER_DIVERSIFYING_MODE;
 import static beetrap.btfmc.networking.BeetrapLogS2CPayload.BEETRAP_LOG_ID_POLLINATION_INITIATED;
 
 import beetrap.btfmc.flower.Flower;
@@ -13,12 +11,14 @@ import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Vec3d;
 
 public class ExploreFilterBubbleEffectPollinationReadyState extends PollinationReadyState {
+
     public ExploreFilterBubbleEffectPollinationReadyState(BeetrapState parent, int stage) {
         super(parent, stage);
     }
 
     private void clearItems() {
-        List<? extends ItemEntity> entities = this.world.getEntitiesByType(TypeFilter.instanceOf(ItemEntity.class),
+        List<? extends ItemEntity> entities = this.world.getEntitiesByType(
+                TypeFilter.instanceOf(ItemEntity.class),
                 itemEntity -> true);
 
         for(ItemEntity ie : entities) {
@@ -37,8 +37,14 @@ public class ExploreFilterBubbleEffectPollinationReadyState extends PollinationR
             return;
         }
 
-        this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("Hi Bee! Welcome to the magic garden. Pollinate flowers that you like and pay attention to what happens.", 50)));
-        this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("To pollinate a flower, press 5, aim at a flower, hold the bee nest that appears, then right click.", 50)));
+        this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(
+                ShowTextScreenS2CPayload.lineWrap(
+                        "Hi Bee! Welcome to the magic garden. Pollinate flowers that you like and pay attention to what happens.",
+                        50)));
+        this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(
+                ShowTextScreenS2CPayload.lineWrap(
+                        "To pollinate a flower, press 5, aim at a flower, hold the bee nest that appears, then right click.",
+                        50)));
     }
 
     @Override
@@ -58,7 +64,8 @@ public class ExploreFilterBubbleEffectPollinationReadyState extends PollinationR
         this.hasNextState = true;
         this.pastPollinationLocations.add(flowerMinecraftPosition);
         Vec3d pl = this.computeAveragePastPollinationPositions();
-        this.nextState = new ExploreFilterBubbleEffectPollinationHappeningState(this, pl, this.stage);
+        this.nextState = new ExploreFilterBubbleEffectPollinationHappeningState(this, pl,
+                this.stage);
         this.net.beetrapLog(BEETRAP_LOG_ID_POLLINATION_INITIATED, "");
     }
 

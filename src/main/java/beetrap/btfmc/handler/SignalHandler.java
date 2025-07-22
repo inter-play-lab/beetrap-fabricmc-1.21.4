@@ -4,6 +4,7 @@ import beetrap.btfmc.signal.Signals;
 import beetrap.btfmc.signal_type.PlayerTimeTravelSignal;
 
 public final class SignalHandler {
+
     private SignalHandler() {
         throw new AssertionError();
     }

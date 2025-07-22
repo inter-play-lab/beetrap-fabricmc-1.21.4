@@ -25,28 +25,35 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class BeetrapState implements Iterable<Flower> {
+
     private static final Logger LOG = LogManager.getLogger(BeetrapState.class);
+    protected final BeeNestController beeNestController;
+    protected final GardenInformationBossBar gardenInformationBossBar;
+    protected final NetworkingService net;
+    protected final boolean[] flowers;
     protected ServerWorld world;
     protected BeetrapStateManager stateManager;
     protected FlowerPool flowerPool;
     protected FlowerManager flowerManager;
     protected PlayerInteractionService interaction;
-    protected final BeeNestController beeNestController;
-    protected final GardenInformationBossBar gardenInformationBossBar;
     protected FlowerValueScoreboardDisplayerService flowerValueScoreboardDisplayerService;
-    protected final NetworkingService net;
     protected boolean usingDiversifyingRankingMethod;
     protected double pollinationCircleRadius;
     protected int amountOfFlowersToWither;
-    protected final boolean[] flowers;
-    private Vec3d beeNestMinecraftPosition;
     protected List<Vec3d> pastPollinationLocations;
+    private Vec3d beeNestMinecraftPosition;
 
     /**
      * Create a BeetrapState with a flower pool
+     *
      * @param flowerPool the flower pool
      */
-    public BeetrapState(ServerWorld world, BeetrapStateManager manager, FlowerPool flowerPool, FlowerManager flowerManager, PlayerInteractionService interaction, BeeNestController beeNestController, GardenInformationBossBar gardenInformationBossBar, FlowerValueScoreboardDisplayerService flowerValueScoreboardDisplayerService, boolean usingDiversifyingRankingMethod, double pollinationCircleRadius, int amountOfFlowersToWither) {
+    public BeetrapState(ServerWorld world, BeetrapStateManager manager, FlowerPool flowerPool,
+            FlowerManager flowerManager, PlayerInteractionService interaction,
+            BeeNestController beeNestController, GardenInformationBossBar gardenInformationBossBar,
+            FlowerValueScoreboardDisplayerService flowerValueScoreboardDisplayerService,
+            boolean usingDiversifyingRankingMethod, double pollinationCircleRadius,
+            int amountOfFlowersToWither) {
         this.world = world;
         this.stateManager = manager;
         this.flowerManager = flowerManager;
@@ -89,14 +96,15 @@ public abstract class BeetrapState implements Iterable<Flower> {
     }
 
     protected final void showTextScreenToAllPlayers(String message) {
-        this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap(message, 50)));
+        this.net.broadcastCustomPayload(
+                new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap(message, 50)));
     }
 
     /**
      * Finds flowers within the pollination circle radius that are not already in the garden.
      *
-     * @param center The center of the pollination circle
-     * @param radius The radius of the pollination circle
+     * @param center   The center of the pollination circle
+     * @param radius   The radius of the pollination circle
      * @param maxCount The maximum number of flowers to return
      * @return An array of flowers within the radius that are not in the garden
      */
@@ -114,10 +122,10 @@ public abstract class BeetrapState implements Iterable<Flower> {
 
         // Filter out flowers that are already in the garden
         List<Flower> candidateFlowers = new ArrayList<>();
-        for (Flower flower : flowersWithinRadius) {
-            if (!this.hasFlower(flower.getNumber())) {
+        for(Flower flower : flowersWithinRadius) {
+            if(!this.hasFlower(flower.getNumber())) {
                 candidateFlowers.add(flower);
-                if (candidateFlowers.size() >= maxCount) {
+                if(candidateFlowers.size() >= maxCount) {
                     break;
                 }
             }
@@ -127,8 +135,11 @@ public abstract class BeetrapState implements Iterable<Flower> {
     }
 
     public abstract void tick();
+
     public abstract boolean hasNextState();
+
     public abstract BeetrapState getNextState();
+
     public abstract boolean timeTravelAvailable();
 
     public void onPlayerTargetNewEntity(ServerPlayerEntity player, boolean exists, int id) {
@@ -161,6 +172,10 @@ public abstract class BeetrapState implements Iterable<Flower> {
         return this.beeNestMinecraftPosition;
     }
 
+    public final void setBeeNestMinecraftPosition(Vec3d position) {
+        this.beeNestMinecraftPosition = position;
+    }
+
     public final List<Vec3d> getPastPollinationLocations() {
         return this.pastPollinationLocations;
     }
@@ -181,7 +196,8 @@ public abstract class BeetrapState implements Iterable<Flower> {
         this.flowers[flowerNumber] = b;
     }
 
-    public final Flower[] getNFlowersNotInGardenClosestToFSortedByG(Vec3d pos, int n, Comparator<Flower> g) {
+    public final Flower[] getNFlowersNotInGardenClosestToFSortedByG(Vec3d pos, int n,
+            Comparator<Flower> g) {
         Flower[] r = new Flower[n];
         PriorityQueue<Flower> flowers = new PriorityQueue<>(g);
         for(Flower flower : this.flowerPool) {
@@ -225,7 +241,8 @@ public abstract class BeetrapState implements Iterable<Flower> {
         return resultArray;
     }
 
-    public final Flower[] findAtMostNClosestFlowersNotInGardenToCenterByLeastMinecraftDistance(Vec3d center, int n) {
+    public final Flower[] findAtMostNClosestFlowersNotInGardenToCenterByLeastMinecraftDistance(
+            Vec3d center, int n) {
         Flower[] f = this.findAllFlowersWithinRSortedByG(center, Double.POSITIVE_INFINITY,
                 (o1, o2) -> {
                     Vec3d pos1 = flowerManager.getFlowerMinecraftPosition(BeetrapState.this, o1);
@@ -265,7 +282,10 @@ public abstract class BeetrapState implements Iterable<Flower> {
                     continue;
                 }
 
-                s = s + this.flowerPool.getMappedNormalFlowerPosition(f.getNumber()).getDistance(this.flowerPool.getMappedNormalFlowerPosition(g.getNumber())) * 10;
+                s = s
+                        + this.flowerPool.getMappedNormalFlowerPosition(f.getNumber())
+                        .getDistance(this.flowerPool.getMappedNormalFlowerPosition(g.getNumber()))
+                        * 10;
             }
         }
 
@@ -292,10 +312,6 @@ public abstract class BeetrapState implements Iterable<Flower> {
 
     public final FlowerPool getFlowerPool() {
         return this.flowerPool;
-    }
-
-    public final void setBeeNestMinecraftPosition(Vec3d position) {
-        this.beeNestMinecraftPosition = position;
     }
 
     @Override
@@ -329,6 +345,7 @@ public abstract class BeetrapState implements Iterable<Flower> {
     }
 
     private final class FlowerIterator implements Iterator<Flower> {
+
         private int i;
 
         @Override

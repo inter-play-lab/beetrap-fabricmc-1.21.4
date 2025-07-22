@@ -14,6 +14,7 @@ import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.text.Text;
 
 public class MultipleChoiceScreen extends Screen {
+
     private final ScreenQueue sq;
     private final Screen parent;
     private final String questionId;
@@ -21,8 +22,9 @@ public class MultipleChoiceScreen extends Screen {
     private final String[] choices;
     private TextWidget questionWidget;
     private ButtonWidget[] choiceWidgets;
-    
-    public MultipleChoiceScreen(ScreenQueue sq, String questionId, String question, String... choices) {
+
+    public MultipleChoiceScreen(ScreenQueue sq, String questionId, String question,
+            String... choices) {
         super(Text.literal("Multiple Choice: " + question));
         this.sq = sq;
         if(this.client == null) {
@@ -53,16 +55,19 @@ public class MultipleChoiceScreen extends Screen {
                 (int)((double)(this.height - this.questionWidget.getHeight()) / 2 * 0.35)
         );
         this.addDrawableChild(this.questionWidget);
-        
+
         this.choiceWidgets = new ButtonWidget[this.choices.length];
         for(int i = 0; i < this.choiceWidgets.length; ++i) {
             String choice = this.choices[i];
             int finalI = i;
             ButtonWidget choiceWidget = ButtonWidget.builder(Text.literal(choice),
                     button -> {
-                        ClientPlayNetworking.send(new MultipleChoiceSelectionResultC2SPayload(this.questionId,
-                                finalI));
-                        beetrapLog(BEETRAP_LOG_ID_MULTIPLE_CHOICE_SCREEN_ANSWER_SELECTED, "Question id: " + this.questionId + ", choice: " + this.choices[finalI]);
+                        ClientPlayNetworking.send(
+                                new MultipleChoiceSelectionResultC2SPayload(this.questionId,
+                                        finalI));
+                        beetrapLog(BEETRAP_LOG_ID_MULTIPLE_CHOICE_SCREEN_ANSWER_SELECTED,
+                                "Question id: " + this.questionId + ", choice: "
+                                        + this.choices[finalI]);
                         this.close();
                     }).build();
             choiceWidget.setWidth(300);

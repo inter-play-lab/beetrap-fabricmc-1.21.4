@@ -24,10 +24,29 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
 public final class SlopTextToSpeechUtil {
-    private static final String TYPECAST_API_KEY = System.getProperty(MOD_REQUIRED_TYPECAST_API_KEY);
+
+    private static final String TYPECAST_API_KEY = System.getProperty(
+            MOD_REQUIRED_TYPECAST_API_KEY);
     private static final CloseableHttpClient httpClient;
     private static final String requestBody;
     private static final ExecutorService es;
+
+    static {
+        httpClient = HttpClients.createDefault();
+        requestBody = """
+                {
+                    "model": "ssfm-v21",
+                    "text": "{}",
+                    "voice_id": "tc_660e5c11eef728e75f95f520"
+                }
+                """;
+
+        es = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r);
+            t.setDaemon(true);
+            return t;
+        });
+    }
 
     private SlopTextToSpeechUtil() {
         throw new AssertionError();
@@ -43,7 +62,7 @@ public final class SlopTextToSpeechUtil {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
 
             // Get and open the audio line
-            SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+            SourceDataLine line = (SourceDataLine)AudioSystem.getLine(info);
             line.open(format);
             line.start();
 
@@ -53,7 +72,7 @@ public final class SlopTextToSpeechUtil {
             int bytesRead;
 
             // Read and play the audio file
-            while ((bytesRead = audioInputStream.read(buffer, 0, buffer.length)) != -1) {
+            while((bytesRead = audioInputStream.read(buffer, 0, buffer.length)) != -1) {
                 line.write(buffer, 0, bytesRead);
             }
 
@@ -62,7 +81,7 @@ public final class SlopTextToSpeechUtil {
             line.stop();
             line.close();
             audioInputStream.close();
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -79,8 +98,10 @@ public final class SlopTextToSpeechUtil {
     // TODO: Add proximity thingies
     public static CompletableFuture<?> say(String message) {
         return CompletableFuture.runAsync(() -> {
-            String i = requestBody.replace("{}", message.replaceAll("[\\n\\t]", " ").replaceAll("[^a-zA-Z0-9 ]", ""));
-            ClassicHttpRequest tts = ClassicRequestBuilder.post("https://api.typecast.ai/v1/text-to-speech")
+            String i = requestBody.replace("{}",
+                    message.replaceAll("[\\n\\t]", " ").replaceAll("[^a-zA-Z0-9 ]", ""));
+            ClassicHttpRequest tts = ClassicRequestBuilder.post(
+                            "https://api.typecast.ai/v1/text-to-speech")
                     .addHeader("X-API-KEY", TYPECAST_API_KEY)
                     .addHeader("Content-Type", "application/json")
                     .setEntity(i)
@@ -91,7 +112,8 @@ public final class SlopTextToSpeechUtil {
                     public Void handleEntity(HttpEntity entity) throws IOException {
                         try {
                             SlopTextToSpeechUtil.handleEntity(entity);
-                        } catch(IOException | UnsupportedAudioFileException | LineUnavailableException e) {
+                        } catch(IOException | UnsupportedAudioFileException |
+                                LineUnavailableException e) {
                             throw new IOException(e);
                         }
                         return null;
@@ -101,22 +123,5 @@ public final class SlopTextToSpeechUtil {
                 throw new RuntimeException(e);
             }
         }, es);
-    }
-
-    static {
-        httpClient = HttpClients.createDefault();
-        requestBody = """
-        {
-            "model": "ssfm-v21",
-            "text": "{}",
-            "voice_id": "tc_660e5c11eef728e75f95f520"
-        }
-        """;
-
-        es = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r);
-            t.setDaemon(true);
-            return t;
-        });
     }
 }

@@ -16,6 +16,7 @@ import org.ejml.simple.SimpleMatrix;
  * @author Kenneth Fei
  */
 public class ClassicalMDS {
+
     private final SimpleMatrix D;
     private final int n;
     private final int k;
@@ -73,7 +74,8 @@ public class ClassicalMDS {
         SimpleMatrix A = hadamardProduct(D, D).scale(-0.5);
         SimpleMatrix H = SimpleMatrix.identity(this.n).plus(-1.0 / this.n);
         SimpleMatrix B = H.mult(A).mult(H);
-        SymmetricQRAlgorithmDecomposition_DDRM ed = new SymmetricQRAlgorithmDecomposition_DDRM(true);
+        SymmetricQRAlgorithmDecomposition_DDRM ed = new SymmetricQRAlgorithmDecomposition_DDRM(
+                true);
         ed.setMaxIterations(100);
         ed.decompose(B.getDDRM());
 

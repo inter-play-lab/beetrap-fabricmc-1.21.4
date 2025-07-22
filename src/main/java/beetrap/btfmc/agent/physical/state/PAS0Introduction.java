@@ -11,7 +11,6 @@ import beetrap.btfmc.state.BeetrapState;
 import beetrap.btfmc.state.BeetrapStateManager;
 import beetrap.btfmc.tts.SlopTextToSpeechUtil;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
 import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -23,14 +22,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PAS0Introduction extends AgentState {
+
     private static final Logger LOG = LogManager.getLogger(PAS0Introduction.class);
     private static final double EPSILON = 0.2;
+    private final Object currentCommandLock;
     private PhysicalAgent physicalAgent;
     private BeeEntity beeEntity;
     private ServerWorld world;
     private String name;
     private AgentCommand currentCommand;
-    private final Object currentCommandLock;
     private long commandTick;
     private Vec3d flyToPosition;
 
@@ -60,7 +60,7 @@ public class PAS0Introduction extends AgentState {
                 "player_message": "hey bip my name is erfan",
                 "description": "the player uttered the player_message"
                 },
-                
+                                
                 "spatial_info": {
                 "event_bee_distance": "close" | "near" | "midway" | "far",
                 "event_bee_orientation": "back" | "front" | "left" | "right",
@@ -90,7 +90,7 @@ public class PAS0Introduction extends AgentState {
                 "Oooh a lever! What does it do?!"
                 "I think if one of us leaves the lever it goes back to normal"
                 If the player provides feedback, incorporate it by adjusting your behavior. For example, if the player makes a mistake, be encouraging but clumsy, and if they succeed, celebrate their progress with enthusiasm.
-                
+                                
                 Your output is a non-empty list of commands that will be executed by bip in the game in order. Each command has a type and a list of args. Valid commands are:
                 fly_to: This command needs two arguments: the type of entity, and optionally, the id of a flower.
                 So your "args" field may be:
@@ -98,31 +98,31 @@ public class PAS0Introduction extends AgentState {
                 * note that <id> should be a number and only a number, something that's not a number WILL NOT WORK
                 2. ["player"]
                 3. ["beehive"]
-                
+                                
                 fly_around: This is a command with 0 arguments. By using this action bip will fly around its current position 10 times in a small circle.
-                
+                                
                 say: Usage: {"type": "say", "args": ["Your dialogue here."]}
-                
+                                
                 Sample output:
                 {"commands": [{"type": "say", "args":["hey let's go over there and check that yellow flower"]}, {"type":"fly_to", "args": ["flower", "22"]}, {"type": "fly_around", "args": []}]}
                 This will say the dialogue then fly to the yellow flower and fly around it.
-                
+                                
                 your dialogues should be in a friendly, lighthearted tone. Avoid using "—" in your responses. The maximum length of the dialogue in your response is 15 words.
                 Avoid using any combinations of the word "buzz" in your response.
-                
+                                
                 ---
                 The following is a list of information about your surrounding and player's actions so that you can appear to be more engaged with the Minecraft world:
-                
+                                
                 """);
     }
 
     private void handleSayCommand(String dialogue) {
         if(this.commandTick == 0) {
             this.world.getPlayers().forEach(
-                    serverPlayerEntity -> serverPlayerEntity.sendMessage(Text.of("<" + PAS0Introduction.this.name + "> " + dialogue)));
+                    serverPlayerEntity -> serverPlayerEntity.sendMessage(
+                            Text.of("<" + PAS0Introduction.this.name + "> " + dialogue)));
             SlopTextToSpeechUtil.say(dialogue).whenComplete(
                     (BiConsumer<Object, Throwable>)(o, throwable) -> PAS0Introduction.this.completeCommand());
-            return;
         }
     }
 
@@ -139,12 +139,14 @@ public class PAS0Introduction extends AgentState {
                 this.flyToPosition = new Vec3d(0, 0, 0);
             }
 
-            this.beeEntity.getMoveControl().moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
+            this.beeEntity.getMoveControl()
+                    .moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z,
+                            1);
             return;
         }
 
-        this.beeEntity.getMoveControl().moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
-
+        this.beeEntity.getMoveControl()
+                .moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
 
         if(this.beeEntity.getPos().withAxis(Axis.Y, 0).distanceTo(this.flyToPosition.withAxis(
                 Axis.Y, 0)) < EPSILON) {
@@ -156,11 +158,14 @@ public class PAS0Introduction extends AgentState {
     private void handleFlyToPlayerCommand() {
         if(this.commandTick == 0) {
             this.flyToPosition = this.world.getPlayers().getFirst().getPos();
-            this.beeEntity.getMoveControl().moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
+            this.beeEntity.getMoveControl()
+                    .moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z,
+                            1);
             return;
         }
 
-        this.beeEntity.getMoveControl().moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
+        this.beeEntity.getMoveControl()
+                .moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
 
         if(this.beeEntity.getPos().withAxis(Axis.Y, 0).distanceTo(this.flyToPosition.withAxis(
                 Axis.Y, 0)) < EPSILON) {
@@ -172,11 +177,14 @@ public class PAS0Introduction extends AgentState {
         if(this.commandTick == 0) {
             BeetrapStateManager bsm = this.agent.getBeetrapStateManager();
             this.flyToPosition = bsm.getBeeNestController().getBeeNestPosition();
-            this.beeEntity.getMoveControl().moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
+            this.beeEntity.getMoveControl()
+                    .moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z,
+                            1);
             return;
         }
 
-        this.beeEntity.getMoveControl().moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
+        this.beeEntity.getMoveControl()
+                .moveTo(this.flyToPosition.x, this.flyToPosition.y + 1, this.flyToPosition.z, 1);
 
         if(this.beeEntity.getPos().withAxis(Axis.Y, 0).distanceTo(this.flyToPosition.withAxis(
                 Axis.Y, 0)) < EPSILON) {
@@ -248,7 +256,9 @@ public class PAS0Introduction extends AgentState {
         additionalInstructionsBuilder.append("Your position: ")
                 .append(this.physicalAgent.getBeeEntity().getPos()).append(System.lineSeparator());
 
-        this.agent.getBeetrapStateManager().getJsonReadyDataForGpt(this.physicalAgent.getBeeEntity(), serverPlayerEntity, additionalInstructionsBuilder);
+        this.agent.getBeetrapStateManager()
+                .getJsonReadyDataForGpt(this.physicalAgent.getBeeEntity(), serverPlayerEntity,
+                        additionalInstructionsBuilder);
         String ai = additionalInstructionsBuilder.toString();
         LOG.info("The additional instructions: {}", ai);
         this.agent.sendGptEventMessageWithAdditionalInstructions(ai, new ChatEventMessage(message));

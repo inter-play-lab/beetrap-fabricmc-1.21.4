@@ -8,7 +8,9 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record ShowTextScreenS2CPayload(String text) implements CustomPayload {
-    public static final Identifier SHOW_TEXT_SCREEN_ID = Identifier.of(Beetrapfabricmc.MOD_ID, "show_text_screen");
+
+    public static final Identifier SHOW_TEXT_SCREEN_ID = Identifier.of(Beetrapfabricmc.MOD_ID,
+            "show_text_screen");
     public static final Id<ShowTextScreenS2CPayload> ID = new Id<>(SHOW_TEXT_SCREEN_ID);
     public static final PacketCodec<RegistryByteBuf, ShowTextScreenS2CPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.STRING, ShowTextScreenS2CPayload::text, ShowTextScreenS2CPayload::new);

@@ -8,6 +8,7 @@ import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.server.world.ServerWorld;
 
 public class PhysicalAgent extends Agent {
+
     private final BeeEntity beeEntity;
 
     public PhysicalAgent(ServerWorld world, BeetrapStateManager beetrapStateManager) {

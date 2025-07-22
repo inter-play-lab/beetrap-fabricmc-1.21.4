@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SignalSystem {
+
     private final Map<Class<? extends Signal>, List<SignalListener<? extends Signal>>> signalTypeToSignalListenersMap;
 
     public SignalSystem() {
@@ -21,7 +22,8 @@ public class SignalSystem {
         this.signalTypeToSignalListenersMap.remove(signalType);
     }
 
-    public <T extends Signal> void subscribe(Class<T> signalType, SignalListener<T> signalListener) {
+    public <T extends Signal> void subscribe(Class<T> signalType,
+            SignalListener<T> signalListener) {
         if(!this.signalTypeToSignalListenersMap.containsKey(signalType)) {
             throw new IllegalStateException("Signal type: " + signalType + " not registered.");
         }
@@ -33,7 +35,8 @@ public class SignalSystem {
         this.signalTypeToSignalListenersMap.get(signalType).clear();
     }
 
-    private <T extends Signal> Iterable<SignalListener<T>> getListeners(Class<? extends Signal> signalType) {
+    private <T extends Signal> Iterable<SignalListener<T>> getListeners(
+            Class<? extends Signal> signalType) {
         return () -> {
             Iterator<SignalListener<? extends Signal>> iterator = signalTypeToSignalListenersMap.get(
                     signalType).iterator();

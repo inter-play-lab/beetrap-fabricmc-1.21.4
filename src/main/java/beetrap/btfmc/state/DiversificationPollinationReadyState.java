@@ -10,9 +10,11 @@ import java.util.Random;
 import net.minecraft.util.math.Vec3d;
 
 public class DiversificationPollinationReadyState extends PollinationReadyState {
+
     private final double targetDiversityScore;
 
-    DiversificationPollinationReadyState(BeetrapState parent, int stage, double targetDiversityScore) {
+    DiversificationPollinationReadyState(BeetrapState parent, int stage,
+            double targetDiversityScore) {
         super(parent, stage);
         this.targetDiversityScore = targetDiversityScore;
     }
@@ -34,8 +36,12 @@ public class DiversificationPollinationReadyState extends PollinationReadyState 
         this.targetDiversityScore = (Math.ceil(this.computeDiversityScore() / 100.0) + 7) * 100;
 
         if(this.stage == 0) {
-            this.showTextScreenToAllPlayers("You learned about how the inner workings of AI recommendation form filter bubbles. Now let's learn how to break filter bubbles in the garden.\nLet's try to make the flower diversity go up. Let's try to make it go above " + (int)this.targetDiversityScore + "! <- this is not a factorial symbol.");
-            this.showTextScreenToAllPlayers("For this part, you will need to change some elements of the garden. Remember the circle that was formed around the bee nest that can be the key to increase the flower diversity. Other things might pop up as well.");
+            this.showTextScreenToAllPlayers(
+                    "You learned about how the inner workings of AI recommendation form filter bubbles. Now let's learn how to break filter bubbles in the garden.\nLet's try to make the flower diversity go up. Let's try to make it go above "
+                            + (int)this.targetDiversityScore
+                            + "! <- this is not a factorial symbol.");
+            this.showTextScreenToAllPlayers(
+                    "For this part, you will need to change some elements of the garden. Remember the circle that was formed around the bee nest that can be the key to increase the flower diversity. Other things might pop up as well.");
         }
 
         this.stateManager.setInitialDiversityScore(this.computeDiversityScore());

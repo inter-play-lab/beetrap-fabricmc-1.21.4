@@ -7,9 +7,20 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class PollenEntity extends ExperienceOrbEntity {
+
     private static final Field targetField;
-    private int orbAge;
+
+    static {
+        try {
+            targetField = ExperienceOrbEntity.class.getDeclaredField("target");
+            targetField.setAccessible(true);
+        } catch(NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final Vec3d velocity;
+    private int orbAge;
 
     public PollenEntity(World world, double x, double y, double z, int amount, Vec3d velocity) {
         super(world, x, y, z, amount);
@@ -26,8 +37,9 @@ public class PollenEntity extends ExperienceOrbEntity {
         this.prevY = this.getY();
         this.prevZ = this.getZ();
 
-        if (!this.getWorld().isSpaceEmpty(this.getBoundingBox())) {
-            this.pushOutOfBlocks(this.getX(), (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0, this.getZ());
+        if(!this.getWorld().isSpaceEmpty(this.getBoundingBox())) {
+            this.pushOutOfBlocks(this.getX(),
+                    (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0, this.getZ());
         }
 
         try {
@@ -42,17 +54,8 @@ public class PollenEntity extends ExperienceOrbEntity {
         this.tickBlockCollision();
 
         ++this.orbAge;
-        if (this.orbAge >= 20) {
+        if(this.orbAge >= 20) {
             this.discard();
-        }
-    }
-
-    static {
-        try {
-            targetField = ExperienceOrbEntity.class.getDeclaredField("target");
-            targetField.setAccessible(true);
-        } catch(NoSuchFieldException e) {
-            throw new RuntimeException(e);
         }
     }
 }

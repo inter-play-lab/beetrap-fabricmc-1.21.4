@@ -13,15 +13,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 
 public class RecommendationSystemPollinationHappeningState extends BeetrapState {
+
+    private final Vec3d pollinationCenter;
+    private final int stage;
     private Flower[] newFlowerCandidates;
     private Flower[] newFlowers;
     private int ticks;
     private boolean active;
     private BeetrapState nextState;
-    private final Vec3d pollinationCenter;
-    private final int stage;
 
-    public RecommendationSystemPollinationHappeningState(BeetrapState state, Vec3d pollinationCenter, int stage) {
+    public RecommendationSystemPollinationHappeningState(BeetrapState state,
+            Vec3d pollinationCenter, int stage) {
         super(state);
         this.pollinationCenter = pollinationCenter;
         this.active = true;
@@ -44,6 +46,7 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
                 AMOUNT_OF_BUDS_TO_PLACE_DEFAULT_MODE);
         this.flowerManager.placeBuds(this, this.newFlowerCandidates);
     }
+
     private boolean isNewFlowerCandidate(Flower f) {
         for(Flower g : this.newFlowerCandidates) {
             if(f.equals(g)) {
@@ -106,7 +109,8 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
     }
 
     private void tickWitherFlowers() {
-        FallingBlockEntity[] fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(this.pollinationCenter, Double.POSITIVE_INFINITY);
+        FallingBlockEntity[] fbe = this.flowerManager.findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(
+                this.pollinationCenter, Double.POSITIVE_INFINITY);
 
         int r = 0;
         for(int i = fbe.length - 1; i >= 0 && r < this.amountOfFlowersToWither; --i) {
@@ -147,7 +151,8 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
         this.onTick40();
         // this.ticks is in 20..219
         this.beeNestController.tickCircle(this.ticks, this.pollinationCircleRadius);
-        this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager, this.newFlowerCandidates);
+        this.beeNestController.tickSpawnPollensThatFlyTowardsNest(this.ticks, this.flowerManager,
+                this.newFlowerCandidates);
         // this.ticks == 220
         this.onTick220();
 
@@ -169,7 +174,9 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
             this.showTextScreenToAllPlayers("What does the pollen circle represent?");
             this.showTextScreenToAllPlayers("How are the flowers placed in the garden?");
         } else {
-            this.net.broadcastCustomPayload(new ShowMultipleChoiceScreenS2CPayload("user_profile", "What goes into the User Profile(Beehive)?", "The flowers pollinated by me.", "The flowers in the garden.", "The flowers I didn't pollinate."));
+            this.net.broadcastCustomPayload(new ShowMultipleChoiceScreenS2CPayload("user_profile",
+                    "What goes into the User Profile(Beehive)?", "The flowers pollinated by me.",
+                    "The flowers in the garden.", "The flowers I didn't pollinate."));
         }
     }
 
@@ -249,9 +256,12 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
         if(this.activityShouldEnd()) {
             this.stateManager.endActivity();
             this.nextState = new TimeTravelableBeetrapState(this);
-            this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(ShowTextScreenS2CPayload.lineWrap("You just experienced the filter bubble effect!", 50)));
+            this.net.broadcastCustomPayload(new ShowTextScreenS2CPayload(
+                    ShowTextScreenS2CPayload.lineWrap(
+                            "You just experienced the filter bubble effect!", 50)));
         } else {
-            this.nextState = new RecommendationSystemPollinationReadyState(this, this.stage + 1, RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_POLLINATION_TRULY_READY);
+            this.nextState = new RecommendationSystemPollinationReadyState(this, this.stage + 1,
+                    RECOMMENDATION_SYSTEM_ACTIVITY_STAGE_POLLINATION_TRULY_READY);
         }
 
         this.setBeeNestMinecraftPosition(this.beeNestController.getBeeNestPosition());
@@ -260,7 +270,8 @@ public class RecommendationSystemPollinationHappeningState extends BeetrapState 
             this.interaction.giveTimeTravelItemsToPlayer(player);
         }
 
-        this.showTextScreenToAllPlayers("Look around! Some new flowers appeared and others died, use the time travel feature to compare the diversity score before and after pollination!");
+        this.showTextScreenToAllPlayers(
+                "Look around! Some new flowers appeared and others died, use the time travel feature to compare the diversity score before and after pollination!");
     }
 
     @Override

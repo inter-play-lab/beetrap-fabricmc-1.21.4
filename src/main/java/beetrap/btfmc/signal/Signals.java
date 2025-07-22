@@ -1,6 +1,7 @@
 package beetrap.btfmc.signal;
 
 public final class Signals {
+
     private static final SignalSystem ss = new SignalSystem();
 
     private Signals() {

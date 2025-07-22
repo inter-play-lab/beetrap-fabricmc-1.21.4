@@ -1,12 +1,12 @@
 package beetrap.btfmc.flower;
 
-import beetrap.btfmc.state.BeetrapState;
 import beetrap.btfmc.factories.FallingBlockFactory;
+import beetrap.btfmc.state.BeetrapState;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.function.ToDoubleFunction;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
@@ -16,13 +16,15 @@ import org.apache.logging.log4j.Logger;
 import org.joml.Vector3i;
 
 public class FlowerManager {
+
     private final Logger LOG = LogManager.getLogger(FlowerManager.class);
     private final ServerWorld world;
     private final Vector3i bottomLeft, topRight;
     private final double width, length, baseY;
     private final FallingBlockEntity[] flowers;
 
-    public FlowerManager(ServerWorld world, int maximumFlowerCount, Vector3i bottomLeft, Vector3i topRight) {
+    public FlowerManager(ServerWorld world, int maximumFlowerCount, Vector3i bottomLeft,
+            Vector3i topRight) {
         this.world = world;
         this.bottomLeft = bottomLeft;
         this.topRight = topRight;
@@ -66,7 +68,8 @@ public class FlowerManager {
         return Blocks.MANGROVE_PROPAGULE.getDefaultState();
     }
 
-    public void placeFlowerEntity(Flower flower, BlockState blockState, double x, double y, double z) {
+    public void placeFlowerEntity(Flower flower, BlockState blockState, double x, double y,
+            double z) {
         FallingBlockEntity e = FallingBlockFactory.createNoGravity(this.world, x, y, z, blockState);
 
         int i = flower.getNumber();
@@ -166,7 +169,8 @@ public class FlowerManager {
         return fbe;
     }
 
-    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByG(Vec3d center, double r, Comparator<FallingBlockEntity> g) {
+    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByG(Vec3d center, double r,
+            Comparator<FallingBlockEntity> g) {
         PriorityQueue<FallingBlockEntity> resultPq = new PriorityQueue<>(g);
 
         for(FallingBlockEntity fbe : this.flowers) {
@@ -188,13 +192,17 @@ public class FlowerManager {
         return resultArray;
     }
 
-    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(Vec3d center, double r) {
-        return this.findAllFlowerEntitiesWithinRSortedByG(center, r, Comparator.comparingDouble(o -> center.squaredDistanceTo(o.getPos())));
+    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByLeastDistanceToCenter(
+            Vec3d center, double r) {
+        return this.findAllFlowerEntitiesWithinRSortedByG(center, r,
+                Comparator.comparingDouble(o -> center.squaredDistanceTo(o.getPos())));
     }
 
-    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByMostDistanceToCenter(Vec3d center, double r) {
+    public FallingBlockEntity[] findAllFlowerEntitiesWithinRSortedByMostDistanceToCenter(
+            Vec3d center, double r) {
         return this.findAllFlowerEntitiesWithinRSortedByG(center, r, Comparator.comparingDouble(
-                (ToDoubleFunction<FallingBlockEntity>)value -> center.squaredDistanceTo(value.getPos())).reversed());
+                (ToDoubleFunction<FallingBlockEntity>)value -> center.squaredDistanceTo(
+                        value.getPos())).reversed());
     }
 
     public FallingBlockEntity getFlowerEntity(Flower f) {
@@ -213,7 +221,7 @@ public class FlowerManager {
     }
 
     public void removeFlowerEntities(Flower[] flowers) {
-        for(Flower f : flowers){
+        for(Flower f : flowers) {
             this.removeFlowerEntity(f);
         }
     }

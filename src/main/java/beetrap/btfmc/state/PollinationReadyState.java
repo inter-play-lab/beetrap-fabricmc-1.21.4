@@ -6,6 +6,7 @@ import beetrap.btfmc.flower.Flower;
 import net.minecraft.util.math.Vec3d;
 
 public abstract class PollinationReadyState extends BeetrapState {
+
     protected boolean hasNextState;
     protected BeetrapState nextState;
     protected long ticks;

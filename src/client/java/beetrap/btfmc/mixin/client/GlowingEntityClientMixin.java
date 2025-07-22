@@ -9,10 +9,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public class GlowingEntityClientMixin {
-	@Inject(method = "isGlowing", at = @At("HEAD"), cancellable = true)
-	private void modifyGlowing(CallbackInfoReturnable<Boolean> cir) {
-		if(ClientGlowingEntityManager.shouldGlow((Entity)(Object)this)) {
-			cir.setReturnValue(true);
-		}
-	}
+
+    @Inject(method = "isGlowing", at = @At("HEAD"), cancellable = true)
+    private void modifyGlowing(CallbackInfoReturnable<Boolean> cir) {
+        if(ClientGlowingEntityManager.shouldGlow((Entity)(Object)this)) {
+            cir.setReturnValue(true);
+        }
+    }
 }

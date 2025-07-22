@@ -4,6 +4,7 @@ import com.openai.models.responses.Response;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public abstract class AgentState {
+
     protected Agent agent;
 
     public AgentState() {

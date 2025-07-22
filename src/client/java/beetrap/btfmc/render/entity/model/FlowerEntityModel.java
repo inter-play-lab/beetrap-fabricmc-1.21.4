@@ -12,6 +12,7 @@ import net.minecraft.client.render.entity.model.EntityModelPartNames;
 
 public class FlowerEntityModel extends
         EntityModel<FlowerEntityRenderState> {
+
     private final ModelPart base;
 
     public FlowerEntityModel(ModelPart root) {
@@ -23,7 +24,9 @@ public class FlowerEntityModel extends
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
-        modelPartData.addChild(EntityModelPartNames.CUBE, ModelPartBuilder.create().uv(0, 0).cuboid(-6F, 12F, -6F, 12F, 12F, 12F), ModelTransform.pivot(0F, 0F, 0F));
+        modelPartData.addChild(EntityModelPartNames.CUBE,
+                ModelPartBuilder.create().uv(0, 0).cuboid(-6F, 12F, -6F, 12F, 12F, 12F),
+                ModelTransform.pivot(0F, 0F, 0F));
         return TexturedModelData.of(modelData, 64, 64);
     }
 

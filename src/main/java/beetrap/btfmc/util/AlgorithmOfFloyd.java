@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.Set;
 
 public class AlgorithmOfFloyd {
+
     private final Random r;
     private final int n;
 

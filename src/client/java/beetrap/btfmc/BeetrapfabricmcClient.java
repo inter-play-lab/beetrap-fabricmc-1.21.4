@@ -21,7 +21,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.Context
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -32,25 +31,35 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 public class BeetrapfabricmcClient implements ClientModInitializer {
+
     public static final String MOD_ID = "beetrap-fabricmc";
     public static final String MOD_DATE_TIME_PATTERN = "uuuu-MM-dd-HH-mm-ss-nnnnnnnnn";
-    public static final DateTimeFormatter MOD_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(MOD_DATE_TIME_PATTERN);
+    public static final DateTimeFormatter MOD_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
+            MOD_DATE_TIME_PATTERN);
     public static final File MOD_PATH = new File("beetrap");
     public static final File MOD_PATH_LOG = new File(MOD_PATH, "logs");
     private static Logger LOG;
     private BeetrapGameClient bg;
+
+    public static void beetrapLog(String id, String log) {
+        LOG.info("{{}}{}", id, log);
+    }
 
     private void onEntityPositionUpdate(EntityPositionUpdateS2CPayload payload, Context context) {
         this.bg.onEntityPositionUpdate(payload.entityId(), payload.posX(), payload.posY(),
                 payload.posZ());
     }
 
-    private void onShowMultipleChoiceScreenReceived(ShowMultipleChoiceScreenS2CPayload showMultipleChoiceScreenS2CPayload, Context context) {
-        this.bg.showMultipleChoiceScreen(showMultipleChoiceScreenS2CPayload.questionId(), showMultipleChoiceScreenS2CPayload.question(), showMultipleChoiceScreenS2CPayload.choices());
+    private void onShowMultipleChoiceScreenReceived(
+            ShowMultipleChoiceScreenS2CPayload showMultipleChoiceScreenS2CPayload,
+            Context context) {
+        this.bg.showMultipleChoiceScreen(showMultipleChoiceScreenS2CPayload.questionId(),
+                showMultipleChoiceScreenS2CPayload.question(),
+                showMultipleChoiceScreenS2CPayload.choices());
     }
 
     private void initializeLogger() {
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        LoggerContext ctx = (LoggerContext)LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
 
         String fileName = new File(MOD_PATH_LOG, MOD_ID + "-" + ZonedDateTime.now(
@@ -88,25 +97,25 @@ public class BeetrapfabricmcClient implements ClientModInitializer {
         beetrapLog(BEETRAP_LOG_ID_INITIALIZE, "Imagine!");
     }
 
-    public static void beetrapLog(String id, String log) {
-        LOG.info("{{}}{}", id, log);
-    }
-
     private void beetrapLog(BeetrapLogS2CPayload beetrapLogS2CPayload, Context context) {
         beetrapLog(beetrapLogS2CPayload.id(), beetrapLogS2CPayload.log());
     }
 
     @Override
-	public void onInitializeClient() {
+    public void onInitializeClient() {
         this.initializeLogger();
         this.bg = new BeetrapGameClient();
-		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
+        // This entrypoint is suitable for setting up client-specific logic, such as rendering.
         ClientTickEvents.START_WORLD_TICK.register(bg::onStartWorldTick);
         UseItemCallback.EVENT.register(bg::onPlayerUseItem);
-        ClientPlayNetworking.registerGlobalReceiver(EntityPositionUpdateS2CPayload.ID, this::onEntityPositionUpdate);
-        ClientPlayNetworking.registerGlobalReceiver(ShowTextScreenS2CPayload.ID, this::onShowTextScreenReceived);
-        ClientPlayNetworking.registerGlobalReceiver(ShowMultipleChoiceScreenS2CPayload.ID, this::onShowMultipleChoiceScreenReceived);
-        ClientPlayNetworking.registerGlobalReceiver(BeginSubActivityS2CPayload.ID, this::beginSubActivity);
+        ClientPlayNetworking.registerGlobalReceiver(EntityPositionUpdateS2CPayload.ID,
+                this::onEntityPositionUpdate);
+        ClientPlayNetworking.registerGlobalReceiver(ShowTextScreenS2CPayload.ID,
+                this::onShowTextScreenReceived);
+        ClientPlayNetworking.registerGlobalReceiver(ShowMultipleChoiceScreenS2CPayload.ID,
+                this::onShowMultipleChoiceScreenReceived);
+        ClientPlayNetworking.registerGlobalReceiver(BeginSubActivityS2CPayload.ID,
+                this::beginSubActivity);
         ClientPlayNetworking.registerGlobalReceiver(BeetrapLogS2CPayload.ID, this::beetrapLog);
 
         EntityRendererRegistry.register(EntityHandler.FLOWER, FlowerEntityRenderer::new);

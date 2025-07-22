@@ -10,13 +10,15 @@ import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Vec3d;
 
 public class MysteriousFifthPollinationReadyState extends PollinationReadyState {
+
     public MysteriousFifthPollinationReadyState(BeetrapState state, int stage) {
         super(state, stage);
     }
 
 
     private void clearItems() {
-        List<? extends ItemEntity> entities = this.world.getEntitiesByType(TypeFilter.instanceOf(ItemEntity.class),
+        List<? extends ItemEntity> entities = this.world.getEntitiesByType(
+                TypeFilter.instanceOf(ItemEntity.class),
                 itemEntity -> true);
 
         for(ItemEntity ie : entities) {

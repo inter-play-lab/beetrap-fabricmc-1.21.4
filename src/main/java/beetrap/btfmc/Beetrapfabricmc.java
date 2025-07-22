@@ -16,55 +16,57 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Beetrapfabricmc implements ModInitializer {
-	public static final Logger LOG = LogManager.getLogger(Beetrapfabricmc.class);
-	public static final String MOD_ID = "beetrap-fabricmc";
-	public static final String MOD_REQUIRED_OPENAI_API_KEY = "OPENAI_API_KEY";
-	public static final String MOD_REQUIRED_OPENAI_BASE_URL = "OPENAI_BASE_URL";
-	public static final String MOD_REQUIRED_OPENAI_ORG_ID = "OPENAI_ORG_ID";
-	public static final String MOD_REQUIRED_OPENAI_PROJECT_ID = "OPENAI_PROJECT_ID";
-	public static final String MOD_REQUIRED_TYPECAST_API_KEY = "TYPECAST_API_KEY";
 
-	private void loadEnv() {
-		Map<String, String> env = System.getenv();
-		Map<Object, Object> properties = System.getProperties();
-		properties.putAll(env);
+    public static final Logger LOG = LogManager.getLogger(Beetrapfabricmc.class);
+    public static final String MOD_ID = "beetrap-fabricmc";
+    public static final String MOD_REQUIRED_OPENAI_API_KEY = "OPENAI_API_KEY";
+    public static final String MOD_REQUIRED_OPENAI_BASE_URL = "OPENAI_BASE_URL";
+    public static final String MOD_REQUIRED_OPENAI_ORG_ID = "OPENAI_ORG_ID";
+    public static final String MOD_REQUIRED_OPENAI_PROJECT_ID = "OPENAI_PROJECT_ID";
+    public static final String MOD_REQUIRED_TYPECAST_API_KEY = "TYPECAST_API_KEY";
 
-		boolean b = true;
+    public static String id(String name) {
+        return MOD_ID + ":" + name;
+    }
 
-		b = b && properties.containsKey(MOD_REQUIRED_OPENAI_API_KEY);
-		b = b && properties.containsKey(MOD_REQUIRED_OPENAI_BASE_URL);
-		b = b && properties.containsKey(MOD_REQUIRED_OPENAI_ORG_ID);
-		b = b && properties.containsKey(MOD_REQUIRED_OPENAI_PROJECT_ID);
-		b = b && properties.containsKey(MOD_REQUIRED_TYPECAST_API_KEY);
+    private void loadEnv() {
+        Map<String, String> env = System.getenv();
+        Map<Object, Object> properties = System.getProperties();
+        properties.putAll(env);
 
-		if(b) {
-			LOG.info("All required environment variables found, good to go.");
-			return;
-		}
+        boolean b = true;
 
-		File f = new File(".env");
-		LOG.warn("Not all required environment variables found, attempting to load from {}", f.getAbsolutePath());
-		Properties p = new Properties();
+        b = b && properties.containsKey(MOD_REQUIRED_OPENAI_API_KEY);
+        b = b && properties.containsKey(MOD_REQUIRED_OPENAI_BASE_URL);
+        b = b && properties.containsKey(MOD_REQUIRED_OPENAI_ORG_ID);
+        b = b && properties.containsKey(MOD_REQUIRED_OPENAI_PROJECT_ID);
+        b = b && properties.containsKey(MOD_REQUIRED_TYPECAST_API_KEY);
+
+        if(b) {
+            LOG.info("All required environment variables found, good to go.");
+            return;
+        }
+
+        File f = new File(".env");
+        LOG.warn("Not all required environment variables found, attempting to load from {}",
+                f.getAbsolutePath());
+        Properties p = new Properties();
         try {
             p.load(new FileReader(f));
         } catch(IOException e) {
             throw new UncheckedIOException(e);
         }
 
-		properties.putAll(p);
+        properties.putAll(p);
     }
 
-	@Override
-	public void onInitialize() {
-		this.loadEnv();
-		OpenAiUtil.load();
-		BeetrapGameHandler.registerEvents();
-		CommandHandler.registerCommands();
-		NetworkHandler.registerCustomPayloads();
-		EntityHandler.registerEntities();
-	}
-
-	public static String id(String name) {
-		return MOD_ID + ":" + name;
-	}
+    @Override
+    public void onInitialize() {
+        this.loadEnv();
+        OpenAiUtil.load();
+        BeetrapGameHandler.registerEvents();
+        CommandHandler.registerCommands();
+        NetworkHandler.registerCustomPayloads();
+        EntityHandler.registerEntities();
+    }
 }

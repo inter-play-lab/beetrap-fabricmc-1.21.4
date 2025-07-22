@@ -10,7 +10,9 @@ import net.minecraft.client.render.entity.EntityRendererFactory.Context;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.util.Identifier;
 
-public class FlowerEntityRenderer extends MobEntityRenderer<FlowerEntity, FlowerEntityRenderState, FlowerEntityModel> {
+public class FlowerEntityRenderer extends
+        MobEntityRenderer<FlowerEntity, FlowerEntityRenderState, FlowerEntityModel> {
+
     public FlowerEntityRenderer(Context context) {
         super(context, new FlowerEntityModel(context.getPart(BeetrapEntityModelLayers.FLOWER)), 0);
     }
