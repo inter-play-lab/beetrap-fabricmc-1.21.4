@@ -167,16 +167,15 @@ public class PhysicalAgentState extends AgentState {
 
         if(!this.agent.hasNextCommand()) {
             this.beeEntity.lookAt(EntityAnchor.EYES, this.world.getPlayers().getFirst().getPos());
-            return;
-        }
+        } else {
+            synchronized(this.currentCommandLock) {
+                if(this.currentCommand == null) {
+                    this.currentCommand = this.agent.getNextCommand();
+                }
 
-        synchronized(this.currentCommandLock) {
-            if(this.currentCommand == null) {
-                this.currentCommand = this.agent.getNextCommand();
+                ++this.commandTick;
+                this.handleCurrentCommand();
             }
-
-            ++this.commandTick;
-            this.handleCurrentCommand();
         }
 
         if(this.agent.getBeetrapStateManager().isActivityEnded()) {
