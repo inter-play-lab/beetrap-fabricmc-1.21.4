@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeeCurious - Learn AI Filter Bubbles Through Minecraft</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        .tech-stack {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .tech-item {
+            background: #3498db;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .cta {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            margin: 0.5rem;
+        }
+        .btn:hover {
+            background: #c0392b;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        code {
+            background: #f4f4f4;
+            color: #e74c3c;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Monaco, monospace;
+            font-size: 0.9em;
+            border: 1px solid #ddd;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', Monaco, monospace;
+            border: 1px solid #34495e;
+        }
+        .code-inline {
+            background: #f8f9fa;
+            color: #d63384;
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Monaco, monospace;
+            font-size: 0.85em;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐝 BeeCurious</h1>
+            <img src="bee.png" alt="BeeCurious Bee" style="max-width: 200px; height: auto; margin: 1rem 0; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <p class="subtitle">Learn AI Recommendation Systems Through Minecraft</p>
+            <p><strong>BeeTrap</strong> is a Minecraft-based educational game that uses the analogy of bee pollination to teach kids about filter bubbles in AI recommendation systems. As players pollinate flowers, similar ones grow; visually demonstrating how algorithms can trap users in a cycle of sameness.</p>
+            <p>Players learn to break filter bubbles by applying a diversification strategy, all while immersed in an interactive, environmental science-inspired exploratory environment.</p>
+            <p><strong>BeeCurious</strong> builds on BeeTrap by adding an embodied conversational agent called Bip; a bee-like character that talks and interacts with players during gameplay. It encourages reflection, asks questions, and helps make complex AI ideas more relatable.</p>
+            <p><em>Together, BeeTrap and BeeCurious aim to boost AI literacy, ethics, and critical thinking through embodied, playful learning.</em></p>
+        </header>
+
+
+        <div class="tech-stack" id="installation">
+            <h2>📦 Usage Instruction</h2>
+            <p>Follow these step-by-step instructions to install BeeCurious and start your AI learning journey:</p>
+
+
+            <ol>
+                <li><strong>Install Git</strong> (if needed)</li>
+                <li><strong>Java 21 or higher</strong> (Amazon Corretto is preferred)</li>
+                <li><strong>Clone the project</strong></li>
+                <li><strong>Launch the game</strong> cd into project directory and then run <code>gradlew runClient</code></li>
+                <li><strong>choose single player</strong> (this will create a saves folder that we'll use for our world)</li>
+                <li><strong>Download the world</strong>
+                    <ul>
+                        <li>Visit the <a href="https://github.com/farhadi-erfan/beetrap-fabricmc-1.21.4/releases" target="_blank" style="color: #3498db;">GitHub Releases page</a></li>
+                        <li>Download the <code>.zip</code> file</li>
+                        <li>Export the zip file's content under <code>run/saves</code> folder within the cloned project (make sure there are no redundant parent folders)</li>
+                    </ul>
+                </li>
+                <li><strong>Download the sample <code>.env</code> file</strong> from releases' page linked above</li>
+                <li><strong>Configure your OpenAI API and Typecast API key</strong> (if using Bip) by editing <code>run/.env</code> file</li>
+                <li><strong>Relaunch and Play</strong> close the minecraft instance and relaunch again by running <code>gradlew runClient</code> then choose singleplayer and beetrap world</li>
+                <li><strong>Launch and Play</strong> choose beetrap world</li>
+                <li><strong>Enter the game</strong> by entering <code>/game new 3</code></li>
+                <li><strong>Start exploring</strong> and learning about AI filter bubbles</li>
+                <li><strong>Clean up</strong> your world for next time by entering <code>/game destroy</code></li>
+
+            </ol>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 BeeCurious Project 🐝✨</p>
+        <p>Interplay Lab, Computer Science Department, University of Rochester.</p>
+    </footer>
+</body>
+</html>

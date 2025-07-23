@@ -1,0 +1,44 @@
+# GitHub Pages configuration for Beetrap Minecraft Mod
+title: "Beetrap - Learn Recommendation systems in a Minecraft Mod"
+description: "An exploratory learning environment that uses Minecraft, environmental sciences to educate on recommendation systems"
+url: "https://farhadi-erfan.github.io"
+baseurl: "/beetrap-fabricmc-1.21.4"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# GitHub Pages specific settings
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Site settings
+author: "Beetrap Project Team"
+email: "farhadi.erfan76@gmail.com"
+github_username: "farhadi-erfan"
+
+# Navigation
+header_pages:
+  - index.html
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# Collections and defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
