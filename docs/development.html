@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development Guide - Beetrap</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-weight: bold;
+        }
+        .nav a:hover {
+            color: #2980b9;
+        }
+        .content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .file-tree {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+        }
+        .highlight {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        ul, ol {
+            padding-left: 2rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="index.html">← Back to Home</a>
+            <a href="#setup">Setup</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#contributing">Contributing</a>
+        </div>
+
+        <div class="content">
+            <h1>🛠️ Development Guide</h1>
+            
+            <h2 id="setup">Development Setup</h2>
+            <p>Follow these steps to set up the development environment for the Beetrap Minecraft mod:</p>
+            
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Java Development Kit (JDK) 17 or higher</li>
+                <li>Minecraft 1.21.4</li>
+                <li>Fabric Loader</li>
+                <li>IntelliJ IDEA or Eclipse (recommended)</li>
+                <li>Git</li>
+            </ul>
+
+            <h3>Clone and Build</h3>
+            <div class="code-block">
+# Clone the repository
+git clone https://github.com/your-username/beetrap-fabricmc-1.21.4.git
+cd beetrap-fabricmc-1.21.4
+
+# Build the project
+./gradlew build
+
+# Run the development client
+./gradlew runClient
+
+# Run the development server
+./gradlew runServer
+            </div>
+
+            <h2 id="architecture">Project Architecture</h2>
+            
+            <h3>Directory Structure</h3>
+            <div class="file-tree">
+src/
+├── main/java/beetrap/btfmc/          # Server-side code
+│   ├── agent/                        # AI agent system
+│   │   ├── physical/                 # Physical bee agents
+│   │   ├── chatonly/                 # Chat-only agents
+│   │   └── empty/                    # Empty agent implementation
+│   ├── entity/                       # Custom entities
+│   ├── networking/                   # Client-server communication
+│   ├── openai/                       # OpenAI integration
+│   └── tts/                          # Text-to-speech
+├── client/java/beetrap/btfmc/        # Client-side code
+│   ├── render/                       # Custom renderers
+│   ├── screen/                       # UI screens
+│   └── textandspeech/               # Speech-to-text
+└── main/resources/                   # Assets and configurations
+            </div>
+
+            <h3>Key Components</h3>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Location</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td>BeetrapfabricmcClient</td>
+                    <td>src/client/java/</td>
+                    <td>Client-side mod initialization</td>
+                </tr>
+                <tr>
+                    <td>Beetrapfabricmc</td>
+                    <td>src/main/java/</td>
+                    <td>Server-side mod initialization</td>
+                </tr>
+                <tr>
+                    <td>PhysicalAgent</td>
+                    <td>src/main/java/agent/physical/</td>
+                    <td>AI-powered bee entities</td>
+                </tr>
+                <tr>
+                    <td>FlowerEntity</td>
+                    <td>src/main/java/entity/</td>
+                    <td>Custom flower entities</td>
+                </tr>
+                <tr>
+                    <td>Networking</td>
+                    <td>src/main/java/networking/</td>
+                    <td>Client-server communication</td>
+                </tr>
+            </table>
+
+            <h3>Agent System</h3>
+            <p>The mod features three types of agents:</p>
+            <ul>
+                <li><strong>Physical Agents:</strong> Spawn as bee entities in the world with AI capabilities</li>
+                <li><strong>Chat-Only Agents:</strong> Communicate through text chat without physical presence</li>
+                <li><strong>Empty Agents:</strong> Minimal implementation for testing and development</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Note:</strong> AI features require an OpenAI API key. Configure this in your environment or configuration files.
+            </div>
+
+            <h2 id="contributing">Contributing</h2>
+            
+            <h3>Code Style</h3>
+            <ul>
+                <li>Follow Java naming conventions</li>
+                <li>Use meaningful variable and method names</li>
+                <li>Add comments for complex logic</li>
+                <li>Keep methods focused and concise</li>
+            </ul>
+
+            <h3>Testing</h3>
+            <div class="code-block">
+# Run all tests
+./gradlew test
+
+# Run specific test class
+./gradlew test --tests "beetrap.btfmc.YourTestClass"
+            </div>
+
+            <h3>Networking Protocol</h3>
+            <p>The mod uses custom packets for client-server communication:</p>
+            <ul>
+                <li><strong>S2C (Server to Client):</strong> ShowTextScreenS2CPayload, EntityPositionUpdateS2CPayload</li>
+                <li><strong>C2S (Client to Server):</strong> PlayerPollinateC2SPayload, MultipleChoiceAnswerC2SPayload</li>
+            </ul>
+
+            <h3>Adding New Features</h3>
+            <ol>
+                <li>Create a new branch for your feature</li>
+                <li>Implement the feature following the existing architecture</li>
+                <li>Add appropriate tests</li>
+                <li>Update documentation if needed</li>
+                <li>Submit a pull request</li>
+            </ol>
+
+            <h3>Debugging</h3>
+            <p>The mod includes comprehensive logging. Check the logs in:</p>
+            <div class="code-block">
+run/beetrap/logs/beetrap-fabricmc-[timestamp].log
+            </div>
+
+            <h3>OpenAI Integration</h3>
+            <p>To use AI features, you'll need to:</p>
+            <ol>
+                <li>Obtain an OpenAI API key</li>
+                <li>Configure the key in your environment</li>
+                <li>Ensure proper error handling for API calls</li>
+                <li>Respect rate limits and usage guidelines</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
