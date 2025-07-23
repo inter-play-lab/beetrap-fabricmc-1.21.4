@@ -111,155 +111,45 @@
     <div class="container">
         <header>
             <h1>🐝 BeeCurious</h1>
+            <img src="bee.png" alt="BeeCurious Bee" style="max-width: 200px; height: auto; margin: 1rem 0; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
             <p class="subtitle">Learn AI Recommendation Systems Through Minecraft</p>
             <p><strong>BeeTrap</strong> is a Minecraft-based educational game that uses the analogy of bee pollination to teach kids about filter bubbles in AI recommendation systems. As players pollinate flowers, similar ones grow; visually demonstrating how algorithms can trap users in a cycle of sameness.</p>
             <p>Players learn to break filter bubbles by applying a diversification strategy, all while immersed in an interactive, environmental science-inspired exploratory environment.</p>
-            <p><strong>BeeCurious</strong> builds on BeeTrap by adding an embodied conversational agent; a bee-like character that talks and interact with players during gameplay. It encourages reflection, asks questions, and helps make complex AI ideas more relatable.</p>
+            <p><strong>BeeCurious</strong> builds on BeeTrap by adding an embodied conversational agent called Bip; a bee-like character that talks and interacts with players during gameplay. It encourages reflection, asks questions, and helps make complex AI ideas more relatable.</p>
             <p><em>Together, BeeTrap and BeeCurious aim to boost AI literacy, ethics, and critical thinking through embodied, playful learning.</em></p>
         </header>
 
-        <div class="features">
-            <div class="feature-card">
-                <h3>🔄 Filter Bubble Education</h3>
-                <p>Experience how recommendation algorithms create filter bubbles through bee pollination mechanics. Watch similar flowers grow as you pollinate, demonstrating algorithmic bias in real-time.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🧠 AI Literacy & Ethics</h3>
-                <p>Learn critical thinking about AI systems, understand recommendation algorithms, and develop strategies to break out of filter bubbles through interactive gameplay.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🐝 Embodied Conversational Agent</h3>
-                <p>BeeCurious features an intelligent bee character that guides learning, asks reflective questions, and makes complex AI concepts accessible and relatable.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🌱 Diversification Strategies</h3>
-                <p>Practice breaking filter bubbles by applying diversification techniques, learning how to seek variety and avoid algorithmic traps in digital environments.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🎤 Voice & Text Interaction</h3>
-                <p>Engage with the AI agent through both speech-to-text and text-to-speech capabilities, making the learning experience more natural and accessible.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🌍 Environmental Science Context</h3>
-                <p>Learn about AI recommendation systems through the familiar context of environmental science, bee behavior, and pollination patterns.</p>
-            </div>
-        </div>
-
-        <div class="tech-stack">
-            <h2>🛠️ Technology Stack</h2>
-            <p>Built with modern technologies to create an immersive educational experience:</p>
-            <div class="tech-list">
-                <span class="tech-item">Minecraft Fabric 1.21.4</span>
-                <span class="tech-item">Java</span>
-                <span class="tech-item">OpenAI API</span>
-                <span class="tech-item">Conversational AI</span>
-                <span class="tech-item">Text-to-Speech</span>
-                <span class="tech-item">Speech-to-Text</span>
-                <span class="tech-item">Educational Game Design</span>
-                <span class="tech-item">Gradle</span>
-            </div>
-        </div>
-
-        <div class="cta">
-            <h2>Start Learning About AI Filter Bubbles</h2>
-            <p>Ready to explore how recommendation algorithms work through the fascinating world of bees and pollination?</p>
-            <a href="https://github.com/farhadi-erfan/beetrap-fabricmc-1.21.4" class="btn">View on GitHub</a>
-            <a href="#installation" class="btn btn-secondary">Installation Guide</a>
-            <a href="development.html" class="btn btn-secondary">Development Guide</a>
-        </div>
 
         <div class="tech-stack" id="installation">
-            <h2>📦 Installation Guide</h2>
+            <h2>📦 Usage Instruction</h2>
             <p>Follow these step-by-step instructions to install BeeCurious and start your AI learning journey:</p>
 
-            <h3>Prerequisites</h3>
-            <ol>
-                <li><strong>Minecraft Java Edition 1.21.4</strong> - Make sure you have the correct version installed</li>
-                <li><strong>Fabric Loader</strong> - Download and install from <a href="https://fabricmc.net/use/installer/" target="_blank" style="color: #3498db;">fabricmc.net</a></li>
-                <li><strong>Fabric API</strong> - Download the latest version compatible with 1.21.4</li>
-                <li><strong>Java 17 or higher</strong> - Required for Minecraft 1.21.4</li>
-            </ol>
 
-            <h3>Installation Steps</h3>
             <ol>
-                <li><strong>Download the Mod</strong>
+                <li><strong>Install Git</strong> (if needed)</li>
+                <li><strong>Java 17 or higher</strong> (Required for Minecraft 1.21.4)</li>
+                <li><strong>Clone the project</strong></li>
+                <li><strong>Download the world</strong>
                     <ul>
                         <li>Visit the <a href="https://github.com/farhadi-erfan/beetrap-fabricmc-1.21.4/releases" target="_blank" style="color: #3498db;">GitHub Releases page</a></li>
-                        <li>Download the latest <code>.jar</code> file</li>
+                        <li>Download the <code>.zip</code> file</li>
+                        <li>Export the zip file's content under run/saves folder within the cloned project (make sure there are no redundant parent folders)</li>
                     </ul>
                 </li>
-                <li><strong>Install Fabric Loader</strong>
-                    <ul>
-                        <li>Run the Fabric installer</li>
-                        <li>Select Minecraft version 1.21.4</li>
-                        <li>Click "Install"</li>
-                    </ul>
-                </li>
-                <li><strong>Add Mods to Minecraft</strong>
-                    <ul>
-                        <li>Navigate to your Minecraft directory</li>
-                        <li>Windows: <code>%appdata%\.minecraft\mods</code></li>
-                        <li>macOS: <code>~/Library/Application Support/minecraft/mods</code></li>
-                        <li>Linux: <code>~/.minecraft/mods</code></li>
-                        <li>Place both the BeeCurious mod file and Fabric API in the mods folder</li>
-                    </ul>
-                </li>
-                <li><strong>Configure AI Features (Optional)</strong>
-                    <ul>
-                        <li>For full conversational AI features, you'll need an OpenAI API key</li>
-                        <li>The mod will work without it, but with limited AI interactions</li>
-                        <li>Configuration details are available in the development guide</li>
-                    </ul>
-                </li>
-                <li><strong>Launch and Play</strong>
-                    <ul>
-                        <li>Start Minecraft Launcher</li>
-                        <li>Select the Fabric profile</li>
-                        <li>Create a new world or join an existing one</li>
-                        <li>Start exploring and learning about AI filter bubbles!</li>
-                    </ul>
-                </li>
+                <li><strong>Configure your OpenAI API and Typecast API key</strong> (if using Bip) by editing run/.env file</li>
+                <li><strong>Launch and Play</strong> choose beetrap world</li>
+                <li><strong>Enter the game</strong> by entering ```/game new 3``` </li>
+                <li><strong>Start exploring</strong> and learning about AI filter bubbles</li>
+                <li><strong>Clean up</strong> your world for next time by entering ```/game destroy```</li>
+
             </ol>
 
-            <h3>Troubleshooting</h3>
-            <ul>
-                <li><strong>Mod not loading:</strong> Ensure you have the correct Minecraft version (1.21.4) and Fabric API</li>
-                <li><strong>Crashes on startup:</strong> Check that all dependencies are installed and compatible</li>
-                <li><strong>AI features not working:</strong> Verify your OpenAI API configuration</li>
-                <li><strong>Performance issues:</strong> Allocate more RAM to Minecraft (recommended: 4GB+)</li>
-            </ul>
-
-            <div class="highlight" style="background: #e8f5e8; border: 1px solid #4caf50; border-radius: 5px; padding: 1rem; margin: 1rem 0;">
-                <strong>🎓 Educational Tip:</strong> Start by exploring the world and interacting with bees and flowers. The conversational agent will guide you through understanding filter bubbles and recommendation algorithms as you play!
-            </div>
-        </div>
-
-        <div class="tech-stack">
-            <h2>🏗️ Educational Architecture</h2>
-            <p>BeeCurious is designed with clear educational modules:</p>
-            <ul>
-                <li><strong>Filter Bubble Simulation:</strong> Pollination mechanics that demonstrate algorithmic bias</li>
-                <li><strong>Conversational AI Agent:</strong> Intelligent bee character for guided learning</li>
-                <li><strong>Diversification Engine:</strong> Tools and strategies to break filter bubbles</li>
-                <li><strong>Reflection System:</strong> Questions and prompts to encourage critical thinking</li>
-                <li><strong>Environmental Context:</strong> Bee and flower ecosystems as learning metaphors</li>
-                <li><strong>Voice Interaction:</strong> Natural language processing for accessibility</li>
-            </ul>
-
-            <h3>Learning Outcomes</h3>
-            <ul>
-                <li>🎯 Understand how recommendation algorithms work</li>
-                <li>🔍 Recognize filter bubbles in digital environments</li>
-                <li>🛠️ Apply diversification strategies</li>
-                <li>🤔 Develop critical thinking about AI systems</li>
-                <li>🌱 Foster AI literacy and ethical awareness</li>
-            </ul>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2024 BeeCurious Project. Empowering AI literacy through playful, embodied learning. 🐝✨</p>
-        <p>Breaking filter bubbles, one pollination at a time.</p>
+        <p>&copy; 2025 BeeCurious Project 🐝✨</p>
+        <p>Interplay Lab, Computer Science Department, University of Rochester.</p>
     </footer>
 </body>
 </html>
