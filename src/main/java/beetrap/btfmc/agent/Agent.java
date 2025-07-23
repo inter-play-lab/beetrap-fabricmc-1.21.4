@@ -121,12 +121,7 @@ public abstract class Agent implements AutoCloseable {
     }
 
     public void sendGptEventMessage(EventMessage eventMessage) {
-        try {
-            String eventMessageJsonString = om.writeValueAsString(eventMessage);
-            this.getGpt4oLatestResponseAsync(eventMessageJsonString).whenCompleteAsync(this::onGptResponseReceived);
-        } catch(JsonProcessingException e) {
-            LOG.error(e);
-        }
+        this.getGpt4oLatestResponseAsync(eventMessage.toJsonString()).whenCompleteAsync(this::onGptResponseReceived);
     }
 
     private CompletableFuture<Response> getGpt4oLatestResponseAsync(

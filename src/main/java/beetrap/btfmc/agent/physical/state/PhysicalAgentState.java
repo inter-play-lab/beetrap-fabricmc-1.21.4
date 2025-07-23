@@ -2,6 +2,7 @@ package beetrap.btfmc.agent.physical.state;
 
 import beetrap.btfmc.agent.AgentCommand;
 import beetrap.btfmc.agent.AgentState;
+import beetrap.btfmc.agent.InstructionBuilder;
 import beetrap.btfmc.agent.event.ChatEventMessage;
 import beetrap.btfmc.agent.event.GameStartEventMessage;
 import beetrap.btfmc.agent.physical.PhysicalAgent;
@@ -29,6 +30,8 @@ public class PhysicalAgentState extends AgentState {
     protected AgentCommand currentCommand;
     protected long commandTick;
     protected Vec3d flyToPosition;
+    protected boolean hasNextState;
+    protected PhysicalAgentState nextState;
 
     public PhysicalAgentState() {
         super();
@@ -43,7 +46,9 @@ public class PhysicalAgentState extends AgentState {
         this.world = this.agent.getWorld();
         this.name = this.agent.getName();
         this.commandTick = -1;
-    }    private void handleSayCommand(String dialogue) {
+    }
+
+    private void handleSayCommand(String dialogue) {
         if(this.commandTick == 0) {
             this.world.getPlayers().forEach(
                     serverPlayerEntity -> serverPlayerEntity.sendMessage(
@@ -173,22 +178,54 @@ public class PhysicalAgentState extends AgentState {
             ++this.commandTick;
             this.handleCurrentCommand();
         }
+
+        if(this.agent.getBeetrapStateManager().isActivityEnded()) {
+            this.hasNextState = true;
+            this.nextState = new PAS1EndGame();
+        }
     }
 
-    @Override
-    public void onChatMessageReceived(ServerPlayerEntity serverPlayerEntity, String message) {
-        StringBuilder additionalInstructionsBuilder = this.agent.getInstructionBuilder().contextInstruction();
-        additionalInstructionsBuilder.append("Your position: ")
+    public void updateStateInstruction(InstructionBuilder ib) {
+        ib.resetStateInstructionBuilder();
+    }
+
+    private void updateContextInstruction(InstructionBuilder ib, ServerPlayerEntity serverPlayerEntity) {
+        ib.resetContextInstructionBuilder();
+        StringBuilder contextInstructionBuilder = ib.contextInstructionBuilder();
+
+        contextInstructionBuilder.append("Your position: ")
                 .append(this.physicalAgent.getBeeEntity().getPos()).append(System.lineSeparator());
 
         this.agent.getBeetrapStateManager()
                 .getJsonReadyDataForGpt(this.physicalAgent.getBeeEntity(), serverPlayerEntity,
-                        additionalInstructionsBuilder);
+                        contextInstructionBuilder);
+    }
+
+    private void updateInstructions(ServerPlayerEntity serverPlayerEntity) {
+        InstructionBuilder ib = this.agent.getInstructionBuilder();
+        this.updateStateInstruction(ib);
+        this.updateContextInstruction(ib, serverPlayerEntity);
+    }
+
+    @Override
+    public void onChatMessageReceived(ServerPlayerEntity serverPlayerEntity, String message) {
+        this.updateInstructions(serverPlayerEntity);
         this.agent.sendGptEventMessage(new ChatEventMessage(message));
     }
 
     @Override
     public void onGameStart() {
+        this.updateInstructions(this.world.getPlayers().getFirst());
         this.agent.sendGptEventMessage(new GameStartEventMessage());
+    }
+
+    @Override
+    public boolean hasNextState() {
+        return this.hasNextState;
+    }
+
+    @Override
+    public AgentState getNextState() {
+        return this.nextState;
     }
 }

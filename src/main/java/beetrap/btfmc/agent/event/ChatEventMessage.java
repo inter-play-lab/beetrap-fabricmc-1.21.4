@@ -1,17 +1,20 @@
 package beetrap.btfmc.agent.event;
 
 public class ChatEventMessage extends EventMessage {
-
     public ChatEventMessage(String message) {
-        super(EVENT_MESSAGE_KEY_EVENT_TYPE_VALUE_CHAT_EVENT);
+        super(EventMessage.EventTypeValue.CHAT.toString());
         this.setMessage(message);
     }
 
     public String getMessage() {
-        return super.get(CHAT_EVENT_MESSAGE_KEY_PLAYER_MESSAGE).toString();
+        return super.get(Key.MESSAGE.toString()).toString();
     }
 
     public void setMessage(String message) {
-        super.put(CHAT_EVENT_MESSAGE_KEY_PLAYER_MESSAGE, message);
+        super.put(Key.MESSAGE.toString(), message);
+    }
+
+    public enum Key {
+        MESSAGE
     }
 }
