@@ -30,6 +30,8 @@ public class PhysicalAgentState extends AgentState {
     protected AgentCommand currentCommand;
     protected long commandTick;
     protected Vec3d flyToPosition;
+    protected boolean hasNextState;
+    protected PhysicalAgentState nextState;
 
     public PhysicalAgentState() {
         super();
@@ -44,7 +46,9 @@ public class PhysicalAgentState extends AgentState {
         this.world = this.agent.getWorld();
         this.name = this.agent.getName();
         this.commandTick = -1;
-    }    private void handleSayCommand(String dialogue) {
+    }
+
+    private void handleSayCommand(String dialogue) {
         if(this.commandTick == 0) {
             this.world.getPlayers().forEach(
                     serverPlayerEntity -> serverPlayerEntity.sendMessage(
@@ -174,13 +178,19 @@ public class PhysicalAgentState extends AgentState {
             ++this.commandTick;
             this.handleCurrentCommand();
         }
+
+        if(this.agent.getBeetrapStateManager().isActivityEnded()) {
+            this.hasNextState = true;
+            this.nextState = new PAS1EndGame();
+        }
     }
 
     public void updateStateInstruction(InstructionBuilder ib) {
-
+        ib.resetStateInstructionBuilder();
     }
 
     private void updateContextInstruction(InstructionBuilder ib, ServerPlayerEntity serverPlayerEntity) {
+        ib.resetContextInstructionBuilder();
         StringBuilder contextInstructionBuilder = ib.contextInstructionBuilder();
 
         contextInstructionBuilder.append("Your position: ")
@@ -207,5 +217,15 @@ public class PhysicalAgentState extends AgentState {
     public void onGameStart() {
         this.updateInstructions(this.world.getPlayers().getFirst());
         this.agent.sendGptEventMessage(new GameStartEventMessage());
+    }
+
+    @Override
+    public boolean hasNextState() {
+        return this.hasNextState;
+    }
+
+    @Override
+    public AgentState getNextState() {
+        return this.nextState;
     }
 }

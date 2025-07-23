@@ -32,6 +32,6 @@ public class EventMessage extends LinkedHashMap<String, Object> {
     }
 
     public enum EventTypeValue {
-        GAME_START, CHAT, PLAYER_POLLINATE, FLOWER_DEATH
+        GAME_START, CHAT, PLAYER_POLLINATE, FLOWER_DEATH, GAME_END
     }
 }
