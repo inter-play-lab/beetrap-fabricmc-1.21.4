@@ -11,15 +11,15 @@ public class InstructionBuilder {
         this.contextInstruction = new StringBuilder();
     }
 
-    public StringBuilder baseInstruction() {
+    public StringBuilder baseInstructionBuilder() {
         return this.baseInstruction;
     }
 
-    public StringBuilder stateInstruction() {
+    public StringBuilder stateInstructionBuilder() {
         return this.stateInstruction;
     }
 
-    public StringBuilder contextInstruction() {
+    public StringBuilder contextInstructionBuilder() {
         return this.contextInstruction;
     }
 

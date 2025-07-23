@@ -2,6 +2,7 @@ package beetrap.btfmc.agent.physical.state;
 
 import beetrap.btfmc.agent.AgentCommand;
 import beetrap.btfmc.agent.AgentState;
+import beetrap.btfmc.agent.InstructionBuilder;
 import beetrap.btfmc.agent.event.ChatEventMessage;
 import beetrap.btfmc.agent.event.GameStartEventMessage;
 import beetrap.btfmc.agent.physical.PhysicalAgent;
@@ -175,20 +176,36 @@ public class PhysicalAgentState extends AgentState {
         }
     }
 
-    @Override
-    public void onChatMessageReceived(ServerPlayerEntity serverPlayerEntity, String message) {
-        StringBuilder additionalInstructionsBuilder = this.agent.getInstructionBuilder().contextInstruction();
-        additionalInstructionsBuilder.append("Your position: ")
+    public void updateStateInstruction(InstructionBuilder ib) {
+
+    }
+
+    private void updateContextInstruction(InstructionBuilder ib, ServerPlayerEntity serverPlayerEntity) {
+        StringBuilder contextInstructionBuilder = ib.contextInstructionBuilder();
+
+        contextInstructionBuilder.append("Your position: ")
                 .append(this.physicalAgent.getBeeEntity().getPos()).append(System.lineSeparator());
 
         this.agent.getBeetrapStateManager()
                 .getJsonReadyDataForGpt(this.physicalAgent.getBeeEntity(), serverPlayerEntity,
-                        additionalInstructionsBuilder);
+                        contextInstructionBuilder);
+    }
+
+    private void updateInstructions(ServerPlayerEntity serverPlayerEntity) {
+        InstructionBuilder ib = this.agent.getInstructionBuilder();
+        this.updateStateInstruction(ib);
+        this.updateContextInstruction(ib, serverPlayerEntity);
+    }
+
+    @Override
+    public void onChatMessageReceived(ServerPlayerEntity serverPlayerEntity, String message) {
+        this.updateInstructions(serverPlayerEntity);
         this.agent.sendGptEventMessage(new ChatEventMessage(message));
     }
 
     @Override
     public void onGameStart() {
+        this.updateInstructions(this.world.getPlayers().getFirst());
         this.agent.sendGptEventMessage(new GameStartEventMessage());
     }
 }
