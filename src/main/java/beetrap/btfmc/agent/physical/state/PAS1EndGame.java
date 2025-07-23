@@ -6,7 +6,8 @@ import beetrap.btfmc.agent.event.GameEndEventMessage;
 public class PAS1EndGame extends PhysicalAgentState {
     private final String stateInstruction;
 
-    public PAS1EndGame() {
+    public PAS1EndGame(PhysicalAgentState oldState) {
+        super(oldState);
         this.stateInstruction = """
         The game has ended! That means the user has reached a diversity so low that it is below a threshold set by the game.
         Stop giving instructions that encourages players to interact with the garden - the garden now is only observable, not modifiable.

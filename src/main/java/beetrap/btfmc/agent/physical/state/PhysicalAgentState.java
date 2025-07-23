@@ -38,6 +38,18 @@ public class PhysicalAgentState extends AgentState {
         this.currentCommandLock = new Object();
     }
 
+    public PhysicalAgentState(PhysicalAgentState state) {
+        this.physicalAgent = state.physicalAgent;
+        this.beeEntity = state.beeEntity;
+        this.world = state.world;
+        this.name = state.name;
+        this.currentCommandLock = state.currentCommandLock;
+        this.commandTick = state.commandTick;
+        this.flyToPosition = state.flyToPosition;
+        this.hasNextState = false;
+        this.nextState = null;
+    }
+
     @Override
     public void onAttach() {
         super.onAttach();
@@ -181,7 +193,7 @@ public class PhysicalAgentState extends AgentState {
         if(!(this instanceof PAS1EndGame)) {
             if(this.agent.getBeetrapStateManager().isActivityEnded()) {
                 this.hasNextState = true;
-                this.nextState = new PAS1EndGame();
+                this.nextState = new PAS1EndGame(this);
             }
         }
     }
