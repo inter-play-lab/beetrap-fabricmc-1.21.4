@@ -99,7 +99,6 @@ public class BeetrapGame {
         }
         this.stateManager.tick();
         this.lastTickTime = System.nanoTime();
-
         this.agent.tick();
     }
 
