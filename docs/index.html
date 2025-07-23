@@ -105,6 +105,34 @@
             padding: 2rem;
             color: rgba(255, 255, 255, 0.8);
         }
+        code {
+            background: #f4f4f4;
+            color: #e74c3c;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Monaco, monospace;
+            font-size: 0.9em;
+            border: 1px solid #ddd;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', Monaco, monospace;
+            border: 1px solid #34495e;
+        }
+        .code-inline {
+            background: #f8f9fa;
+            color: #d63384;
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Monaco, monospace;
+            font-size: 0.85em;
+            border: 1px solid #dee2e6;
+        }
     </style>
 </head>
 <body>
@@ -127,20 +155,24 @@
 
             <ol>
                 <li><strong>Install Git</strong> (if needed)</li>
-                <li><strong>Java 17 or higher</strong> (Required for Minecraft 1.21.4)</li>
+                <li><strong>Java 21 or higher</strong> (Amazon Corretto is preferred)</li>
                 <li><strong>Clone the project</strong></li>
+                <li><strong>Launch the game</strong> cd into project directory and then run <code>gradlew runClient</code></li>
+                <li><strong>choose single player</strong> (this will create a saves folder that we'll use for our world)</li>
                 <li><strong>Download the world</strong>
                     <ul>
                         <li>Visit the <a href="https://github.com/farhadi-erfan/beetrap-fabricmc-1.21.4/releases" target="_blank" style="color: #3498db;">GitHub Releases page</a></li>
                         <li>Download the <code>.zip</code> file</li>
-                        <li>Export the zip file's content under run/saves folder within the cloned project (make sure there are no redundant parent folders)</li>
+                        <li>Export the zip file's content under <code>run/saves</code> folder within the cloned project (make sure there are no redundant parent folders)</li>
                     </ul>
                 </li>
-                <li><strong>Configure your OpenAI API and Typecast API key</strong> (if using Bip) by editing run/.env file</li>
+                <li><strong>Download the sample <code>.env</code> file</strong> from releases' page linked above</li>
+                <li><strong>Configure your OpenAI API and Typecast API key</strong> (if using Bip) by editing <code>run/.env</code> file</li>
+                <li><strong>Relaunch and Play</strong> close the minecraft instance and relaunch again by running <code>gradlew runClient</code> then choose singleplayer and beetrap world</li>
                 <li><strong>Launch and Play</strong> choose beetrap world</li>
-                <li><strong>Enter the game</strong> by entering ```/game new 3``` </li>
+                <li><strong>Enter the game</strong> by entering <code>/game new 3</code></li>
                 <li><strong>Start exploring</strong> and learning about AI filter bubbles</li>
-                <li><strong>Clean up</strong> your world for next time by entering ```/game destroy```</li>
+                <li><strong>Clean up</strong> your world for next time by entering <code>/game destroy</code></li>
 
             </ol>
 
