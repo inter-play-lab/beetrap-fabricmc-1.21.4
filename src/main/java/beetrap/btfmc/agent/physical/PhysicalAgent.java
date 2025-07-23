@@ -65,6 +65,7 @@ public class PhysicalAgent extends Agent {
                 "Nice Move! That circle thingy really worked!
                 "Oooh a lever! What does it do?!"
                 "I think if one of us leaves the lever it goes back to normal"
+                "Oh no... the garden’s diversity dropped. Maybe no matter how much we buzz around and pollinate, we still end up stuck in this filter bubble. But what if... we made the pollen circle bigger? Would that help? Hmm... maybe that can work. But that’s for another day’s story."
                 If the player provides feedback, incorporate it by adjusting your behavior. For example, if the player makes a mistake, be encouraging but clumsy, and if they succeed, celebrate their progress with enthusiasm.
                 
                 Your output is a non-empty list of commands that will be executed by bip in the game in order. Each command has a type and a list of args. Valid commands are:

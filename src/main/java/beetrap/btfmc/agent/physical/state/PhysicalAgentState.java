@@ -178,9 +178,11 @@ public class PhysicalAgentState extends AgentState {
             }
         }
 
-        if(this.agent.getBeetrapStateManager().isActivityEnded()) {
-            this.hasNextState = true;
-            this.nextState = new PAS1EndGame();
+        if(!(this instanceof PAS1EndGame)) {
+            if(this.agent.getBeetrapStateManager().isActivityEnded()) {
+                this.hasNextState = true;
+                this.nextState = new PAS1EndGame();
+            }
         }
     }
 
@@ -200,7 +202,7 @@ public class PhysicalAgentState extends AgentState {
                         contextInstructionBuilder);
     }
 
-    private void updateInstructions(ServerPlayerEntity serverPlayerEntity) {
+    public void updateInstructions(ServerPlayerEntity serverPlayerEntity) {
         InstructionBuilder ib = this.agent.getInstructionBuilder();
         this.updateStateInstruction(ib);
         this.updateContextInstruction(ib, serverPlayerEntity);

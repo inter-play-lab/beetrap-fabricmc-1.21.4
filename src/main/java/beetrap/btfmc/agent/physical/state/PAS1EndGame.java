@@ -22,6 +22,7 @@ public class PAS1EndGame extends PhysicalAgentState {
     @Override
     public void onAttach() {
         super.onAttach();
+        this.updateInstructions(this.world.getPlayers().getFirst());
         this.agent.sendGptEventMessage(new GameEndEventMessage());
     }
 }
