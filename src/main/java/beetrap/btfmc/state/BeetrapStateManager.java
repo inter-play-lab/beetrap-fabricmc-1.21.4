@@ -82,6 +82,10 @@ public class BeetrapStateManager {
         this.activityEnded = true;
     }
 
+    public boolean isActivityEnded() {
+        return this.activityEnded;
+    }
+
     public double getInitialDiversityScore() {
         return this.initialDiversityScore;
     }
@@ -93,8 +97,7 @@ public class BeetrapStateManager {
     public void tick() {
         if(this.activityEnded) {
             this.world.getPlayers().forEach(
-                    serverPlayerEntity -> BeetrapStateManager.this.interaction.giveRestartGameItemToPlayer(
-                            serverPlayerEntity));
+                    BeetrapStateManager.this.interaction::giveRestartGameItemToPlayer);
         }
 
         if(this.state.hasNextState()) {
