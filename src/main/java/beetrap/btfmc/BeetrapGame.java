@@ -7,7 +7,6 @@ import beetrap.btfmc.agent.empty.EmptyAgent;
 import beetrap.btfmc.agent.physical.PhysicalAgent;
 import beetrap.btfmc.flower.FlowerManager;
 import beetrap.btfmc.flower.FlowerValueScoreboardDisplayerService;
-import beetrap.btfmc.handler.SignalHandler;
 import beetrap.btfmc.networking.NetworkingService;
 import beetrap.btfmc.state.BeetrapStateManager;
 import net.minecraft.block.Blocks;
@@ -85,7 +84,6 @@ public class BeetrapGame {
             }
         }
 
-        SignalHandler.registerSignalTypes();
         this.agent.onGameStart();
     }
 
@@ -172,7 +170,5 @@ public class BeetrapGame {
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
-
-        SignalHandler.deregisterSignalTypes();
     }
 }
