@@ -1,3 +1,5 @@
+GPT how-tos: https://chatgpt.com/share/68a788eb-4118-8012-8e69-225af208eaca
+
 # Beetrap (btfmc) — Fabric Mod
 
 A Minecraft Fabric mod that runs a **bee & flower “Beetrap” game** inside a bounded garden area.  
