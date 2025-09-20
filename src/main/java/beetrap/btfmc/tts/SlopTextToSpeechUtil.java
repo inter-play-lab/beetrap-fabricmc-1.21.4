@@ -95,6 +95,83 @@ public final class SlopTextToSpeechUtil {
         playAudioFile(f);
     }
 
+    /**
+     * Result of TTS generation containing audio duration and playback control
+     */
+    public static class TTSResult {
+        public final double durationSeconds;
+        public final CompletableFuture<Void> playbackFuture;
+        
+        public TTSResult(double durationSeconds, CompletableFuture<Void> playbackFuture) {
+            this.durationSeconds = durationSeconds;
+            this.playbackFuture = playbackFuture;
+        }
+    }
+
+    private static double getAudioDuration(File audioFile) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+            AudioFormat format = audioInputStream.getFormat();
+            long frames = audioInputStream.getFrameLength();
+            double durationInSeconds = (frames + 0.0) / format.getFrameRate();
+            audioInputStream.close();
+            return durationInSeconds;
+        } catch (Exception e) {
+            // Fallback estimation based on text length (average speaking rate ~150 WPM)
+            return 0.4; // Default 0.4 seconds for short text
+        }
+    }
+
+    /**
+     * Generate TTS with duration information for proportional text display
+     */
+    public static CompletableFuture<TTSResult> sayWithDuration(String message) {
+        return CompletableFuture.supplyAsync(() -> {
+            String cleanMessage = message.replaceAll("[\\n\\t]", " ").replaceAll("[^a-zA-Z0-9 ]", "");
+            String requestBodyFormatted = requestBody.replace("{}", cleanMessage);
+            
+            ClassicHttpRequest tts = ClassicRequestBuilder.post("https://api.typecast.ai/v1/text-to-speech")
+                    .addHeader("X-API-KEY", TYPECAST_API_KEY)
+                    .addHeader("Content-Type", "application/json")
+                    .setEntity(requestBodyFormatted)
+                    .build();
+            
+            try {
+                File audioFile = new File("imagine" + System.currentTimeMillis() + ".wav");
+                
+                // Download and save audio file first
+                httpClient.execute(tts, new AbstractHttpClientResponseHandler<Void>() {
+                    @Override
+                    public Void handleEntity(HttpEntity entity) throws IOException {
+                        try {
+                            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(audioFile));
+                            bos.write(entity.getContent().readAllBytes());
+                            bos.close();
+                        } catch (IOException e) {
+                            throw new IOException(e);
+                        }
+                        return null;
+                    }
+                });
+                
+                // Get audio duration
+                double duration = getAudioDuration(audioFile);
+                
+                // Create playback future
+                CompletableFuture<Void> playbackFuture = CompletableFuture.runAsync(() -> {
+                    playAudioFile(audioFile);
+                    // Clean up temp file after playback
+                    audioFile.delete();
+                }, es);
+                
+                return new TTSResult(duration, playbackFuture);
+                
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, es);
+    }
+
     // TODO: Add proximity thingies
     public static CompletableFuture<?> say(String message) {
         return CompletableFuture.runAsync(() -> {

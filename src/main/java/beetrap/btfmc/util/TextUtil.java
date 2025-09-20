@@ -12,12 +12,17 @@ public final class TextUtil {
     /**
      * Wraps text to fit within a specified character limit per line.
      * Respects word boundaries and handles long words by splitting them.
+     * When words are split, they can be reconstructed without spaces.
      * 
      * @param text the text to wrap
      * @param maxCharsPerLine the maximum number of characters per line
      * @return a list of wrapped text lines
      */
     public static List<String> wrapText(String text, int maxCharsPerLine) {
+        if (text == null || text.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         List<String> lines = new ArrayList<>();
         String[] words = text.split(" ");
         StringBuilder currentLine = new StringBuilder();
@@ -58,4 +63,5 @@ public final class TextUtil {
 
         return lines;
     }
+
 }

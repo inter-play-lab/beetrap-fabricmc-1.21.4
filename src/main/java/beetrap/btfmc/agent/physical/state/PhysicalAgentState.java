@@ -11,6 +11,8 @@ import beetrap.btfmc.flower.FlowerPool;
 import beetrap.btfmc.state.BeetrapState;
 import beetrap.btfmc.state.BeetrapStateManager;
 import beetrap.btfmc.tts.SlopTextToSpeechUtil;
+import beetrap.btfmc.util.TextUtil;
+import java.util.List;
 import java.util.function.BiConsumer;
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
 import net.minecraft.entity.passive.BeeEntity;
@@ -33,9 +35,28 @@ public class PhysicalAgentState extends AgentState {
     protected boolean hasNextState;
     protected PhysicalAgentState nextState;
 
+    // Proportional dialogue display system
+    protected boolean isTextDisplayActive;
+    protected String pendingDialogue;
+    protected List<String> textChunks;
+    protected int currentChunkIndex;
+    protected long textDisplayStartTick;
+    protected double audioDurationSeconds;
+    protected String fullDialogue;
+    
+    // Display chunk size for readability
+    protected static final int DISPLAY_CHUNK_LENGTH = 25;
+
     public PhysicalAgentState() {
         super();
         this.currentCommandLock = new Object();
+        this.isTextDisplayActive = false;
+        this.pendingDialogue = null;
+        this.textChunks = null;
+        this.currentChunkIndex = 0;
+        this.textDisplayStartTick = -1;
+        this.audioDurationSeconds = 0;
+        this.fullDialogue = null;
     }
 
     public PhysicalAgentState(PhysicalAgentState state) {
@@ -48,6 +69,13 @@ public class PhysicalAgentState extends AgentState {
         this.flyToPosition = state.flyToPosition;
         this.hasNextState = false;
         this.nextState = null;
+        this.isTextDisplayActive = state.isTextDisplayActive;
+        this.pendingDialogue = state.pendingDialogue;
+        this.textChunks = state.textChunks;
+        this.currentChunkIndex = state.currentChunkIndex;
+        this.textDisplayStartTick = state.textDisplayStartTick;
+        this.audioDurationSeconds = state.audioDurationSeconds;
+        this.fullDialogue = state.fullDialogue;
     }
 
     @Override
@@ -62,11 +90,93 @@ public class PhysicalAgentState extends AgentState {
 
     private void handleSayCommand(String dialogue) {
         if(this.commandTick == 0) {
+            // Send chat message as before
             this.world.getPlayers().forEach(
                     serverPlayerEntity -> serverPlayerEntity.sendMessage(
                             Text.of("<" + this.name + "> " + dialogue)));
-            SlopTextToSpeechUtil.say(dialogue).whenComplete(
-                    (BiConsumer<Object, Throwable>)(o, throwable) -> this.completeCommand());
+
+            // Check if text is currently being displayed
+            if (this.isTextDisplayActive) {
+                // Queue the new dialogue instead of interrupting current display
+                this.pendingDialogue = dialogue;
+            } else {
+                // Start the new proportional dialogue display system
+                this.startProportionalDialogue(dialogue);
+            }
+        }
+        // Note: updateTextDisplay() is now called in tick() method to run independently of command system
+    }
+    
+    private void startProportionalDialogue(String dialogue) {
+        this.fullDialogue = dialogue;
+        
+        // Get TTS with duration information
+        SlopTextToSpeechUtil.sayWithDuration(dialogue).thenAccept(ttsResult -> {
+            this.audioDurationSeconds = ttsResult.durationSeconds;
+            
+            // Break dialogue into display chunks
+            this.textChunks = TextUtil.wrapText(dialogue, DISPLAY_CHUNK_LENGTH);
+            this.currentChunkIndex = 0;
+            this.textDisplayStartTick = this.world.getTime();
+            this.isTextDisplayActive = true;
+            
+            // Start showing first chunk immediately
+            if (!this.textChunks.isEmpty()) {
+                this.beeEntity.setCustomName(Text.of(this.textChunks.get(0)));
+                this.beeEntity.setCustomNameVisible(true);
+            }
+            
+            // Handle completion when audio finishes
+            ttsResult.playbackFuture.thenRun(() -> {
+                this.beeEntity.setCustomName(null);
+                this.beeEntity.setCustomNameVisible(false);
+                this.isTextDisplayActive = false;
+                this.completeCommand();
+            });
+        });
+    }
+
+    private void updateTextDisplay() {
+        // Handle proportional chunk display timing
+        if (this.isTextDisplayActive && this.textChunks != null && !this.textChunks.isEmpty()) {
+            long currentTick = this.world.getTime();
+            long elapsedTicks = currentTick - this.textDisplayStartTick;
+            double elapsedSeconds = elapsedTicks / 20.0; // Convert ticks to seconds
+            
+            // Calculate which chunk should be displayed based on proportional timing
+            double totalChars = this.fullDialogue.length();
+            int targetChunkIndex = 0;
+            double accumulatedChars = 0;
+            
+            for (int i = 0; i < this.textChunks.size(); i++) {
+                double chunkChars = this.textChunks.get(i).length();
+                double chunkEndTime = ((accumulatedChars + chunkChars) / totalChars) * this.audioDurationSeconds;
+                
+                if (elapsedSeconds <= chunkEndTime) {
+                    targetChunkIndex = i;
+                    break;
+                }
+                
+                accumulatedChars += chunkChars;
+                targetChunkIndex = i + 1; // In case we're at the end
+            }
+            
+            // Ensure we don't go beyond the last chunk
+            targetChunkIndex = Math.min(targetChunkIndex, this.textChunks.size() - 1);
+            
+            // Update display if chunk changed
+            if (targetChunkIndex != this.currentChunkIndex) {
+                this.currentChunkIndex = targetChunkIndex;
+                this.beeEntity.setCustomName(Text.of(this.textChunks.get(this.currentChunkIndex)));
+                this.beeEntity.setCustomNameVisible(true);
+            }
+        }
+        
+        // Handle pending dialogue processing
+        if (!this.isTextDisplayActive && this.pendingDialogue != null) {
+            String nextDialogue = this.pendingDialogue;
+            this.pendingDialogue = null;
+            this.startProportionalDialogue(nextDialogue);
         }
     }
 
@@ -176,6 +286,10 @@ public class PhysicalAgentState extends AgentState {
         if(this.beeEntity == null) {
             this.beeEntity = this.physicalAgent.getBeeEntity();
         }
+
+        // Update text display independently of command system
+        // This ensures text continues to update even after commands complete
+        this.updateTextDisplay();
 
         if(!this.agent.hasNextCommand()) {
             this.beeEntity.lookAt(EntityAnchor.EYES, this.world.getPlayers().getFirst().getPos());
